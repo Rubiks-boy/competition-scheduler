@@ -45,7 +45,7 @@ export const reducer = (state: State, action: Action): State => {
         ...state,
         wcifPending: false,
         wcif,
-        rounds: wcifEventsToRounds(wcif.events),
+        rounds: wcifEventsToRounds(wcif.events, wcif.competitorLimit),
       };
     case "FETCH_WCIF_ERROR":
       return {

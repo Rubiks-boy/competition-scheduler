@@ -1,4 +1,4 @@
-import { TIME_PER_GROUP } from "../constants";
+import { HISTORICAL_PNW_REGISTRATION, TIME_PER_GROUP } from "../constants";
 import { EventId, Round } from "../types";
 
 export const compPerStationsRatio = (
@@ -21,3 +21,8 @@ export const calcTimeForRound = (
   // round up to the nearest 5 mins
   return Math.ceil(calculatedTime / 5) * 5;
 };
+
+export const calcExpectedNumCompetitors = (
+  eventId: EventId,
+  competitorLimit: number
+) => Math.floor(competitorLimit * HISTORICAL_PNW_REGISTRATION[eventId]);
