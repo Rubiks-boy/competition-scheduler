@@ -1,7 +1,7 @@
 import React from "react";
 import { IconButton, TableCell, TableRow, TextField } from "@mui/material";
 import { AddCircle, Close } from "@mui/icons-material";
-import { useSelector } from "../../app/hooks";
+import { useDispatch, useSelector } from "../../app/hooks";
 import { numStationsSelector, wcifEventsSelector } from "../../app/selectors";
 import { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
@@ -12,6 +12,8 @@ import {
 
 export const RoundTableRow = ({ round }: { round: Round }) => {
   const { eventId, roundNum, numCompetitors, numGroups, scheduledTime } = round;
+
+  const dispatch = useDispatch();
 
   const numStations = useSelector(numStationsSelector);
   const wcifEvents = useSelector(wcifEventsSelector);
@@ -31,7 +33,15 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
           size="small"
           type="number"
           value={numCompetitors ?? ""}
-          // onChange={() => {}}
+          onChange={(e) => {
+            const numCompetitors = parseInt(e.target.value, 10);
+            dispatch({
+              type: "ROUND_UPDATED",
+              eventId,
+              roundNum,
+              numCompetitors,
+            });
+          }}
         />
       </TableCell>
       <TableCell align="right">
@@ -40,7 +50,15 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
           size="small"
           type="number"
           value={numGroups ?? ""}
-          // onChange={() => {}}
+          onChange={(e) => {
+            const numGroups = parseInt(e.target.value, 10);
+            dispatch({
+              type: "ROUND_UPDATED",
+              eventId,
+              roundNum,
+              numGroups,
+            });
+          }}
         />
       </TableCell>
       <TableCell align="right">
@@ -55,7 +73,15 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
           size="small"
           type="number"
           value={scheduledTime ?? ""}
-          // onChange={() => {}}
+          onChange={(e) => {
+            const scheduledTime = parseInt(e.target.value, 10);
+            dispatch({
+              type: "ROUND_UPDATED",
+              eventId,
+              roundNum,
+              scheduledTime,
+            });
+          }}
         />
       </TableCell>
       <TableCell align="right">

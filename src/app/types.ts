@@ -1,4 +1,4 @@
-import { Wcif, ManageableCompetition, Round } from "../types";
+import { Wcif, ManageableCompetition, Round, EventId } from "../types";
 
 export type State = {
   accessToken: string | null;
@@ -48,4 +48,12 @@ export type Action =
   | {
       type: "START_TIME_CHANGED";
       startTime: Date;
+    }
+  | {
+      type: "ROUND_UPDATED";
+      eventId: EventId;
+      roundNum: number;
+      numCompetitors?: number;
+      numGroups?: number;
+      scheduledTime?: number;
     };

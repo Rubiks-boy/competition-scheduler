@@ -79,6 +79,31 @@ export const reducer = (state: State, action: Action): State => {
         startTime,
       };
 
+    case "ROUND_UPDATED":
+      const oldRoundIndex = state.rounds.findIndex(
+        ({ eventId, roundNum }) =>
+          eventId === action.eventId && roundNum === action.roundNum
+      );
+
+      if (oldRoundIndex === -1) {
+        return state;
+      }
+
+      const newRound = {
+        ...state.rounds[oldRoundIndex],
+        ...(action.numCompetitors && { numCompetitors: action.numCompetitors }),
+        ...(action.numGroups && { numGroups: action.numGroups }),
+        ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
+      };
+
+      const newRounds = [...state.rounds];
+      newRounds[oldRoundIndex] = newRound;
+
+      return {
+        ...state,
+        rounds: newRounds,
+      };
+
     default:
       return state;
   }
