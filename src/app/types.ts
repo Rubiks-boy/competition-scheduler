@@ -51,19 +51,17 @@ export type Action =
     }
   | {
       type: "ROUND_UPDATED";
-      eventId: EventId;
-      roundNum: number;
+      roundIndex: number;
       numCompetitors?: number;
       numGroups?: number;
       scheduledTime?: number;
     }
   | {
       type: "REMOVE_ROUND";
-      eventId: EventId;
-      roundNum: number;
+      roundIndex: number;
     }
   | {
       type: "ADD_ROUND";
       eventId: EventId;
-      roundNum: number;
+      afterIndex: number;
     };

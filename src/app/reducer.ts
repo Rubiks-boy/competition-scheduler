@@ -80,24 +80,15 @@ export const reducer = (state: State, action: Action): State => {
       };
 
     case "ROUND_UPDATED":
-      const oldRoundIndex = state.rounds.findIndex(
-        ({ eventId, roundNum }) =>
-          eventId === action.eventId && roundNum === action.roundNum
-      );
-
-      if (oldRoundIndex === -1) {
-        return state;
-      }
-
       const newRound = {
-        ...state.rounds[oldRoundIndex],
+        ...state.rounds[action.roundIndex],
         ...(action.numCompetitors && { numCompetitors: action.numCompetitors }),
         ...(action.numGroups && { numGroups: action.numGroups }),
         ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
       };
 
       const updatedRounds = [...state.rounds];
-      updatedRounds[oldRoundIndex] = newRound;
+      updatedRounds[action.roundIndex] = newRound;
 
       return {
         ...state,
@@ -105,63 +96,22 @@ export const reducer = (state: State, action: Action): State => {
       };
 
     case "REMOVE_ROUND":
-      const newRounds = state.rounds
-        // Remove the round
-        .filter(
-          ({ eventId, roundNum }) =>
-            eventId !== action.eventId || roundNum !== action.roundNum
-        )
-        // Fix the index of subsequent rounds
-        .map((round) => {
-          const { eventId, roundNum } = round;
-          if (eventId !== action.eventId || roundNum < action.roundNum) {
-            return round;
-          }
-
-          return {
-            ...round,
-            roundNum: round.roundNum - 1,
-          };
-        });
+      const withoutRemovedRound = [...state.rounds];
+      withoutRemovedRound.splice(action.roundIndex, 1);
 
       return {
         ...state,
-        rounds: newRounds,
+        rounds: withoutRemovedRound,
       };
 
     case "ADD_ROUND":
-      // Index of the button the user pressed "+" on
-      const currentRoundIndex = state.rounds.findIndex(
-        ({ eventId, roundNum }) =>
-          eventId === action.eventId && roundNum === action.roundNum - 1
-      );
-
-      if (currentRoundIndex === -1) {
-        return state;
-      }
-
-      const withAddedRound = [...state.rounds] // Fix the index of subsequent rounds
-        .map((round) => {
-          const { eventId, roundNum } = round;
-          if (eventId !== action.eventId || roundNum < action.roundNum) {
-            return round;
-          }
-
-          return {
-            ...round,
-            roundNum: round.roundNum + 1,
-          };
-        });
-
-      withAddedRound.splice(currentRoundIndex + 1, 0, {
+      const withAddedRound = [...state.rounds];
+      withAddedRound.splice(action.afterIndex + 1, 0, {
         eventId: action.eventId,
-        roundNum: action.roundNum,
         numCompetitors: null,
         numGroups: null,
         scheduledTime: null,
       });
-
-      // TODO fix isFinalRound logic
 
       return {
         ...state,

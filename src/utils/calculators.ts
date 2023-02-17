@@ -58,3 +58,25 @@ export const calcNumGroups = ({
     ? numGroupsOptions[0]
     : numGroupsOptions[1];
 };
+
+export const calcRoundNum = (roundIndex: number, rounds: Array<Round>) => {
+  const { eventId } = rounds[roundIndex];
+
+  const numPrecedingRounds = rounds
+    .slice(0, roundIndex)
+    .filter((round) => round.eventId === eventId).length;
+
+  return numPrecedingRounds + 1;
+};
+
+export const isFinalRound = (roundIndex: number, rounds: Array<Round>) => {
+  const { eventId } = rounds[roundIndex];
+
+  const roundNum = calcRoundNum(roundIndex, rounds);
+
+  const numRoundsForEvent = rounds.filter(
+    (round) => round.eventId === eventId
+  ).length;
+
+  return numRoundsForEvent === roundNum + 1;
+};

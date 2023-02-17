@@ -7,29 +7,34 @@ import { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
 import {
   calcTimeForRound,
+  calcRoundNum,
   compPerStationsRatio,
 } from "../../utils/calculators";
 
-export const RoundTableRow = ({ round }: { round: Round }) => {
-  const { eventId, roundNum, numCompetitors, numGroups, scheduledTime } = round;
+export const RoundTableRow = ({
+  round,
+  roundIndex,
+}: {
+  round: Round;
+  roundIndex: number;
+}) => {
+  const { eventId, numCompetitors, numGroups, scheduledTime } = round;
 
   const dispatch = useDispatch();
 
   const numStations = useSelector(numStationsSelector);
-
   const rounds = useSelector(roundsSelector);
 
+  const roundNum = calcRoundNum(roundIndex, rounds);
   const numRoundsForEvent = rounds.filter(
     (round) => round.eventId === eventId
   ).length;
-
-  const isFinalRound = numRoundsForEvent === roundNum + 1;
+  const isFinalRound = numRoundsForEvent === roundNum;
 
   return (
     <TableRow key={`${eventId}-${roundNum}`}>
       <TableCell component="th" scope="row">
-        {EVENT_NAMES[eventId]}{" "}
-        {isFinalRound ? "final" : `Round ${roundNum + 1}`}
+        {EVENT_NAMES[eventId]} {isFinalRound ? "final" : `Round ${roundNum}`}
       </TableCell>
       <TableCell align="right">
         <TextField
@@ -41,8 +46,7 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
             const numCompetitors = parseInt(e.target.value, 10);
             dispatch({
               type: "ROUND_UPDATED",
-              eventId,
-              roundNum,
+              roundIndex,
               numCompetitors,
             });
           }}
@@ -58,8 +62,7 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
             const numGroups = parseInt(e.target.value, 10);
             dispatch({
               type: "ROUND_UPDATED",
-              eventId,
-              roundNum,
+              roundIndex,
               numGroups,
             });
           }}
@@ -81,8 +84,7 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
             const scheduledTime = parseInt(e.target.value, 10);
             dispatch({
               type: "ROUND_UPDATED",
-              eventId,
-              roundNum,
+              roundIndex,
               scheduledTime,
             });
           }}
@@ -95,7 +97,7 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
               dispatch({
                 type: "ADD_ROUND",
                 eventId,
-                roundNum: roundNum + 1,
+                afterIndex: roundIndex,
               });
             }}
           >
@@ -105,8 +107,7 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
             onClick={() => {
               dispatch({
                 type: "REMOVE_ROUND",
-                eventId,
-                roundNum,
+                roundIndex,
               });
             }}
           >

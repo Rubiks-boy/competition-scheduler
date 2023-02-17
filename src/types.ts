@@ -42,7 +42,6 @@ export type ManageableCompetition = {
 
 export type Round = {
   eventId: EventId;
-  roundNum: number;
   numCompetitors: number | null;
   numGroups: number | null;
   scheduledTime: number | null;
