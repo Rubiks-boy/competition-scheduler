@@ -1,17 +1,6 @@
 import React, { createContext, ReactNode, useReducer } from "react";
-import { reducer } from "./reducer";
-import type { Action, State } from "./types";
-
-const initialState: State = {
-  accessToken: null,
-  manageableCompsPending: false,
-  manageableComps: [],
-  selectedCompId: null,
-  numStations: 8,
-  startTime: new Date(1000 * 60 * 60 * 17),
-  wcifPending: false,
-  wcif: null,
-};
+import { initialState, reducer } from "./reducer";
+import type { Action } from "./types";
 
 export const StateContext = createContext({
   state: initialState,

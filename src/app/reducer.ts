@@ -1,5 +1,16 @@
 import type { State, Action } from "./types";
 
+export const initialState: State = {
+  accessToken: null,
+  manageableCompsPending: false,
+  manageableComps: [],
+  selectedCompId: null,
+  numStations: 8,
+  startTime: new Date(1000 * 60 * 60 * 17),
+  wcifPending: false,
+  wcif: null,
+};
+
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "SIGNIN_COMPLETE":
