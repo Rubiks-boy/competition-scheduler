@@ -1,3 +1,4 @@
+import { wcifEventsToRounds } from "../utils/wcif";
 import type { State, Action } from "./types";
 
 export const initialState: State = {
@@ -9,6 +10,7 @@ export const initialState: State = {
   startTime: new Date(1000 * 60 * 60 * 17),
   wcifPending: false,
   wcif: null,
+  rounds: [],
 };
 
 export const reducer = (state: State, action: Action): State => {
@@ -43,12 +45,14 @@ export const reducer = (state: State, action: Action): State => {
         ...state,
         wcifPending: false,
         wcif,
+        rounds: wcifEventsToRounds(wcif.events),
       };
     case "FETCH_WCIF_ERROR":
       return {
         ...state,
         wcifPending: false,
         wcif: null,
+        rounds: [],
       };
 
     case "COMP_SELECTED":

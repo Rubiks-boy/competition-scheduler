@@ -17,3 +17,7 @@ export const manageableCompsPendingSelector = (state: State) =>
 export const numStationsSelector = (state: State) => state.numStations;
 
 export const startTimeSelector = (state: State) => state.startTime;
+
+export const roundsSelector = (state: State) => state.rounds;
+
+export const wcifEventsSelector = (state: State) => state.wcif?.events || [];

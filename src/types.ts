@@ -1,4 +1,4 @@
-type EventId =
+export type EventId =
   | "333"
   | "222"
   | "444"
@@ -33,4 +33,17 @@ export type WcifEvent = {
 export type Wcif = {
   competitorLimit: number;
   events: Array<WcifEvent>;
+};
+
+export type ManageableCompetition = {
+  id: string;
+  name: string;
+};
+
+export type Round = {
+  eventId: EventId;
+  roundNum: number;
+  numCompetitors: number | null;
+  numGroups: number | null;
+  scheduledTime: number | null;
 };

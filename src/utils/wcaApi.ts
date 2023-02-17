@@ -1,6 +1,6 @@
-import { ManageableCompetition } from "../app/types";
-import { Wcif } from "../types";
 import { WCA_ORIGIN } from "./auth";
+import type { ManageableCompetition } from "../types";
+import type { Wcif } from "../types";
 
 const wcaApiFetch = (
   path: string,

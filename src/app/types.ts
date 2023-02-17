@@ -1,9 +1,4 @@
-import { Wcif } from "../types";
-
-export type ManageableCompetition = {
-  id: string;
-  name: string;
-};
+import { Wcif, ManageableCompetition, Round } from "../types";
 
 export type State = {
   accessToken: string | null;
@@ -14,6 +9,7 @@ export type State = {
   selectedCompId: string | null;
   numStations: number;
   startTime: Date;
+  rounds: Array<Round>;
 };
 
 export type Action =
