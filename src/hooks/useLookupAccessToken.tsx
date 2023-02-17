@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch } from "../app/hooks";
 import { wcaAccessToken } from "../utils/auth";
 
@@ -11,5 +11,5 @@ export const useLookupAccessToken = () => {
     if (accessToken) {
       dispatch({ type: "SIGNIN_COMPLETE", accessToken });
     }
-  });
+  }, [dispatch]);
 };
