@@ -1,18 +1,19 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { isSignedInSelector, signIn, signOut } from "../../app/authSlice";
+import { useAppSelector } from "../../app/hooks";
+import { isSignedInSelector } from "../../app/authSlice";
+import { signIn, deleteAccessToken } from "../../utils/auth";
 
 export const SignIn = () => {
   const isSignedIn = useAppSelector(isSignedInSelector);
-  const dispatch = useAppDispatch();
 
   const handleSignIn = () => {
-    dispatch(signIn());
+    signIn();
   };
 
   const handleSignOut = () => {
-    dispatch(signOut());
+    deleteAccessToken();
+    window.location.reload();
   };
 
   const handleClick = isSignedIn ? handleSignOut : handleSignIn;

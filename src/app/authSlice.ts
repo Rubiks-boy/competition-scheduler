@@ -1,29 +1,53 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { wcaAccessToken } from "../utils/auth";
+import type { RootState } from "./store";
 
 export interface AuthState {
-  isSignedIn: boolean;
+  isSignInPending: boolean;
+  accessToken: string | null;
 }
 
 const initialState: AuthState = {
-  isSignedIn: false,
+  isSignInPending: true,
+  accessToken: null,
 };
+
+export const setAccessToken = createAsyncThunk("auth/signIn", async () =>
+  wcaAccessToken()
+);
 
 export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    signIn: (state) => {
-      state.isSignedIn = true;
-    },
     signOut: (state) => {
-      state.isSignedIn = false;
+      state.accessToken = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(setAccessToken.pending, (state) => {
+        state.isSignInPending = true;
+      })
+      .addCase(setAccessToken.fulfilled, (state, action) => {
+        const accessToken = action.payload;
+
+        state.isSignInPending = false;
+        state.accessToken = accessToken;
+      })
+      .addCase(setAccessToken.rejected, (state) => {
+        state.isSignInPending = false;
+        state.accessToken = null;
+      });
   },
 });
 
-export const { signIn, signOut } = authSlice.actions;
+export const { signOut } = authSlice.actions;
 
-export const isSignedInSelector = (state: RootState) => state.auth.isSignedIn;
+export const isSignedInSelector = (state: RootState) =>
+  !!state.auth.accessToken;
+
+export const isSignInPendingSelector = (state: RootState) =>
+  state.auth.isSignInPending;
 
 export default authSlice.reducer;
