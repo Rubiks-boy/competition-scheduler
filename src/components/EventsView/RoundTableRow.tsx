@@ -87,7 +87,13 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
       <TableCell align="right">
         <div className="events-tableIcons">
           <IconButton
-          // onClick={() => {}}
+            onClick={() => {
+              dispatch({
+                type: "ADD_ROUND",
+                eventId,
+                roundNum: roundNum + 1,
+              });
+            }}
           >
             <AddCircle color="primary" fontSize="medium" />
           </IconButton>

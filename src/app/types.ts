@@ -61,4 +61,9 @@ export type Action =
       type: "REMOVE_ROUND";
       eventId: EventId;
       roundNum: number;
+    }
+  | {
+      type: "ADD_ROUND";
+      eventId: EventId;
+      roundNum: number;
     };
