@@ -2,7 +2,7 @@ import React from "react";
 import { IconButton, TableCell, TableRow, TextField } from "@mui/material";
 import { AddCircle, Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "../../app/hooks";
-import { numStationsSelector, wcifEventsSelector } from "../../app/selectors";
+import { numStationsSelector, roundsSelector } from "../../app/selectors";
 import { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
 import {
@@ -16,10 +16,14 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
   const dispatch = useDispatch();
 
   const numStations = useSelector(numStationsSelector);
-  const wcifEvents = useSelector(wcifEventsSelector);
 
-  const isFinalRound =
-    wcifEvents.find(({ id }) => id === eventId)?.rounds.length === roundNum + 1;
+  const rounds = useSelector(roundsSelector);
+
+  const numRoundsForEvent = rounds.filter(
+    (round) => round.eventId === eventId
+  ).length;
+
+  const isFinalRound = numRoundsForEvent === roundNum + 1;
 
   return (
     <TableRow key={`${eventId}-${roundNum}`}>
