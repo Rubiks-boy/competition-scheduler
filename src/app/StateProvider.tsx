@@ -9,6 +9,8 @@ const initialState: State = {
   selectedCompId: null,
   numStations: 8,
   startTime: new Date(1000 * 60 * 60 * 17),
+  wcifPending: false,
+  wcif: null,
 };
 
 export const StateContext = createContext({

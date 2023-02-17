@@ -24,6 +24,22 @@ export const reducer = (state: State, action: Action): State => {
         selectedCompId: null,
       };
 
+    case "FETCH_WCIF_PENDING":
+      return { ...state, wcifPending: true };
+    case "FETCH_WCIF_SUCCESS":
+      const { wcif } = action;
+      return {
+        ...state,
+        wcifPending: false,
+        wcif,
+      };
+    case "FETCH_WCIF_ERROR":
+      return {
+        ...state,
+        wcifPending: false,
+        wcif: null,
+      };
+
     case "COMP_SELECTED":
       const { newId } = action;
       return {

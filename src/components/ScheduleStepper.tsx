@@ -9,6 +9,7 @@ import CompetitionView from "./CompetitionView";
 import { useSelector } from "../app/hooks";
 import { SignIn } from "./Header/SignIn";
 import { isSignedInSelector } from "../app/selectors";
+import EventsView from "./EventsView";
 
 const steps = ["Configure competition", "Events", "Schedule"];
 
@@ -17,6 +18,7 @@ const StepContent = ({ activeStep }: { activeStep: number }) => {
     case 0:
       return <CompetitionView />;
     case 1:
+      return <EventsView />;
     case 2:
       return <div>{steps[activeStep]}</div>;
     default:
