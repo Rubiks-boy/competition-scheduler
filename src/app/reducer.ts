@@ -1,4 +1,4 @@
-import { wcifEventsToRounds } from "../utils/wcif";
+import { getDefaultRoundData } from "../utils/wcif";
 import type { State, Action } from "./types";
 
 export const initialState: State = {
@@ -45,7 +45,10 @@ export const reducer = (state: State, action: Action): State => {
         ...state,
         wcifPending: false,
         wcif,
-        rounds: wcifEventsToRounds(wcif.events, wcif.competitorLimit),
+        rounds: getDefaultRoundData({
+          wcif,
+          numStations: state.numStations,
+        }),
       };
     case "FETCH_WCIF_ERROR":
       return {
