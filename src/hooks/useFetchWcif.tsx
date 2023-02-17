@@ -9,10 +9,16 @@ export const useFetchWcif = () => {
 
   const selectedComp = useSelector(selectedCompSelector);
 
-  const [hasDispatched, setHasDispatched] = useState(false);
+  const [compCurrentlyFetched, setCompCurrentlyFetched] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
-    if (hasDispatched || !accessToken || !selectedComp) {
+    if (
+      !accessToken ||
+      !selectedComp ||
+      compCurrentlyFetched === selectedComp.id
+    ) {
       return;
     }
 
@@ -29,7 +35,7 @@ export const useFetchWcif = () => {
       dispatch({ type: "FETCH_WCIF_SUCCESS", wcif });
     };
 
-    setHasDispatched(true);
+    setCompCurrentlyFetched(selectedComp?.id);
     runEffect();
-  }, [dispatch, hasDispatched, accessToken, selectedComp]);
+  }, [accessToken, compCurrentlyFetched, dispatch, selectedComp]);
 };
