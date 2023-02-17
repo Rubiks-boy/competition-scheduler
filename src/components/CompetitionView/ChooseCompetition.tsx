@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FormControl,
   InputLabel,
@@ -7,21 +7,30 @@ import {
   SelectChangeEvent,
   Grid,
 } from "@mui/material";
-
-const manageableCompetitions = [
-  { id: "BobcatBattle2023", name: "Bobcat Battle 2023" },
-  { id: "SleeplessinSeattle2023", name: "Sleepless in Seattle 2023" },
-];
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {
+  competitionSelected,
+  currentCompSelector,
+  manageableCompsSelector,
+} from "../../app/competitionsSlice";
 
 export const ChooseCompetition = () => {
-  const [selectedCompetition, setSelectedCompetition] = useState(
-    manageableCompetitions[0].id
-  );
+  const manageableComps = useAppSelector(manageableCompsSelector);
+  const selectedComps = useAppSelector(currentCompSelector);
+  const dispatch = useAppDispatch();
+
+  if (!selectedComps) {
+    return null;
+  }
 
   const handleChooseComp = (e: SelectChangeEvent<string | null>) => {
-    if (e.target.value) {
-      setSelectedCompetition(e.target.value);
+    const newId = e.target.value;
+
+    if (!newId) {
+      return;
     }
+
+    dispatch(competitionSelected(newId));
   };
 
   return (
@@ -32,10 +41,10 @@ export const ChooseCompetition = () => {
           <Select
             labelId="choose-competition-label"
             label="Competition"
-            value={selectedCompetition}
+            value={selectedComps.id}
             onChange={handleChooseComp}
           >
-            {manageableCompetitions.map(({ id, name }) => (
+            {manageableComps.map(({ id, name }) => (
               <MenuItem value={id}>{name}</MenuItem>
             ))}
           </Select>
