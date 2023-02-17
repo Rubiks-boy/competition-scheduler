@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Paper,
   Table,
@@ -6,6 +6,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
@@ -20,6 +21,16 @@ const EventsView = () => {
   const rounds = useSelector(roundsSelector);
   const numStations = useSelector(numStationsSelector);
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
   const makeOnUpdateRound = (roundIndex: number) => {
     return (
       field: "numCompetitors" | "numGroups" | "scheduledTime",
@@ -32,6 +43,29 @@ const EventsView = () => {
       });
     };
   };
+
+  const roundRows = rounds.map(({ eventId }, roundIndex) => (
+    <RoundRow
+      key={roundIndex}
+      rounds={rounds}
+      roundIndex={roundIndex}
+      numStations={numStations}
+      onUpdateRound={makeOnUpdateRound(roundIndex)}
+      onAddRound={() => {
+        dispatch({
+          type: "ADD_ROUND",
+          eventId,
+          afterIndex: roundIndex,
+        });
+      }}
+      onRemoveRound={() => {
+        dispatch({
+          type: "REMOVE_ROUND",
+          roundIndex,
+        });
+      }}
+    />
+  ));
 
   return (
     <TableContainer component={Paper} elevation={3}>
@@ -48,30 +82,21 @@ const EventsView = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rounds.map(({ eventId }, roundIndex) => (
-            <RoundRow
-              key={roundIndex}
-              rounds={rounds}
-              roundIndex={roundIndex}
-              numStations={numStations}
-              onUpdateRound={makeOnUpdateRound(roundIndex)}
-              onAddRound={() => {
-                dispatch({
-                  type: "ADD_ROUND",
-                  eventId,
-                  afterIndex: roundIndex,
-                });
-              }}
-              onRemoveRound={() => {
-                dispatch({
-                  type: "REMOVE_ROUND",
-                  roundIndex,
-                });
-              }}
-            />
-          ))}
+          {roundRows.slice(
+            page * rowsPerPage,
+            page * rowsPerPage + rowsPerPage
+          )}
         </TableBody>
       </Table>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
+        component="div"
+        count={rounds.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </TableContainer>
   );
 };
