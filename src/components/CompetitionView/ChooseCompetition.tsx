@@ -7,17 +7,16 @@ import {
   SelectChangeEvent,
   Grid,
 } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useDispatch, useSelector } from "../../app/hooks";
 import {
-  competitionSelected,
-  currentCompSelector,
   manageableCompsSelector,
-} from "../../app/competitionsSlice";
+  selectedCompSelector,
+} from "../../app/selectors";
 
 export const ChooseCompetition = () => {
-  const manageableComps = useAppSelector(manageableCompsSelector);
-  const selectedComps = useAppSelector(currentCompSelector);
-  const dispatch = useAppDispatch();
+  const manageableComps = useSelector(manageableCompsSelector);
+  const selectedComps = useSelector(selectedCompSelector);
+  const dispatch = useDispatch();
 
   if (!selectedComps) {
     return null;
@@ -30,7 +29,7 @@ export const ChooseCompetition = () => {
       return;
     }
 
-    dispatch(competitionSelected(newId));
+    dispatch({ type: "COMP_SELECTED", newId });
   };
 
   return (

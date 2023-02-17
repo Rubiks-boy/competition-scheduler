@@ -1,11 +1,11 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { useAppSelector } from "../../app/hooks";
-import { isSignedInSelector } from "../../app/authSlice";
+import { useSelector } from "../../app/hooks";
 import { signIn, deleteAccessToken } from "../../utils/auth";
+import { isSignedInSelector } from "../../app/selectors";
 
 export const SignIn = () => {
-  const isSignedIn = useAppSelector(isSignedInSelector);
+  const isSignedIn = useSelector(isSignedInSelector);
 
   const handleSignIn = () => {
     signIn();

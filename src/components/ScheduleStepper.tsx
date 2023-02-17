@@ -6,9 +6,9 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CompetitionView from "./CompetitionView";
-import { useAppSelector } from "../app/hooks";
-import { isSignedInSelector, isSignInPendingSelector } from "../app/authSlice";
+import { useSelector } from "../app/hooks";
 import { SignIn } from "./Header/SignIn";
+import { isSignedInSelector } from "../app/selectors";
 
 const steps = ["Configure competition", "Events", "Schedule"];
 
@@ -26,8 +26,7 @@ const StepContent = ({ activeStep }: { activeStep: number }) => {
 
 export const ScheduleStepper = () => {
   const [activeStep, setActiveStep] = React.useState(0);
-  const isSignedIn = useAppSelector(isSignedInSelector);
-  const isSignInPending = useAppSelector(isSignInPendingSelector);
+  const isSignedIn = useSelector(isSignedInSelector);
 
   const handleNext = () =>
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -38,10 +37,6 @@ export const ScheduleStepper = () => {
   const handleReset = () => {
     setActiveStep(0);
   };
-
-  if (isSignInPending) {
-    return <>loading...</>;
-  }
 
   if (!isSignedIn) {
     return <SignIn />;

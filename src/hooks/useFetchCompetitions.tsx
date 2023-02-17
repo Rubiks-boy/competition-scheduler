@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { accessTokenSelector } from "../app/authSlice";
-import {
-  fetchManageableComps,
-  isCompRequestPendingSelector,
-} from "../app/competitionsSlice";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { accessTokenSelector } from "../app/selectors";
+import { useDispatch, useSelector } from "../app/hooks";
+import { fetchUpcomingManageableCompetitions } from "../utils/wcaApi";
 
 export const useFetchCompetitions = () => {
-  const dispatch = useAppDispatch();
-
-  const isCompRequestPending = useAppSelector(isCompRequestPendingSelector);
-  const accessToken = useAppSelector(accessTokenSelector);
+  const dispatch = useDispatch();
+  const accessToken = useSelector(accessTokenSelector);
 
   const [hasDispatched, setHasDispatched] = useState(false);
 
@@ -19,9 +14,22 @@ export const useFetchCompetitions = () => {
       return;
     }
 
-    dispatch(fetchManageableComps(accessToken));
-    setHasDispatched(true);
-  }, [dispatch, hasDispatched, accessToken]);
+    const fetchManageableComps = async () => {
+      dispatch({ type: "MANAGEABLE_COMPS_PENDING" });
 
-  return hasDispatched && !isCompRequestPending;
+      const manageableComps = await fetchUpcomingManageableCompetitions(
+        accessToken
+      );
+
+      if (!manageableComps) {
+        dispatch({ type: "MANAGEABLE_COMPS_ERROR" });
+        return;
+      }
+
+      dispatch({ type: "MANAGEABLE_COMPS_SUCCESS", manageableComps });
+    };
+
+    setHasDispatched(true);
+    fetchManageableComps();
+  }, [dispatch, hasDispatched, accessToken]);
 };

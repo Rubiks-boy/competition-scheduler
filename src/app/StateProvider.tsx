@@ -1,0 +1,25 @@
+import React, { createContext, ReactNode, useReducer } from "react";
+import { reducer } from "./reducer";
+import type { Action, State } from "./types";
+
+const initialState: State = {
+  accessToken: null,
+  manageableCompsPending: false,
+  manageableComps: [],
+  selectedCompId: null,
+};
+
+export const StateContext = createContext({
+  state: initialState,
+  dispatch: (_: Action) => {},
+});
+
+export const StateProvider = ({ children }: { children: ReactNode }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <StateContext.Provider value={{ state, dispatch }}>
+      {children}
+    </StateContext.Provider>
+  );
+};

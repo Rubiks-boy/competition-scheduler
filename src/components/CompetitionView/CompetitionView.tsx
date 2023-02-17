@@ -1,13 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ChooseCompetition } from "./ChooseCompetition";
 import { ConfigureCompetition } from "./ConfigureCompetition";
 import { Grid } from "@mui/material";
+import { useSelector } from "../../app/hooks";
+import { manageableCompsPendingSelector } from "../../app/selectors";
 import { useFetchCompetitions } from "../../hooks/useFetchCompetitions";
 
 export const CompetitionView = () => {
-  const hasFetchedCompetitions = useFetchCompetitions();
+  useFetchCompetitions();
+  const manageableCompsPending = useSelector(manageableCompsPendingSelector);
 
-  if (!hasFetchedCompetitions) {
+  if (manageableCompsPending) {
     return <>loading...</>;
   }
 
