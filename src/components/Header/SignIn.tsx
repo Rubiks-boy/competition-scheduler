@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { isSignedInSelector, signIn, signOut } from "../../app/authSlice";
 
 export const SignIn = () => {
-  const [signedIn, setSignedIn] = useState(false);
+  const isSignedIn = useAppSelector(isSignedInSelector);
+  const dispatch = useAppDispatch();
 
   const handleSignIn = () => {
-    setSignedIn(true);
+    dispatch(signIn());
   };
 
   const handleSignOut = () => {
-    setSignedIn(false);
+    dispatch(signOut());
   };
 
-  const handleClick = signedIn ? handleSignOut : handleSignIn;
+  const handleClick = isSignedIn ? handleSignOut : handleSignIn;
 
   return (
     <Button onClick={handleClick} color="inherit">
-      {signedIn ? "Sign out" : "Sign in"}
+      {isSignedIn ? "Sign out" : "Sign in"}
     </Button>
   );
 };
