@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { ManageableCompetition } from "../types";
+import { fetchUpcomingManageableCompetitions } from "../utils/wcaApi";
 import type { RootState } from "./store";
 
 export interface CompetitionsState {
@@ -16,11 +17,8 @@ const initialState: CompetitionsState = {
 
 export const fetchManageableComps = createAsyncThunk(
   "competitions/fetchManageableComps",
-  async () => {
-    return [
-      { id: "BobcatBattle2023", name: "Bobcat Battle 2023" },
-      { id: "SleeplessinSeattle2023", name: "Sleepless in Seattle 2023" },
-    ];
+  async (accessToken: string) => {
+    return fetchUpcomingManageableCompetitions(accessToken);
   }
 );
 

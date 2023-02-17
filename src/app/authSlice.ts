@@ -44,6 +44,8 @@ export const authSlice = createSlice({
 
 export const { signOut } = authSlice.actions;
 
+export const accessTokenSelector = (state: RootState) => state.auth.accessToken;
+
 export const isSignedInSelector = (state: RootState) =>
   !!state.auth.accessToken;
 
