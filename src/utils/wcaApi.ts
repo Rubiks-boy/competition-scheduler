@@ -1,4 +1,5 @@
 import { ManageableCompetition } from "../app/types";
+import { Wcif } from "../types";
 import { WCA_ORIGIN } from "./auth";
 
 const wcaApiFetch = (
@@ -33,4 +34,14 @@ export const fetchUpcomingManageableCompetitions = (
     start: oneWeekAgo.toISOString(),
   });
   return wcaApiFetch(`/competitions?${params.toString()}`, wcaAccessToken);
+};
+
+export const fetchWcif = (
+  competitionId: string,
+  wcaAccessToken: string
+): Promise<Wcif> => {
+  return wcaApiFetch(
+    `/competitions/${competitionId}/wcif/public`,
+    wcaAccessToken
+  );
 };
