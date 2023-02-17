@@ -8,6 +8,8 @@ export type State = {
   manageableCompsPending: boolean;
   manageableComps: Array<ManageableCompetition>;
   selectedCompId: string | null;
+  numStations: number;
+  startTime: Date;
 };
 
 export type Action =
@@ -28,4 +30,12 @@ export type Action =
   | {
       type: "COMP_SELECTED";
       newId: string;
+    }
+  | {
+      type: "NUM_STATIONS_CHANGED";
+      numStations: number;
+    }
+  | {
+      type: "START_TIME_CHANGED";
+      startTime: Date;
     };

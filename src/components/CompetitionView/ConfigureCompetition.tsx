@@ -1,9 +1,29 @@
 import { Grid, TextField } from "@mui/material";
+import { useDispatch, useSelector } from "../../app/hooks";
+import { numStationsSelector, startTimeSelector } from "../../app/selectors";
 import { TimePicker } from "../TimePicker";
 
 export const ConfigureCompetition = () => {
-  const numStations = 8;
-  const startTime = new Date(0);
+  const dispatch = useDispatch();
+  const numStations = useSelector(numStationsSelector);
+  const startTime = useSelector(startTimeSelector);
+
+  const onNumStationsChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const newNumStations = parseInt(e.target.value, 10);
+    dispatch({
+      type: "NUM_STATIONS_CHANGED",
+      numStations: newNumStations,
+    });
+  };
+
+  const onStartTimeChange = (startTime: Date) => {
+    dispatch({
+      type: "START_TIME_CHANGED",
+      startTime,
+    });
+  };
 
   return (
     <>
@@ -13,11 +33,15 @@ export const ConfigureCompetition = () => {
           label="Stations"
           type="number"
           value={numStations}
-          onChange={() => {}}
+          onChange={onNumStationsChange}
         />
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
-        <TimePicker label="Start time" time={startTime} onChange={() => {}} />
+        <TimePicker
+          label="Start time"
+          time={startTime}
+          onChange={onStartTimeChange}
+        />
       </Grid>
     </>
   );

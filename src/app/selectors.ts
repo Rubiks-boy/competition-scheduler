@@ -13,3 +13,7 @@ export const selectedCompSelector = (state: State) => {
 
 export const manageableCompsPendingSelector = (state: State) =>
   state.manageableCompsPending;
+
+export const numStationsSelector = (state: State) => state.numStations;
+
+export const startTimeSelector = (state: State) => state.startTime;

@@ -7,6 +7,8 @@ const initialState: State = {
   manageableCompsPending: false,
   manageableComps: [],
   selectedCompId: null,
+  numStations: 8,
+  startTime: new Date(1000 * 60 * 60 * 17),
 };
 
 export const StateContext = createContext({

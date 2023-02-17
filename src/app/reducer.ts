@@ -31,6 +31,20 @@ export const reducer = (state: State, action: Action): State => {
         selectedCompId: newId,
       };
 
+    case "NUM_STATIONS_CHANGED":
+      const { numStations } = action;
+      return {
+        ...state,
+        numStations,
+      };
+
+    case "START_TIME_CHANGED":
+      const { startTime } = action;
+      return {
+        ...state,
+        startTime,
+      };
+
     default:
       return state;
   }
