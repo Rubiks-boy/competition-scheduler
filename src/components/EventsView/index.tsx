@@ -33,7 +33,10 @@ const EventsView = () => {
         </TableHead>
         <TableBody>
           {rounds.map((round) => (
-            <RoundTableRow round={round} />
+            <RoundTableRow
+              key={`${round.eventId}-${round.roundNum}`}
+              round={round}
+            />
           ))}
         </TableBody>
       </Table>

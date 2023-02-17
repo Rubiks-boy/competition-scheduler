@@ -44,7 +44,9 @@ export const ChooseCompetition = () => {
             onChange={handleChooseComp}
           >
             {manageableComps.map(({ id, name }) => (
-              <MenuItem value={id}>{name}</MenuItem>
+              <MenuItem value={id} key={id}>
+                {name}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
