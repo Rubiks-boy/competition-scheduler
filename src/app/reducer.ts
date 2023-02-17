@@ -96,8 +96,33 @@ export const reducer = (state: State, action: Action): State => {
         ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
       };
 
-      const newRounds = [...state.rounds];
-      newRounds[oldRoundIndex] = newRound;
+      const updatedRounds = [...state.rounds];
+      updatedRounds[oldRoundIndex] = newRound;
+
+      return {
+        ...state,
+        rounds: updatedRounds,
+      };
+
+    case "REMOVE_ROUND":
+      const newRounds = state.rounds
+        // Remove the round
+        .filter(
+          ({ eventId, roundNum }) =>
+            eventId !== action.eventId || roundNum !== action.roundNum
+        )
+        // Fix the index of subsequent rounds
+        .map((round) => {
+          const { eventId, roundNum } = round;
+          if (eventId !== action.eventId || roundNum < action.roundNum) {
+            return round;
+          }
+
+          return {
+            ...round,
+            roundNum: round.roundNum - 1,
+          };
+        });
 
       return {
         ...state,

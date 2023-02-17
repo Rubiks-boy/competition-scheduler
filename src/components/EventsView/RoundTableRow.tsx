@@ -87,12 +87,18 @@ export const RoundTableRow = ({ round }: { round: Round }) => {
       <TableCell align="right">
         <div className="events-tableIcons">
           <IconButton
-          // onChange={() => {}}
+          // onClick={() => {}}
           >
             <AddCircle color="primary" fontSize="medium" />
           </IconButton>
           <IconButton
-          // onChange={() => {}}
+            onClick={() => {
+              dispatch({
+                type: "REMOVE_ROUND",
+                eventId,
+                roundNum,
+              });
+            }}
           >
             <Close color="action" fontSize="small" />
           </IconButton>

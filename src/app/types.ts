@@ -56,4 +56,9 @@ export type Action =
       numCompetitors?: number;
       numGroups?: number;
       scheduledTime?: number;
+    }
+  | {
+      type: "REMOVE_ROUND";
+      eventId: EventId;
+      roundNum: number;
     };
