@@ -8,14 +8,30 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useSelector } from "../../app/hooks";
-import { roundsSelector } from "../../app/selectors";
-import { RoundTableRow } from "./RoundTableRow";
+import { useDispatch, useSelector } from "../../app/hooks";
+import { numStationsSelector, roundsSelector } from "../../app/selectors";
+import { RoundRow } from "./RoundRow";
 
 import "./index.css";
 
 const EventsView = () => {
+  const dispatch = useDispatch();
+
   const rounds = useSelector(roundsSelector);
+  const numStations = useSelector(numStationsSelector);
+
+  const makeOnUpdateRound = (roundIndex: number) => {
+    return (
+      field: "numCompetitors" | "numGroups" | "scheduledTime",
+      value: string
+    ) => {
+      dispatch({
+        type: "ROUND_UPDATED",
+        roundIndex,
+        [field]: parseInt(value, 10),
+      });
+    };
+  };
 
   return (
     <TableContainer component={Paper} elevation={3}>
@@ -32,11 +48,26 @@ const EventsView = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rounds.map((round, roundIndex) => (
-            <RoundTableRow
+          {rounds.map(({ eventId }, roundIndex) => (
+            <RoundRow
               key={roundIndex}
-              round={round}
+              rounds={rounds}
               roundIndex={roundIndex}
+              numStations={numStations}
+              onUpdateRound={makeOnUpdateRound(roundIndex)}
+              onAddRound={() => {
+                dispatch({
+                  type: "ADD_ROUND",
+                  eventId,
+                  afterIndex: roundIndex,
+                });
+              }}
+              onRemoveRound={() => {
+                dispatch({
+                  type: "REMOVE_ROUND",
+                  roundIndex,
+                });
+              }}
             />
           ))}
         </TableBody>

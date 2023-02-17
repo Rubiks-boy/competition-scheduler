@@ -1,9 +1,7 @@
 import React from "react";
 import { IconButton, TableCell, TableRow, TextField } from "@mui/material";
 import { AddCircle, Close } from "@mui/icons-material";
-import { useDispatch, useSelector } from "../../app/hooks";
-import { numStationsSelector, roundsSelector } from "../../app/selectors";
-import { Round } from "../../types";
+import type { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
 import {
   calcTimeForRound,
@@ -11,19 +9,26 @@ import {
   compPerStationsRatio,
 } from "../../utils/calculators";
 
-export const RoundTableRow = ({
-  round,
+export const RoundRow = ({
   roundIndex,
+  rounds,
+  numStations,
+  onUpdateRound,
+  onAddRound,
+  onRemoveRound,
 }: {
-  round: Round;
   roundIndex: number;
+  rounds: Array<Round>;
+  numStations: number;
+  onUpdateRound: (
+    field: "numCompetitors" | "numGroups" | "scheduledTime",
+    value: string
+  ) => void;
+  onAddRound: () => void;
+  onRemoveRound: () => void;
 }) => {
+  const round = rounds[roundIndex];
   const { eventId, numCompetitors, numGroups, scheduledTime } = round;
-
-  const dispatch = useDispatch();
-
-  const numStations = useSelector(numStationsSelector);
-  const rounds = useSelector(roundsSelector);
 
   const roundNum = calcRoundNum(roundIndex, rounds);
   const numRoundsForEvent = rounds.filter(
@@ -42,14 +47,7 @@ export const RoundTableRow = ({
           size="small"
           type="number"
           value={numCompetitors ?? ""}
-          onChange={(e) => {
-            const numCompetitors = parseInt(e.target.value, 10);
-            dispatch({
-              type: "ROUND_UPDATED",
-              roundIndex,
-              numCompetitors,
-            });
-          }}
+          onChange={(e) => onUpdateRound("numCompetitors", e.target.value)}
         />
       </TableCell>
       <TableCell align="right">
@@ -58,14 +56,7 @@ export const RoundTableRow = ({
           size="small"
           type="number"
           value={numGroups ?? ""}
-          onChange={(e) => {
-            const numGroups = parseInt(e.target.value, 10);
-            dispatch({
-              type: "ROUND_UPDATED",
-              roundIndex,
-              numGroups,
-            });
-          }}
+          onChange={(e) => onUpdateRound("numGroups", e.target.value)}
         />
       </TableCell>
       <TableCell align="right">
@@ -80,37 +71,15 @@ export const RoundTableRow = ({
           size="small"
           type="number"
           value={scheduledTime ?? ""}
-          onChange={(e) => {
-            const scheduledTime = parseInt(e.target.value, 10);
-            dispatch({
-              type: "ROUND_UPDATED",
-              roundIndex,
-              scheduledTime,
-            });
-          }}
+          onChange={(e) => onUpdateRound("scheduledTime", e.target.value)}
         />
       </TableCell>
       <TableCell align="right">
         <div className="events-tableIcons">
-          <IconButton
-            onClick={() => {
-              dispatch({
-                type: "ADD_ROUND",
-                eventId,
-                afterIndex: roundIndex,
-              });
-            }}
-          >
+          <IconButton onClick={onAddRound}>
             <AddCircle color="primary" fontSize="medium" />
           </IconButton>
-          <IconButton
-            onClick={() => {
-              dispatch({
-                type: "REMOVE_ROUND",
-                roundIndex,
-              });
-            }}
-          >
+          <IconButton onClick={onRemoveRound}>
             <Close color="action" fontSize="small" />
           </IconButton>
         </div>
