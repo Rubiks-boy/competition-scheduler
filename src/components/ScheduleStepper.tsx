@@ -5,12 +5,14 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import CompetitionView from "./CompetitionView";
 
 const steps = ["Configure competition", "Events", "Schedule"];
 
 const StepContent = ({ activeStep }: { activeStep: number }) => {
   switch (activeStep) {
     case 0:
+      return <CompetitionView />;
     case 1:
     case 2:
       return <div>{steps[activeStep]}</div>;
