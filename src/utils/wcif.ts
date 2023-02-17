@@ -1,5 +1,9 @@
 import { Round, Wcif, WcifEvent } from "../types";
-import { calcExpectedNumCompetitors, calcNumGroups } from "./calculators";
+import {
+  calcExpectedNumCompetitors,
+  calcNumGroups,
+  calcTimeForRound,
+} from "./calculators";
 
 const wcifEventsToRounds = (events: Array<WcifEvent>): Array<Round> => {
   return events.flatMap(({ id, rounds }) =>
@@ -60,6 +64,21 @@ const addNumGroups = (
   });
 };
 
+const addScheduledTime = (rounds: Array<Round>): Array<Round> => {
+  return rounds.map((round) => {
+    const { eventId, numGroups } = round;
+
+    if (!numGroups) {
+      return round;
+    }
+
+    return {
+      ...round,
+      scheduledTime: calcTimeForRound(eventId, numGroups),
+    };
+  });
+};
+
 export const getDefaultRoundData = ({
   wcif,
   numStations,
@@ -71,6 +90,7 @@ export const getDefaultRoundData = ({
   const rounds = wcifEventsToRounds(events);
   const withNumCompetitors = addNumCompetitors(rounds, events, competitorLimit);
   const withNumGroups = addNumGroups(withNumCompetitors, numStations);
+  const withScheduledTimed = addScheduledTime(withNumGroups);
 
-  return withNumGroups;
+  return withScheduledTimed;
 };
