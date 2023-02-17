@@ -1,4 +1,8 @@
-import { HISTORICAL_PNW_REGISTRATION, TIME_PER_GROUP } from "../constants";
+import {
+  HISTORICAL_PNW_REGISTRATION,
+  IDEAL_COMPETITORS_PER_STATION,
+  TIME_PER_GROUP,
+} from "../constants";
 import { EventId, Round } from "../types";
 
 export const compPerStationsRatio = (
@@ -26,3 +30,31 @@ export const calcExpectedNumCompetitors = (
   eventId: EventId,
   competitorLimit: number
 ) => Math.floor(competitorLimit * HISTORICAL_PNW_REGISTRATION[eventId]);
+
+export const calcNumGroups = ({
+  eventId,
+  numCompetitors,
+  numStations,
+}: {
+  eventId: EventId;
+  numCompetitors: number;
+  numStations: number;
+}) => {
+  const ratio = IDEAL_COMPETITORS_PER_STATION[eventId];
+
+  const idealCompetitorsPerGroup = ratio * numStations;
+
+  const numGroupsOptions = [
+    Math.floor(numCompetitors / idealCompetitorsPerGroup),
+    Math.ceil(numCompetitors / idealCompetitorsPerGroup),
+  ];
+
+  const optionsRatios = numGroupsOptions.map(
+    (numGroups) => numCompetitors / numGroups / numStations
+  );
+  const diffsFromIdeal = optionsRatios.map((r) => Math.abs(r - ratio));
+
+  return diffsFromIdeal[0] < diffsFromIdeal[1]
+    ? numGroupsOptions[0]
+    : numGroupsOptions[1];
+};

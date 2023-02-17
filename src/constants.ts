@@ -57,3 +57,23 @@ export const HISTORICAL_PNW_REGISTRATION = {
   "555bf": 0.089,
   "333mbf": 0.141,
 };
+
+export const IDEAL_COMPETITORS_PER_STATION = {
+  "333": 1.8,
+  "222": 2.0,
+  "444": 1.7,
+  "555": 1.5,
+  "666": 1.5,
+  "777": 1.5,
+  "333bf": 1.6,
+  "333fm": 9999,
+  "333oh": 1.8,
+  clock: 1.5,
+  pyram: 1.9,
+  minx: 1.5,
+  skewb: 1.9,
+  sq1: 1.5,
+  "444bf": 9999,
+  "555bf": 9999,
+  "333mbf": 9999,
+};
