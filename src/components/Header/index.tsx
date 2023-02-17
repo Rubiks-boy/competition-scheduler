@@ -1,6 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { SignIn } from "./SignIn";
 
 export const Header = () => {
   return (
@@ -10,6 +11,7 @@ export const Header = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Schedule generator
           </Typography>
+          <SignIn />
         </Toolbar>
       </AppBar>
     </Box>
