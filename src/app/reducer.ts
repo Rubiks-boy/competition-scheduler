@@ -118,6 +118,21 @@ export const reducer = (state: State, action: Action): State => {
         rounds: withAddedRound,
       };
 
+    case "REORDER_ROUND":
+      const { oldIndex, newIndex } = action;
+
+      const reorderedRounds = [...state.rounds];
+      reorderedRounds.splice(
+        newIndex,
+        0,
+        reorderedRounds.splice(oldIndex, 1)[0]
+      );
+
+      return {
+        ...state,
+        rounds: reorderedRounds,
+      };
+
     default:
       return state;
   }

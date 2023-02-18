@@ -64,4 +64,9 @@ export type Action =
       type: "ADD_ROUND";
       eventId: EventId;
       afterIndex: number;
+    }
+  | {
+      type: "REORDER_ROUND";
+      oldIndex: number;
+      newIndex: number;
     };
