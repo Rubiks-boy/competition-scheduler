@@ -7,6 +7,7 @@ import {
   calcTimeForRound,
   calcRoundNum,
   compPerStationsRatio,
+  getRoundNumStr,
 } from "../../utils/calculators";
 
 export const RoundRow = ({
@@ -31,15 +32,11 @@ export const RoundRow = ({
   const { eventId, numCompetitors, numGroups, scheduledTime } = round;
 
   const roundNum = calcRoundNum(roundIndex, rounds);
-  const numRoundsForEvent = rounds.filter(
-    (round) => round.eventId === eventId
-  ).length;
-  const isFinalRound = numRoundsForEvent === roundNum;
 
   return (
     <TableRow key={`${eventId}-${roundNum}`}>
       <TableCell component="th" scope="row">
-        {EVENT_NAMES[eventId]} {isFinalRound ? "final" : `Round ${roundNum}`}
+        {EVENT_NAMES[eventId]} {getRoundNumStr(roundIndex, rounds)}
       </TableCell>
       <TableCell align="right">
         <TextField

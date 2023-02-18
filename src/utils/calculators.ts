@@ -78,5 +78,11 @@ export const isFinalRound = (roundIndex: number, rounds: Array<Round>) => {
     (round) => round.eventId === eventId
   ).length;
 
-  return numRoundsForEvent === roundNum + 1;
+  return numRoundsForEvent === roundNum;
+};
+
+export const getRoundNumStr = (roundIndex: number, rounds: Array<Round>) => {
+  return isFinalRound(roundIndex, rounds)
+    ? "Final"
+    : `Round ${calcRoundNum(roundIndex, rounds)}`;
 };
