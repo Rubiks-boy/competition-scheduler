@@ -20,4 +20,7 @@ export const startTimeSelector = (state: State) => state.startTime;
 
 export const roundsSelector = (state: State) => state.rounds;
 
-export const wcifEventsSelector = (state: State) => state.wcif?.events || [];
+export const wcifSelector = (state: State) => state.wcif;
+
+export const wcifEventsSelector = (state: State) =>
+  wcifSelector(state)?.events || [];

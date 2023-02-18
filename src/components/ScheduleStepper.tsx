@@ -11,6 +11,7 @@ import { SignIn } from "./Header/SignIn";
 import { isSignedInSelector } from "../app/selectors";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
+import ExportView from "./ExportView";
 
 const steps = ["Configure competition", "Events", "Schedule"];
 
@@ -62,9 +63,7 @@ export const ScheduleStepper = () => {
       </Stepper>
       {activeStep === steps.length ? (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography>
+          <ExportView />
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Box sx={{ flex: "1 1 auto" }} />
             <Button onClick={handleReset}>Reset</Button>

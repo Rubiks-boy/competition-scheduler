@@ -108,6 +108,7 @@ export const reducer = (state: State, action: Action): State => {
       const withAddedRound = [...state.rounds];
       withAddedRound.splice(action.afterIndex + 1, 0, {
         eventId: action.eventId,
+        format: state.rounds[action.afterIndex].format,
         numCompetitors: null,
         numGroups: null,
         scheduledTime: null,
