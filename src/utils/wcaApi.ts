@@ -1,6 +1,7 @@
 import { WCA_ORIGIN } from "./auth";
 import type { ManageableCompetition } from "../types";
 import type { Wcif } from "../types";
+import { pick } from "./utils";
 
 const wcaApiFetch = (
   path: string,
@@ -40,8 +41,29 @@ export const fetchWcif = (
   competitionId: string,
   wcaAccessToken: string
 ): Promise<Wcif> => {
-  return wcaApiFetch(
-    `/competitions/${competitionId}/wcif/public`,
-    wcaAccessToken
+  return wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken);
+};
+
+const updateWcif = (
+  competitionId: string,
+  wcif: Partial<Wcif>,
+  wcaAccessToken: string
+) => {
+  wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken, {
+    method: "PATCH",
+    body: JSON.stringify(wcif),
+  });
+};
+
+export const saveWcifChanges = (
+  previousWcif: Wcif,
+  newWcif: Wcif,
+  wcaAccessToken: string
+) => {
+  const keysDiff = Object.keys(newWcif).filter(
+    // @ts-expect-error
+    (key) => previousWcif[key] !== newWcif[key]
   );
+  if (keysDiff.length === 0) return Promise.resolve();
+  return updateWcif(newWcif.id, pick(newWcif, keysDiff), wcaAccessToken);
 };
