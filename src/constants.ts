@@ -16,6 +16,11 @@ export const EVENT_NAMES = {
   "444bf": "4x4 Blindfolded",
   "555bf": "5x5 Blindfolded",
   "333mbf": "Multi-Blind",
+  // Deprecated events
+  magic: "magic",
+  mmagic: "mmagic",
+  "333mbo": "333mbo",
+  "333ft": "333ft",
 };
 
 export const TIME_PER_GROUP = {
@@ -36,6 +41,11 @@ export const TIME_PER_GROUP = {
   "444bf": 0,
   "555bf": 0,
   "333mbf": 0,
+  // Deprecated events
+  magic: 0,
+  mmagic: 0,
+  "333mbo": 0,
+  "333ft": 0,
 };
 
 export const HISTORICAL_PNW_REGISTRATION = {
@@ -56,6 +66,11 @@ export const HISTORICAL_PNW_REGISTRATION = {
   "444bf": 0.106,
   "555bf": 0.089,
   "333mbf": 0.141,
+  // Deprecated events
+  magic: 0,
+  mmagic: 0,
+  "333mbo": 0,
+  "333ft": 0,
 };
 
 export const IDEAL_COMPETITORS_PER_STATION = {
@@ -76,4 +91,9 @@ export const IDEAL_COMPETITORS_PER_STATION = {
   "444bf": 9999,
   "555bf": 9999,
   "333mbf": 9999,
+  // Deprecated events
+  magic: 0,
+  mmagic: 0,
+  "333mbo": 0,
+  "333ft": 0,
 };

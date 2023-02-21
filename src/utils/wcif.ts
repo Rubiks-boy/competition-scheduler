@@ -95,7 +95,11 @@ export const getDefaultRoundData = ({
 }): Array<Round> => {
   const { events, competitorLimit } = wcif;
   const rounds = wcifEventsToRounds(events);
-  const withNumCompetitors = addNumCompetitors(rounds, events, competitorLimit);
+  const withNumCompetitors = addNumCompetitors(
+    rounds,
+    events,
+    competitorLimit || 0
+  );
   const withNumGroups = addNumGroups(withNumCompetitors, numStations);
   const withScheduledTimed = addScheduledTime(withNumGroups);
 
@@ -154,6 +158,9 @@ export const roundsToWcifEvents = (
         // grab from the previous info we have for the event?
         // maybe for subsequent events make the time limit 10m and cutoff null?
         timeLimit: { centiseconds: 60000, cumulativeRoundIds: [] },
+        cutoff: null,
+        results: [],
+        extensions: [],
       };
     });
 

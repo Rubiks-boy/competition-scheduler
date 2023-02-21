@@ -24,8 +24,7 @@ const ExportView = () => {
     const newWcifEvents = roundsToWcifEvents(rounds, originalWcifEvents);
 
     const newWcif = {
-      id: originalWcif.id,
-      competitorLimit: originalWcif.competitorLimit,
+      ...originalWcif,
       events: newWcifEvents,
     };
 
