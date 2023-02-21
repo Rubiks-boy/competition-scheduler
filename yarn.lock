@@ -2470,6 +2470,11 @@
     "@typescript-eslint/types" "5.52.0"
     eslint-visitor-keys "^3.3.0"
 
+"@wca/helpers@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@wca/helpers/-/helpers-1.1.2.tgz#1c726906566f196461c588f17250cf89fbdc0aa7"
+  integrity sha512-e5KOMh8byBQpnAAkWzA2EJqdRKIBC0Drip9sKFk3tXpxsFHITd/+2xqT0Bs5KAcp9+ljtjRldn8BERC+VD4xjA==
+
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"
