@@ -165,3 +165,25 @@ export const roundsToWcifEvents = (
     };
   });
 };
+
+// export const roundsToWcifSchedule = ({
+//   rounds,
+//   startTime,
+//   numberOfDays,
+//   originalWcifVenues,
+// }: {
+//   rounds: Array<Round>;
+//   startTime: Date;
+//   numberOfDays: number;
+//   originalWcifVenues: Array<WcifVenue>;
+// }) => {
+//   const venues = originalWcifVenues.map((originalVenue) => {
+//     return originalVenue;
+//   });
+
+//   return {
+//     startDate: startTime.toISOString().split("T")[0], // YYYY-MM-DD
+//     numberOfDays,
+//     venues,
+//   };
+// };
