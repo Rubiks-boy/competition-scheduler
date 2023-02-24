@@ -6,6 +6,7 @@ import {
   EVENT_IDS,
   Round,
   Schedule,
+  ScheduleEntryWithTime,
   Wcif,
   WcifEvent,
   WcifRoom,
@@ -15,6 +16,7 @@ import {
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
+  calcScheduleTimes,
   calcTimeForRound,
 } from "./calculators";
 import { constructActivityString, makeDefaultEvents } from "./utils";
@@ -163,40 +165,40 @@ export const createWcifEvents = (
     });
 
 const createWcifRoom = ({
-  schedule,
-  startTime,
+  scheduleWithTimes,
   originalWcifRoom,
 }: {
-  schedule: Schedule;
-  startTime: Date;
+  scheduleWithTimes: Array<ScheduleEntryWithTime>;
   originalWcifRoom: WcifRoom;
 }) => {
   let nextId = 1;
 
   return {
     ...originalWcifRoom,
-    activities: schedule.map(({ eventId, roundNum }) => {
-      const activityCode = `${eventId}-r${roundNum + 1}`;
+    activities: scheduleWithTimes.map(
+      ({ eventId, roundNum, startTime, endTime }) => {
+        const activityCode = `${eventId}-r${roundNum + 1}`;
 
-      const originalActivity = originalWcifRoom.activities.find(
-        (activity) => activity.activityCode === activityCode
-      );
+        const originalActivity = originalWcifRoom.activities.find(
+          (activity) => activity.activityCode === activityCode
+        );
 
-      return {
-        ...(originalActivity
-          ? originalActivity
-          : {
-              id: nextId++,
-              name: constructActivityString(eventId, roundNum),
-              activityCode,
-              childActivities: null,
-              scrambleSetId: null,
-              extensions: [],
-            }),
-        startTime: startTime.toISOString(),
-        endTime: startTime.toISOString(),
-      };
-    }),
+        return {
+          ...(originalActivity
+            ? originalActivity
+            : {
+                id: nextId++,
+                name: constructActivityString(eventId, roundNum),
+                activityCode,
+                childActivities: null,
+                scrambleSetId: null,
+                extensions: [],
+              }),
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+        };
+      }
+    ),
   };
 };
 
@@ -204,10 +206,12 @@ export const createWcifSchedule = ({
   schedule,
   startTime,
   originalWcifSchedule,
+  events,
 }: {
   schedule: Schedule;
   startTime: Date;
   originalWcifSchedule: WcifSchedule;
+  events: Events;
 }) => {
   if (originalWcifSchedule.venues.length !== 1) {
     // TODO: better erroring
@@ -216,13 +220,15 @@ export const createWcifSchedule = ({
 
   const originalVenue = originalWcifSchedule.venues[0];
 
+  const scheduleWithTimes = calcScheduleTimes(startTime, schedule, events);
+
   return {
     ...originalWcifSchedule,
     venues: [
       {
         ...originalVenue,
         rooms: originalVenue.rooms.map((originalWcifRoom) =>
-          createWcifRoom({ schedule, startTime, originalWcifRoom })
+          createWcifRoom({ scheduleWithTimes, originalWcifRoom })
         ),
       },
     ],
