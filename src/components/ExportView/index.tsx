@@ -6,26 +6,39 @@ import {
   wcifSelector,
   wcifEventsSelector,
   accessTokenSelector,
+  scheduleSelector,
+  startTimeSelector,
+  wcifScheduleSelector,
 } from "../../app/selectors";
 import { saveWcifChanges } from "../../utils/wcaApi";
-import { createWcifEvents } from "../../utils/wcif";
+import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
 
 const ExportView = () => {
   const events = useSelector(eventsSelector);
+  const schedule = useSelector(scheduleSelector);
+  const startTime = useSelector(startTimeSelector);
   const originalWcifEvents = useSelector(wcifEventsSelector);
+  const originalWcifSchedule = useSelector(wcifScheduleSelector);
   const originalWcif = useSelector(wcifSelector);
   const wcaAccessToken = useSelector(accessTokenSelector);
 
   const handleClick = async () => {
-    if (!originalWcif || !wcaAccessToken) {
+    if (!originalWcif || !originalWcifSchedule || !wcaAccessToken) {
       return;
     }
 
     const newWcifEvents = createWcifEvents(events, originalWcifEvents);
+    const newWcifSchedule = createWcifSchedule({
+      schedule,
+      startTime,
+      originalWcifSchedule,
+      events,
+    });
 
     const newWcif = {
       ...originalWcif,
       events: newWcifEvents,
+      schedule: newWcifSchedule,
     };
     const resp = await saveWcifChanges(originalWcif, newWcif, wcaAccessToken);
     console.log("resp back", resp);
