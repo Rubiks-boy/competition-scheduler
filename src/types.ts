@@ -19,10 +19,10 @@ export const EVENT_IDS: Array<EventId> = [
   "555bf",
   "333mbf",
   // Deprecated events
-  "magic",
-  "mmagic",
-  "333mbo",
-  "333ft",
+  // "magic",
+  // "mmagic",
+  // "333mbo",
+  // "333ft",
 ];
 
 export type ManageableCompetition = {
@@ -40,6 +40,8 @@ export type Round = {
   numGroups: number | null;
   scheduledTime: number | null;
 };
+
+export type Schedule = Array<{ eventId: EventId; roundNum: number }>;
 
 // Re-export the WCA types with Wcif prefix,
 // to denote project-specific types from the WCA's types
