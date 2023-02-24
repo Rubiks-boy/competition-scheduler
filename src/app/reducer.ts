@@ -153,8 +153,19 @@ export const reducer = (state: State, action: Action): State => {
       };
 
     case "REORDER_ROUND":
-      // TODO
-      return state;
+      const { oldIndex, newIndex } = action;
+
+      const reorderedSchedule = [...state.schedule];
+      reorderedSchedule.splice(
+        newIndex,
+        0,
+        reorderedSchedule.splice(oldIndex, 1)[0]
+      );
+
+      return {
+        ...state,
+        schedule: reorderedSchedule,
+      };
 
     default:
       return state;

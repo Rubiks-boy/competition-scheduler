@@ -74,4 +74,6 @@ export type Action =
     }
   | {
       type: "REORDER_ROUND";
+      oldIndex: number;
+      newIndex: number;
     };

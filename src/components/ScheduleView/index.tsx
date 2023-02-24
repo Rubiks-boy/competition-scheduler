@@ -66,6 +66,8 @@ const ScheduleView = () => {
     }
     dispatch({
       type: "REORDER_ROUND",
+      oldIndex: result.source.index,
+      newIndex: result.destination.index,
     });
   };
 
