@@ -14,7 +14,7 @@ export const initialState: State = {
   manageableComps: [],
   selectedCompId: null,
   numStations: 8,
-  startTime: new Date(1000 * 60 * 60 * 17),
+  startTime: new Date(0),
   wcifPending: false,
   wcif: null,
   events: makeDefaultEvents(),
@@ -54,12 +54,21 @@ export const reducer = (state: State, action: Action): State => {
         numStations: state.numStations,
       });
 
+      const wcifStartTime = new Date(wcif.schedule.startDate);
+      // Correct for the start date being in UTC
+      if (wcifStartTime.getHours() < 12) {
+        wcifStartTime.setHours(8, 0, 0, 0); // previous 8:00am
+      } else {
+        wcifStartTime.setHours(32, 0, 0, 0); // next 8:00am
+      }
+
       return {
         ...state,
         wcifPending: false,
         wcif,
         events,
         schedule: getDefaultSchedule(events),
+        startTime: wcifStartTime,
       };
     case "FETCH_WCIF_ERROR":
       return {
