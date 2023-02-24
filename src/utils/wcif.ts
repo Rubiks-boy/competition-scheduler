@@ -37,13 +37,12 @@ const wcifRoundsToEventRounds = (
   numStations: number
 ): Array<Round> => {
   return wcifRounds
-
     .map(({ id }) => {
       // ex. '333-r2' -> 2
       const roundNum = parseInt(id[id.indexOf("r") + 1], 10);
 
       const numCompetitors =
-        roundNum === 0
+        roundNum === 1
           ? calcExpectedNumCompetitors(eventId, competitorLimit)
           : getAdvancementLevelForRound(wcifRounds, roundNum - 1);
 
