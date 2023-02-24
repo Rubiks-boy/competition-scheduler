@@ -190,7 +190,7 @@ const createWcifRoom = ({
                 id: nextId++,
                 name: constructActivityString(eventId, roundNum),
                 activityCode,
-                childActivities: null,
+                childActivities: [],
                 scrambleSetId: null,
                 extensions: [],
               }),
