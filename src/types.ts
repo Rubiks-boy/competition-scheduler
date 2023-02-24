@@ -50,4 +50,6 @@ export type {
   Round as WcifRound,
   Competition as Wcif,
   Event as WcifEvent,
+  Schedule as WcifSchedule,
+  Room as WcifRoom,
 } from "@wca/helpers";

@@ -8,14 +8,16 @@ import {
   Schedule,
   Wcif,
   WcifEvent,
+  WcifRoom,
   WcifRound,
+  WcifSchedule,
 } from "../types";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
   calcTimeForRound,
 } from "./calculators";
-import { makeDefaultEvents } from "./utils";
+import { constructActivityString, makeDefaultEvents } from "./utils";
 
 const getAdvancementLevelForRound = (
   wcifRounds: Array<WcifRound>,
@@ -160,24 +162,69 @@ export const createWcifEvents = (
       return createWcifEvent(eventId as EventId, rounds, originalWcifEvent);
     });
 
-// export const roundsToWcifSchedule = ({
-//   rounds,
-//   startTime,
-//   numberOfDays,
-//   originalWcifVenues,
-// }: {
-//   rounds: Array<Round>;
-//   startTime: Date;
-//   numberOfDays: number;
-//   originalWcifVenues: Array<WcifVenue>;
-// }) => {
-//   const venues = originalWcifVenues.map((originalVenue) => {
-//     return originalVenue;
-//   });
+const createWcifRoom = ({
+  schedule,
+  startTime,
+  originalWcifRoom,
+}: {
+  schedule: Schedule;
+  startTime: Date;
+  originalWcifRoom: WcifRoom;
+}) => {
+  let nextId = 1;
 
-//   return {
-//     startDate: startTime.toISOString().split("T")[0], // YYYY-MM-DD
-//     numberOfDays,
-//     venues,
-//   };
-// };
+  return {
+    ...originalWcifRoom,
+    activities: schedule.map(({ eventId, roundNum }) => {
+      const activityCode = `${eventId}-r${roundNum + 1}`;
+
+      const originalActivity = originalWcifRoom.activities.find(
+        (activity) => activity.activityCode === activityCode
+      );
+
+      return {
+        ...(originalActivity
+          ? originalActivity
+          : {
+              id: nextId++,
+              name: constructActivityString(eventId, roundNum),
+              activityCode,
+              childActivities: null,
+              scrambleSetId: null,
+              extensions: [],
+            }),
+        startTime: startTime.toISOString(),
+        endTime: startTime.toISOString(),
+      };
+    }),
+  };
+};
+
+export const createWcifSchedule = ({
+  schedule,
+  startTime,
+  originalWcifSchedule,
+}: {
+  schedule: Schedule;
+  startTime: Date;
+  originalWcifSchedule: WcifSchedule;
+}) => {
+  if (originalWcifSchedule.venues.length !== 1) {
+    // TODO: better erroring
+    return originalWcifSchedule;
+  }
+
+  const originalVenue = originalWcifSchedule.venues[0];
+
+  return {
+    ...originalWcifSchedule,
+    venues: [
+      {
+        ...originalVenue,
+        rooms: originalVenue.rooms.map((originalWcifRoom) =>
+          createWcifRoom({ schedule, startTime, originalWcifRoom })
+        ),
+      },
+    ],
+  };
+};
