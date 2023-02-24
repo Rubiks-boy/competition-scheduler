@@ -1,4 +1,9 @@
 import { Round } from "../types";
+import {
+  calcExpectedNumCompetitors,
+  calcNumGroups,
+  calcTimeForRound,
+} from "../utils/calculators";
 import { makeDefaultEvents } from "../utils/utils";
 import { getDefaultEventsData, getDefaultSchedule } from "../utils/wcif";
 import type { State, Action } from "./types";
@@ -131,11 +136,24 @@ export const reducer = (state: State, action: Action): State => {
     case "ADD_ROUND":
       const withAddedRound = [...state.events[action.eventId]];
 
+      const numCompetitors = !withAddedRound.length
+        ? calcExpectedNumCompetitors(
+            action.eventId,
+            state.wcif?.competitorLimit || 0
+          )
+        : 0;
+
+      const numGroups = calcNumGroups({
+        eventId: action.eventId,
+        numCompetitors,
+        numStations: state.numStations,
+      });
+
       const roundToAdd: Round = {
         eventId: action.eventId,
-        numCompetitors: null,
-        numGroups: null,
-        scheduledTime: null,
+        numCompetitors,
+        numGroups,
+        scheduledTime: calcTimeForRound(action.eventId, numGroups),
       };
 
       withAddedRound.push(roundToAdd);
