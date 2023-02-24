@@ -26,3 +26,6 @@ export const wcifSelector = (state: State) => state.wcif;
 
 export const wcifEventsSelector = (state: State) =>
   wcifSelector(state)?.events || [];
+
+export const wcifScheduleSelector = (state: State) =>
+  wcifSelector(state)?.schedule;
