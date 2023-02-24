@@ -1,4 +1,6 @@
-import { getDefaultRoundData } from "../utils/wcif";
+import { Round } from "../types";
+import { makeDefaultEvents } from "../utils/utils";
+import { getDefaultEventsData } from "../utils/wcif";
 import type { State, Action } from "./types";
 
 export const initialState: State = {
@@ -10,7 +12,7 @@ export const initialState: State = {
   startTime: new Date(1000 * 60 * 60 * 17),
   wcifPending: false,
   wcif: null,
-  rounds: [],
+  events: makeDefaultEvents(),
 };
 
 export const reducer = (state: State, action: Action): State => {
@@ -45,17 +47,13 @@ export const reducer = (state: State, action: Action): State => {
         ...state,
         wcifPending: false,
         wcif,
-        rounds: getDefaultRoundData({
-          wcif,
-          numStations: state.numStations,
-        }),
+        events: getDefaultEventsData({ wcif, numStations: state.numStations }),
       };
     case "FETCH_WCIF_ERROR":
       return {
         ...state,
         wcifPending: false,
         wcif: null,
-        rounds: [],
       };
 
     case "COMP_SELECTED":
@@ -80,59 +78,65 @@ export const reducer = (state: State, action: Action): State => {
       };
 
     case "ROUND_UPDATED":
-      const newRound = {
-        ...state.rounds[action.roundIndex],
+      const oldRound = state.events[action.eventId][action.roundNum];
+
+      if (!oldRound) {
+        return state;
+      }
+
+      const updatedRound = {
+        ...oldRound,
         ...(action.numCompetitors && { numCompetitors: action.numCompetitors }),
         ...(action.numGroups && { numGroups: action.numGroups }),
         ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
       };
 
-      const updatedRounds = [...state.rounds];
-      updatedRounds[action.roundIndex] = newRound;
-
       return {
         ...state,
-        rounds: updatedRounds,
+        events: {
+          ...state.events,
+          [action.eventId]: {
+            ...state.events[action.eventId],
+            [action.roundNum]: updatedRound,
+          },
+        },
       };
 
     case "REMOVE_ROUND":
-      const withoutRemovedRound = [...state.rounds];
-      withoutRemovedRound.splice(action.roundIndex, 1);
+      const withoutRemovedRound = [...state.events[action.eventId]];
+      withoutRemovedRound.pop();
 
       return {
         ...state,
-        rounds: withoutRemovedRound,
+        events: {
+          ...state.events,
+          [action.eventId]: withoutRemovedRound,
+        },
       };
 
     case "ADD_ROUND":
-      const withAddedRound = [...state.rounds];
-      withAddedRound.splice(action.afterIndex + 1, 0, {
+      const withAddedRound = [...state.events[action.eventId]];
+
+      const roundToAdd: Round = {
         eventId: action.eventId,
-        format: state.rounds[action.afterIndex].format,
         numCompetitors: null,
         numGroups: null,
         scheduledTime: null,
-      });
+      };
+
+      withAddedRound.push(roundToAdd);
 
       return {
         ...state,
-        rounds: withAddedRound,
+        events: {
+          ...state.events,
+          [action.eventId]: withAddedRound,
+        },
       };
 
     case "REORDER_ROUND":
-      const { oldIndex, newIndex } = action;
-
-      const reorderedRounds = [...state.rounds];
-      reorderedRounds.splice(
-        newIndex,
-        0,
-        reorderedRounds.splice(oldIndex, 1)[0]
-      );
-
-      return {
-        ...state,
-        rounds: reorderedRounds,
-      };
+      // TODO
+      return state;
 
     default:
       return state;

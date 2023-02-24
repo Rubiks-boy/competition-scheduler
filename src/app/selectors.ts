@@ -18,7 +18,7 @@ export const numStationsSelector = (state: State) => state.numStations;
 
 export const startTimeSelector = (state: State) => state.startTime;
 
-export const roundsSelector = (state: State) => state.rounds;
+export const eventsSelector = (state: State) => state.events;
 
 export const wcifSelector = (state: State) => state.wcif;
 

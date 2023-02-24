@@ -1,109 +1,79 @@
-import { EventId, Round, Wcif, WcifEvent, WcifRound } from "../types";
+import { EventId, Events, Round, Wcif, WcifEvent, WcifRound } from "../types";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
   calcTimeForRound,
 } from "./calculators";
+import { makeDefaultEvents } from "./utils";
 
-type RoundWithRoundNum = Round & { roundNum: number };
+const getAdvancementLevelForRound = (
+  wcifRounds: Array<WcifRound>,
+  roundNum: number
+) => {
+  // ex. if roundNum is 2, will find the event with 'eventId-r2'
+  const round = wcifRounds.find(({ id }) => id.includes(`-r${roundNum}`));
 
-const wcifEventsToRounds = (
-  events: Array<WcifEvent>
-): Array<RoundWithRoundNum> => {
-  return events.flatMap(({ id, rounds }) =>
-    rounds.map(({ format }, index) => ({
-      eventId: id,
-      format,
-      roundNum: index,
-      numCompetitors: null,
-      numGroups: null,
-      scheduledTime: null,
-    }))
-  );
+  // TODO: other types currently not supported
+  if (round?.advancementCondition?.type !== "ranking") {
+    return 0;
+  }
+
+  return round?.advancementCondition?.level;
 };
 
-// For first rounds, calculated the expected number of competitors.
-// For subsequent rounds, use the advancement condition to attach the
-// number of competitors to the round
-const addNumCompetitors = (
-  rounds: Array<RoundWithRoundNum>,
-  events: Array<WcifEvent>,
-  competitorLimit: number
-): Array<RoundWithRoundNum> => {
-  return rounds.map((round) => {
-    const { eventId, roundNum } = round;
-
-    if (roundNum === 0) {
-      return {
-        ...round,
-        numCompetitors: calcExpectedNumCompetitors(eventId, competitorLimit),
-      };
-    }
-
-    const event = events.find(({ id }) => id === eventId);
-    const prevRound = event?.rounds[roundNum - 1];
-
-    const advancementCondition = prevRound?.advancementCondition;
-
-    return advancementCondition?.type === "ranking"
-      ? { ...round, numCompetitors: advancementCondition.level }
-      : round;
-  });
-};
-
-const addNumGroups = (
-  rounds: Array<RoundWithRoundNum>,
+const wcifRoundsToEventRounds = (
+  wcifRounds: Array<WcifRound>,
+  eventId: EventId,
+  competitorLimit: number,
   numStations: number
-): Array<RoundWithRoundNum> => {
-  return rounds.map((round) => {
-    const { eventId, numCompetitors } = round;
+): Array<Round> => {
+  return wcifRounds
 
-    if (!numCompetitors) {
-      return round;
-    }
+    .map(({ id }) => {
+      // ex. '333-r2' -> 2
+      const roundNum = parseInt(id[id.indexOf("r") + 1], 10);
 
-    return {
-      ...round,
-      numGroups: calcNumGroups({ eventId, numCompetitors, numStations }),
-    };
-  });
+      const numCompetitors =
+        roundNum === 0
+          ? calcExpectedNumCompetitors(eventId, competitorLimit)
+          : getAdvancementLevelForRound(wcifRounds, roundNum - 1);
+
+      const numGroups = calcNumGroups({ eventId, numCompetitors, numStations });
+
+      const scheduledTime = calcTimeForRound(eventId, numGroups);
+
+      return {
+        eventId,
+        numCompetitors,
+        numGroups,
+        scheduledTime,
+        roundNum,
+      };
+    })
+    .sort((a, b) => a.roundNum - b.roundNum);
 };
 
-const addScheduledTime = (
-  rounds: Array<RoundWithRoundNum>
-): Array<RoundWithRoundNum> => {
-  return rounds.map((round) => {
-    const { eventId, numGroups } = round;
-
-    if (!numGroups) {
-      return round;
-    }
-
-    return {
-      ...round,
-      scheduledTime: calcTimeForRound(eventId, numGroups),
-    };
-  });
-};
-
-export const getDefaultRoundData = ({
+export const getDefaultEventsData = ({
   wcif,
   numStations,
 }: {
   wcif: Wcif;
   numStations: number;
-}): Array<Round> => {
-  const { events, competitorLimit } = wcif;
-  const rounds = wcifEventsToRounds(events);
-  const withNumCompetitors = addNumCompetitors(
-    rounds,
-    events,
-    competitorLimit || 0
-  );
-  const withNumGroups = addNumGroups(withNumCompetitors, numStations);
-  const withScheduledTimed = addScheduledTime(withNumGroups);
+}): Events => {
+  const { events: wcifEvents, competitorLimit } = wcif;
 
-  return withScheduledTimed;
+  const events = makeDefaultEvents();
+
+  wcifEvents.forEach(({ id, rounds }) => {
+    events[id] = wcifRoundsToEventRounds(
+      rounds,
+      id,
+      competitorLimit || 0,
+      numStations
+    );
+  });
+
+  return events;
 };
 
 const getEventIds = (rounds: Array<Round>): Array<EventId> => {
@@ -151,7 +121,7 @@ export const roundsToWcifEvents = (
 
       return {
         id: roundId,
-        format: round.format,
+        format: "a",
         advancementCondition,
         scrambleSetCount: (round.numGroups ?? 0) + 1,
         // TODO properly set up time limits, cutoffs, other round info.
