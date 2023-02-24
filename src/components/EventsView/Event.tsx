@@ -63,11 +63,17 @@ export const Event = ({
       >
         <Typography variant="h6">{eventName}</Typography>
         <div className="event-add-remove-btns">
-          <IconButton onClick={onAddRound}>
-            <AddCircle color="primary" fontSize="medium" />
+          <IconButton onClick={onAddRound} disabled={rounds.length >= 4}>
+            <AddCircle
+              color={rounds.length < 4 ? "primary" : "disabled"}
+              fontSize="medium"
+            />
           </IconButton>
-          <IconButton onClick={onRemoveRound}>
-            <Close color="action" fontSize="small" />
+          <IconButton onClick={onRemoveRound} disabled={!rounds.length}>
+            <Close
+              color={rounds.length ? "error" : "disabled"}
+              fontSize="small"
+            />
           </IconButton>
         </div>
       </Toolbar>
