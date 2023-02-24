@@ -41,7 +41,14 @@ export type Round = {
   scheduledTime: number | null;
 };
 
-export type Schedule = Array<{ eventId: EventId; roundNum: number }>;
+type ScheduleEntry = { eventId: EventId; roundNum: number };
+
+export type ScheduleEntryWithTime = ScheduleEntry & {
+  startTime: Date;
+  endTime: Date;
+};
+
+export type Schedule = Array<ScheduleEntry>;
 
 // Re-export the WCA types with Wcif prefix,
 // to denote project-specific types from the WCA's types

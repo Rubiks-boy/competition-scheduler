@@ -16,41 +16,7 @@ import {
 } from "../../app/selectors";
 import { formatTime } from "../../utils/formatTime";
 import { EVENT_NAMES } from "../../constants";
-import { getRoundNumStr } from "../../utils/calculators";
-
-type RoundWithTime = {
-  eventId: EventId;
-  roundNum: number;
-  startTime: Date;
-  endTime: Date;
-};
-
-const calcRoundTimes = (
-  startTime: Date,
-  schedule: Schedule,
-  events: Events
-): Array<RoundWithTime> => {
-  const roundsWithTimes: Array<RoundWithTime> = [];
-
-  let currStartMs = startTime.getTime();
-
-  schedule.forEach(({ eventId, roundNum }) => {
-    const round = events[eventId][roundNum];
-    const { scheduledTime } = round;
-    const scheduledTimeMs = (scheduledTime || 0) * 60 * 1000;
-
-    roundsWithTimes.push({
-      eventId,
-      roundNum,
-      startTime: new Date(currStartMs),
-      endTime: new Date(currStartMs + scheduledTimeMs),
-    });
-
-    currStartMs += scheduledTimeMs;
-  });
-
-  return roundsWithTimes;
-};
+import { calcScheduleTimes, getRoundNumStr } from "../../utils/calculators";
 
 const ScheduleView = () => {
   const dispatch = useDispatch();
@@ -71,7 +37,7 @@ const ScheduleView = () => {
     });
   };
 
-  const roundsWithTimes = calcRoundTimes(startTime, schedule, events);
+  const roundsWithTimes = calcScheduleTimes(startTime, schedule, events);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>

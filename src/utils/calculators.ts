@@ -3,7 +3,13 @@ import {
   IDEAL_COMPETITORS_PER_STATION,
   TIME_PER_GROUP,
 } from "../constants";
-import { EventId, Round, Schedule } from "../types";
+import {
+  EventId,
+  Events,
+  Round,
+  Schedule,
+  ScheduleEntryWithTime,
+} from "../types";
 
 export const compPerStationsRatio = (
   { numCompetitors, numGroups }: Round,
@@ -80,4 +86,31 @@ export const getRoundNumStr = (
     roundNum + 1;
 
   return isFinalRound ? "Final" : `Round ${roundNum + 1}`;
+};
+
+export const calcScheduleTimes = (
+  startTime: Date,
+  schedule: Schedule,
+  events: Events
+): Array<ScheduleEntryWithTime> => {
+  const roundsWithTimes: Array<ScheduleEntryWithTime> = [];
+
+  let currStartMs = startTime.getTime();
+
+  schedule.forEach(({ eventId, roundNum }) => {
+    const round = events[eventId][roundNum];
+    const { scheduledTime } = round;
+    const scheduledTimeMs = (scheduledTime || 0) * 60 * 1000;
+
+    roundsWithTimes.push({
+      eventId,
+      roundNum,
+      startTime: new Date(currStartMs),
+      endTime: new Date(currStartMs + scheduledTimeMs),
+    });
+
+    currStartMs += scheduledTimeMs;
+  });
+
+  return roundsWithTimes;
 };
