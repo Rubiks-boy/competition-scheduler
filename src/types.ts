@@ -30,9 +30,12 @@ export type ManageableCompetition = {
   name: string;
 };
 
+export type Events = {
+  [E in EventId]: Array<Round>;
+};
+
 export type Round = {
   eventId: EventId;
-  format: "1" | "2" | "3" | "a" | "m";
   numCompetitors: number | null;
   numGroups: number | null;
   scheduledTime: number | null;

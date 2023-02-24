@@ -1,4 +1,4 @@
-import { Wcif, ManageableCompetition, Round, EventId } from "../types";
+import { Wcif, ManageableCompetition, EventId, Events } from "../types";
 
 export type State = {
   accessToken: string | null;
@@ -9,7 +9,7 @@ export type State = {
   selectedCompId: string | null;
   numStations: number;
   startTime: Date;
-  rounds: Array<Round>;
+  events: Events;
 };
 
 export type Action =
@@ -51,22 +51,20 @@ export type Action =
     }
   | {
       type: "ROUND_UPDATED";
-      roundIndex: number;
+      eventId: EventId;
+      roundNum: number;
       numCompetitors?: number;
       numGroups?: number;
       scheduledTime?: number;
     }
   | {
       type: "REMOVE_ROUND";
-      roundIndex: number;
+      eventId: EventId;
     }
   | {
       type: "ADD_ROUND";
       eventId: EventId;
-      afterIndex: number;
     }
   | {
       type: "REORDER_ROUND";
-      oldIndex: number;
-      newIndex: number;
     };
