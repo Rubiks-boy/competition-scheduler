@@ -1,42 +1,34 @@
 import React from "react";
-import { IconButton, TableCell, TableRow, TextField } from "@mui/material";
-import { AddCircle, Close } from "@mui/icons-material";
+import { TableCell, TableRow, TextField } from "@mui/material";
 import type { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
 import {
   calcTimeForRound,
-  calcRoundNum,
   compPerStationsRatio,
-  getRoundNumStr,
 } from "../../utils/calculators";
 
 export const RoundRow = ({
-  roundIndex,
-  rounds,
+  round,
+  roundNum,
+  isFinal,
   numStations,
   onUpdateRound,
-  onAddRound,
-  onRemoveRound,
 }: {
-  roundIndex: number;
-  rounds: Array<Round>;
+  round: Round;
+  roundNum: number;
+  isFinal: boolean;
   numStations: number;
   onUpdateRound: (
     field: "numCompetitors" | "numGroups" | "scheduledTime",
     value: string
   ) => void;
-  onAddRound: () => void;
-  onRemoveRound: () => void;
 }) => {
-  const round = rounds[roundIndex];
   const { eventId, numCompetitors, numGroups, scheduledTime } = round;
-
-  const roundNum = calcRoundNum(roundIndex, rounds);
 
   return (
     <TableRow key={`${eventId}-${roundNum}`}>
       <TableCell component="th" scope="row">
-        {EVENT_NAMES[eventId]} {getRoundNumStr(roundIndex, rounds)}
+        {EVENT_NAMES[eventId]} {isFinal ? "Final" : `Round ${roundNum + 1}`}
       </TableCell>
       <TableCell align="right">
         <TextField
@@ -70,16 +62,6 @@ export const RoundRow = ({
           value={scheduledTime ?? ""}
           onChange={(e) => onUpdateRound("scheduledTime", e.target.value)}
         />
-      </TableCell>
-      <TableCell align="right">
-        <div className="events-tableIcons">
-          <IconButton onClick={onAddRound}>
-            <AddCircle color="primary" fontSize="medium" />
-          </IconButton>
-          <IconButton onClick={onRemoveRound}>
-            <Close color="action" fontSize="small" />
-          </IconButton>
-        </div>
       </TableCell>
     </TableRow>
   );
