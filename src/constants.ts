@@ -1,3 +1,6 @@
+import { RoundFormat } from "@wca/helpers";
+import { EventId } from "./types";
+
 export const EVENT_NAMES = {
   "333": "3x3",
   "222": "2x2",
@@ -96,4 +99,29 @@ export const IDEAL_COMPETITORS_PER_STATION = {
   mmagic: 0,
   "333mbo": 0,
   "333ft": 0,
+};
+
+export const ROUND_FORMAT: Record<EventId, RoundFormat> = {
+  "333": "a",
+  "222": "a",
+  "444": "a",
+  "555": "a",
+  "666": "m",
+  "777": "m",
+  "333bf": "m",
+  "333fm": "1",
+  "333oh": "a",
+  clock: "a",
+  pyram: "a",
+  minx: "a",
+  skewb: "a",
+  sq1: "a",
+  "444bf": "1",
+  "555bf": "1",
+  "333mbf": "1",
+  // Deprecated events
+  magic: "a",
+  mmagic: "a",
+  "333mbo": "a",
+  "333ft": "a",
 };

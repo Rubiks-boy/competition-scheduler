@@ -8,7 +8,7 @@ import {
   accessTokenSelector,
 } from "../../app/selectors";
 import { saveWcifChanges } from "../../utils/wcaApi";
-import { roundsToWcifEvents } from "../../utils/wcif";
+import { createWcifEvents } from "../../utils/wcif";
 
 const ExportView = () => {
   const events = useSelector(eventsSelector);
@@ -17,16 +17,18 @@ const ExportView = () => {
   const wcaAccessToken = useSelector(accessTokenSelector);
 
   const handleClick = async () => {
-    // if (!originalWcif || !wcaAccessToken) {
-    //   return;
-    // }
-    // const newWcifEvents = roundsToWcifEvents(rounds, originalWcifEvents);
-    // const newWcif = {
-    //   ...originalWcif,
-    //   events: newWcifEvents,
-    // };
-    // const resp = await saveWcifChanges(originalWcif, newWcif, wcaAccessToken);
-    // console.log("resp back", resp);
+    if (!originalWcif || !wcaAccessToken) {
+      return;
+    }
+
+    const newWcifEvents = createWcifEvents(events, originalWcifEvents);
+
+    const newWcif = {
+      ...originalWcif,
+      events: newWcifEvents,
+    };
+    const resp = await saveWcifChanges(originalWcif, newWcif, wcaAccessToken);
+    console.log("resp back", resp);
   };
 
   return (

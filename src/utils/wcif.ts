@@ -1,3 +1,5 @@
+import { ActivityCode, AdvancementCondition, RoundFormat } from "@wca/helpers";
+import { ROUND_FORMAT } from "../constants";
 import {
   EventId,
   Events,
@@ -90,72 +92,71 @@ export const getDefaultSchedule = (events: Events): Schedule => {
   );
 };
 
-const getEventIds = (rounds: Array<Round>): Array<EventId> => {
-  return [...new Set(rounds.map(({ eventId }) => eventId))];
-};
+const getDefaultWcifEvent = (eventId: EventId) => ({
+  id: eventId,
+  rounds: [],
+  extensions: [],
+});
 
-const getAdvanceConditionType = (
-  wcifEvents: Array<WcifEvent>,
-  eventId: string,
-  roundNum: number
-) => {
-  // const event = wcifEvents.find(({ id }) => id == eventId);
+const getDefaultWcifRound = (id: ActivityCode, format: RoundFormat) => ({
+  id,
+  format,
+  timeLimit: null,
+  cutoff: null,
+  advancementCondition: null,
+  results: [],
+  extensions: [],
+});
 
-  // return (
-  //   event?.rounds.find(({ id }) => id === `${eventId}-${roundNum}`)
-  //     ?.advancementCondition?.type ?? "ranking"
-  // );
-
-  // TODO: support other types
-  return "ranking" as const;
-};
-
-export const roundsToWcifEvents = (
+const createWcifEvent = (
+  eventId: EventId,
   rounds: Array<Round>,
-  originalWcifEvents: Array<WcifEvent>
-): Array<WcifEvent> => {
-  const eventIds = getEventIds(rounds);
+  originalWcifEvent: WcifEvent | undefined
+): WcifEvent => {
+  return {
+    ...getDefaultWcifEvent(eventId),
+    ...originalWcifEvent,
+    rounds: rounds.map((round, index) => {
+      const numAdvancingCompetitors = rounds[index + 1]?.numCompetitors ?? null;
+      const advancementCondition: AdvancementCondition | null =
+        numAdvancingCompetitors
+          ? // TODO support other types of advancement conditions
+            {
+              type: "ranking",
+              level: numAdvancingCompetitors,
+            }
+          : null;
 
-  return eventIds.map((id: EventId) => {
-    const roundsInEvent = rounds.filter(({ eventId }) => eventId === id);
+      const roundId = `${eventId}-r${index + 1}`;
 
-    const wcifRounds: Array<WcifRound> = roundsInEvent.map((round, index) => {
-      const numAdvancingCompetitors =
-        roundsInEvent[index + 1]?.numCompetitors ?? null;
-
-      const advancementCondition = numAdvancingCompetitors
-        ? // TODO support other types of advancement conditions
-          {
-            type: getAdvanceConditionType(originalWcifEvents, id, index + 1),
-            level: numAdvancingCompetitors,
-          }
-        : null;
-
-      const roundId = `${round.eventId}-r${index + 1}`;
+      const originalRound = originalWcifEvent?.rounds.find(
+        ({ id }) => id === roundId
+      );
 
       return {
-        id: roundId,
-        format: "a",
+        ...getDefaultWcifRound(roundId, ROUND_FORMAT[eventId]),
+        ...originalRound,
         advancementCondition,
-        scrambleSetCount: (round.numGroups ?? 0) + 1,
-        // TODO properly set up time limits, cutoffs, other round info.
-        // grab from the previous info we have for the event?
-        // maybe for subsequent events make the time limit 10m and cutoff null?
-        timeLimit: { centiseconds: 60000, cumulativeRoundIds: [] },
-        cutoff: null,
-        results: [],
-        extensions: [],
+        ...(round.numGroups &&
+          !originalRound?.scrambleSets && {
+            scrambleSetCount: round.numGroups + 1,
+          }),
       };
-    });
-
-    return {
-      id,
-      rounds: wcifRounds,
-      qualification: null,
-      extensions: [],
-    };
-  });
+    }),
+  };
 };
+
+export const createWcifEvents = (
+  events: Events,
+  originalWcifEvents: Array<WcifEvent>
+): Array<WcifEvent> =>
+  Object.entries(events).map(([eventId, rounds]) => {
+    const originalWcifEvent = originalWcifEvents.find(
+      ({ id }) => id === eventId
+    );
+
+    return createWcifEvent(eventId as EventId, rounds, originalWcifEvent);
+  });
 
 // export const roundsToWcifSchedule = ({
 //   rounds,
