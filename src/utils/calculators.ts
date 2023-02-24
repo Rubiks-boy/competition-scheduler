@@ -3,7 +3,7 @@ import {
   IDEAL_COMPETITORS_PER_STATION,
   TIME_PER_GROUP,
 } from "../constants";
-import { EventId, Round } from "../types";
+import { EventId, Round, Schedule } from "../types";
 
 export const compPerStationsRatio = (
   { numCompetitors, numGroups }: Round,
@@ -69,20 +69,15 @@ export const calcRoundNum = (roundIndex: number, rounds: Array<Round>) => {
   return numPrecedingRounds + 1;
 };
 
-export const isFinalRound = (roundIndex: number, rounds: Array<Round>) => {
-  const { eventId } = rounds[roundIndex];
+export const getRoundNumStr = (
+  eventId: EventId,
+  roundNum: number,
+  schedule: Schedule
+) => {
+  const isFinalRound =
+    schedule.filter((scheduleEntry) => scheduleEntry.eventId === eventId)
+      .length ===
+    roundNum + 1;
 
-  const roundNum = calcRoundNum(roundIndex, rounds);
-
-  const numRoundsForEvent = rounds.filter(
-    (round) => round.eventId === eventId
-  ).length;
-
-  return numRoundsForEvent === roundNum;
-};
-
-export const getRoundNumStr = (roundIndex: number, rounds: Array<Round>) => {
-  return isFinalRound(roundIndex, rounds)
-    ? "Final"
-    : `Round ${calcRoundNum(roundIndex, rounds)}`;
+  return isFinalRound ? "Final" : `Round ${roundNum + 1}`;
 };

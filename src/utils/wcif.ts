@@ -1,4 +1,13 @@
-import { EventId, Events, Round, Wcif, WcifEvent, WcifRound } from "../types";
+import {
+  EventId,
+  Events,
+  EVENT_IDS,
+  Round,
+  Schedule,
+  Wcif,
+  WcifEvent,
+  WcifRound,
+} from "../types";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
@@ -74,6 +83,12 @@ export const getDefaultEventsData = ({
   });
 
   return events;
+};
+
+export const getDefaultSchedule = (events: Events): Schedule => {
+  return EVENT_IDS.flatMap((eventId) =>
+    events[eventId].map((_, roundNum) => ({ eventId, roundNum }))
+  );
 };
 
 const getEventIds = (rounds: Array<Round>): Array<EventId> => {

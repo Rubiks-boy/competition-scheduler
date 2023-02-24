@@ -20,6 +20,8 @@ export const startTimeSelector = (state: State) => state.startTime;
 
 export const eventsSelector = (state: State) => state.events;
 
+export const scheduleSelector = (state: State) => state.schedule;
+
 export const wcifSelector = (state: State) => state.wcif;
 
 export const wcifEventsSelector = (state: State) =>

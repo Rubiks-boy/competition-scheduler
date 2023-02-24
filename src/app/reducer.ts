@@ -1,6 +1,6 @@
 import { Round } from "../types";
 import { makeDefaultEvents } from "../utils/utils";
-import { getDefaultEventsData } from "../utils/wcif";
+import { getDefaultEventsData, getDefaultSchedule } from "../utils/wcif";
 import type { State, Action } from "./types";
 
 export const initialState: State = {
@@ -13,6 +13,7 @@ export const initialState: State = {
   wcifPending: false,
   wcif: null,
   events: makeDefaultEvents(),
+  schedule: [],
 };
 
 export const reducer = (state: State, action: Action): State => {
@@ -43,11 +44,17 @@ export const reducer = (state: State, action: Action): State => {
       return { ...state, wcifPending: true };
     case "FETCH_WCIF_SUCCESS":
       const { wcif } = action;
+      const events = getDefaultEventsData({
+        wcif,
+        numStations: state.numStations,
+      });
+
       return {
         ...state,
         wcifPending: false,
         wcif,
-        events: getDefaultEventsData({ wcif, numStations: state.numStations }),
+        events,
+        schedule: getDefaultSchedule(events),
       };
     case "FETCH_WCIF_ERROR":
       return {
@@ -112,6 +119,13 @@ export const reducer = (state: State, action: Action): State => {
           ...state.events,
           [action.eventId]: withoutRemovedRound,
         },
+        schedule: [
+          ...state.schedule.filter(
+            ({ eventId, roundNum }) =>
+              eventId !== action.eventId ||
+              roundNum !== withoutRemovedRound.length
+          ),
+        ],
       };
 
     case "ADD_ROUND":
@@ -132,6 +146,10 @@ export const reducer = (state: State, action: Action): State => {
           ...state.events,
           [action.eventId]: withAddedRound,
         },
+        schedule: [
+          ...state.schedule,
+          { eventId: action.eventId, roundNum: withAddedRound.length - 1 },
+        ],
       };
 
     case "REORDER_ROUND":

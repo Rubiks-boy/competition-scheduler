@@ -1,4 +1,10 @@
-import { Wcif, ManageableCompetition, EventId, Events } from "../types";
+import {
+  Wcif,
+  ManageableCompetition,
+  EventId,
+  Events,
+  Schedule,
+} from "../types";
 
 export type State = {
   accessToken: string | null;
@@ -10,6 +16,7 @@ export type State = {
   numStations: number;
   startTime: Date;
   events: Events;
+  schedule: Schedule;
 };
 
 export type Action =
