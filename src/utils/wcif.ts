@@ -150,13 +150,15 @@ export const createWcifEvents = (
   events: Events,
   originalWcifEvents: Array<WcifEvent>
 ): Array<WcifEvent> =>
-  Object.entries(events).map(([eventId, rounds]) => {
-    const originalWcifEvent = originalWcifEvents.find(
-      ({ id }) => id === eventId
-    );
+  Object.entries(events)
+    .filter(([_, rounds]) => rounds.length)
+    .map(([eventId, rounds]) => {
+      const originalWcifEvent = originalWcifEvents.find(
+        ({ id }) => id === eventId
+      );
 
-    return createWcifEvent(eventId as EventId, rounds, originalWcifEvent);
-  });
+      return createWcifEvent(eventId as EventId, rounds, originalWcifEvent);
+    });
 
 // export const roundsToWcifSchedule = ({
 //   rounds,
