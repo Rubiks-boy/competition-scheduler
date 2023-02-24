@@ -19,6 +19,13 @@ export const initialState: State = {
   wcif: null,
   events: makeDefaultEvents(),
   schedule: [],
+  otherActivities: {
+    registration: "30",
+    checkin: "30",
+    tutorial: "15",
+    lunch: "45",
+    awards: "15",
+  },
 };
 
 export const reducer = (state: State, action: Action): State => {
@@ -135,9 +142,10 @@ export const reducer = (state: State, action: Action): State => {
         },
         schedule: [
           ...state.schedule.filter(
-            ({ eventId, roundNum }) =>
-              eventId !== action.eventId ||
-              roundNum !== withoutRemovedRound.length
+            (scheduleEntry) =>
+              scheduleEntry.type !== "event" ||
+              scheduleEntry.eventId !== action.eventId ||
+              scheduleEntry.roundNum !== withoutRemovedRound.length
           ),
         ],
       };
@@ -175,7 +183,11 @@ export const reducer = (state: State, action: Action): State => {
         },
         schedule: [
           ...state.schedule,
-          { eventId: action.eventId, roundNum: withAddedRound.length - 1 },
+          {
+            type: "event",
+            eventId: action.eventId,
+            roundNum: withAddedRound.length - 1,
+          },
         ],
       };
 
@@ -192,6 +204,36 @@ export const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         schedule: reorderedSchedule,
+      };
+
+    case "OTHER_ACTIVITY_TIME_SET":
+      const { activity, time } = action;
+
+      return {
+        ...state,
+        otherActivities: {
+          ...state.otherActivities,
+          [activity]: time,
+        },
+      };
+
+    case "OTHER_ACTIVITY_ENABLED":
+      return {
+        ...state,
+        schedule: [
+          ...state.schedule,
+          { type: "other", activity: action.activity },
+        ],
+      };
+
+    case "OTHER_ACTIVITY_DISABLED":
+      return {
+        ...state,
+        schedule: state.schedule.filter(
+          (scheduleEntry) =>
+            scheduleEntry.type !== "other" ||
+            scheduleEntry.activity !== action.activity
+        ),
       };
 
     default:

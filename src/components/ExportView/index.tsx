@@ -9,6 +9,7 @@ import {
   scheduleSelector,
   startTimeSelector,
   wcifScheduleSelector,
+  otherActivitiesSelector,
 } from "../../app/selectors";
 import { saveWcifChanges } from "../../utils/wcaApi";
 import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
@@ -16,6 +17,7 @@ import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
 const ExportView = () => {
   const events = useSelector(eventsSelector);
   const schedule = useSelector(scheduleSelector);
+  const otherActivities = useSelector(otherActivitiesSelector);
   const startTime = useSelector(startTimeSelector);
   const originalWcifEvents = useSelector(wcifEventsSelector);
   const originalWcifSchedule = useSelector(wcifScheduleSelector);
@@ -33,6 +35,7 @@ const ExportView = () => {
       startTime,
       originalWcifSchedule,
       events,
+      otherActivities,
     });
 
     const newWcif = {

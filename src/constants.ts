@@ -150,3 +150,11 @@ export const ROUND_FORMAT: Record<EventId, RoundFormat> = {
   "333mbo": "a",
   "333ft": "a",
 };
+
+export const OTHER_ACTIVITES = [
+  "registration",
+  "checkin",
+  "tutorial",
+  "lunch",
+  "awards",
+];

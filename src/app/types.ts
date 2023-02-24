@@ -4,6 +4,7 @@ import {
   EventId,
   Events,
   Schedule,
+  OtherActivity,
 } from "../types";
 
 export type State = {
@@ -17,6 +18,7 @@ export type State = {
   startTime: Date;
   events: Events;
   schedule: Schedule;
+  otherActivities: Record<OtherActivity, string>;
 };
 
 export type Action =
@@ -76,4 +78,17 @@ export type Action =
       type: "REORDER_ROUND";
       oldIndex: number;
       newIndex: number;
+    }
+  | {
+      type: "OTHER_ACTIVITY_TIME_SET";
+      activity: OtherActivity;
+      time: string;
+    }
+  | {
+      type: "OTHER_ACTIVITY_ENABLED";
+      activity: OtherActivity;
+    }
+  | {
+      type: "OTHER_ACTIVITY_DISABLED";
+      activity: OtherActivity;
     };

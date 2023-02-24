@@ -6,6 +6,7 @@ import {
 import {
   EventId,
   Events,
+  OtherActivity,
   Round,
   Schedule,
   ScheduleEntryWithTime,
@@ -81,8 +82,10 @@ export const getRoundNumStr = (
   schedule: Schedule
 ) => {
   const isFinalRound =
-    schedule.filter((scheduleEntry) => scheduleEntry.eventId === eventId)
-      .length ===
+    schedule.filter(
+      (scheduleEntry) =>
+        scheduleEntry.type === "event" && scheduleEntry.eventId === eventId
+    ).length ===
     roundNum + 1;
 
   return isFinalRound ? "Final" : `Round ${roundNum + 1}`;
@@ -91,20 +94,22 @@ export const getRoundNumStr = (
 export const calcScheduleTimes = (
   startTime: Date,
   schedule: Schedule,
-  events: Events
+  events: Events,
+  otherActivities: Record<OtherActivity, string>
 ): Array<ScheduleEntryWithTime> => {
   const roundsWithTimes: Array<ScheduleEntryWithTime> = [];
 
   let currStartMs = startTime.getTime();
 
-  schedule.forEach(({ eventId, roundNum }) => {
-    const round = events[eventId][roundNum];
-    const { scheduledTime } = round;
+  schedule.forEach((scheduleEntry) => {
+    const scheduledTime =
+      scheduleEntry.type === "event"
+        ? events[scheduleEntry.eventId][scheduleEntry.roundNum].scheduledTime
+        : parseInt(otherActivities[scheduleEntry.activity], 10);
     const scheduledTimeMs = (scheduledTime || 0) * 60 * 1000;
 
     roundsWithTimes.push({
-      eventId,
-      roundNum,
+      ...scheduleEntry,
       startTime: new Date(currStartMs),
       endTime: new Date(currStartMs + scheduledTimeMs),
     });

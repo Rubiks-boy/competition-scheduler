@@ -5,6 +5,7 @@ import { Event } from "./Event";
 import { EventId, EVENT_IDS } from "../../types";
 
 import "./index.css";
+import { OtherActivities } from "./OtherActivites";
 
 const EventsView = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ const EventsView = () => {
           />
         );
       })}
+      <OtherActivities />
     </>
   );
 };

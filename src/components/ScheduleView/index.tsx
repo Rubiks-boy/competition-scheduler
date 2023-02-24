@@ -7,10 +7,10 @@ import {
   OnDragEndResponder,
 } from "react-beautiful-dnd";
 import ReorderIcon from "@mui/icons-material/Reorder";
-import { EventId, Events, Schedule } from "../../types";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   eventsSelector,
+  otherActivitiesSelector,
   scheduleSelector,
   startTimeSelector,
 } from "../../app/selectors";
@@ -24,6 +24,7 @@ const ScheduleView = () => {
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
   const startTime = useSelector(startTimeSelector);
+  const otherActivities = useSelector(otherActivitiesSelector);
 
   const onDragEnd: OnDragEndResponder = (result) => {
     // dropped outside the list
@@ -37,7 +38,12 @@ const ScheduleView = () => {
     });
   };
 
-  const roundsWithTimes = calcScheduleTimes(startTime, schedule, events);
+  const roundsWithTimes = calcScheduleTimes(
+    startTime,
+    schedule,
+    events,
+    otherActivities
+  );
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -45,42 +51,53 @@ const ScheduleView = () => {
         {(provided, snapshot) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             <List>
-              {roundsWithTimes.map(
-                ({ startTime, endTime, eventId, roundNum }, index) => {
-                  return (
-                    <Draggable
-                      key={`${eventId}-${roundNum}`}
-                      draggableId={`${eventId}-${roundNum}`}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                        >
-                          <ListItem>
-                            <ListItemButton>
-                              <ReorderIcon />
-                              <ListItemText>
-                                {`${formatTime(startTime)}-${formatTime(
-                                  endTime
-                                )}`}
-                              </ListItemText>
-                              <ListItemText>
-                                {EVENT_NAMES[eventId]}
-                              </ListItemText>
-                              <ListItemText>
-                                {getRoundNumStr(eventId, roundNum, schedule)}
-                              </ListItemText>
-                            </ListItemButton>
-                          </ListItem>
-                        </div>
-                      )}
-                    </Draggable>
-                  );
-                }
-              )}
+              {roundsWithTimes.map((scheduleEntry, index) => {
+                const { startTime, endTime, type } = scheduleEntry;
+
+                const eventName =
+                  type === "event"
+                    ? EVENT_NAMES[scheduleEntry.eventId]
+                    : scheduleEntry.activity;
+
+                const roundNumStr =
+                  type === "event"
+                    ? getRoundNumStr(
+                        scheduleEntry.eventId,
+                        scheduleEntry.roundNum,
+                        schedule
+                      )
+                    : "";
+
+                const id =
+                  type === "event"
+                    ? `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`
+                    : `other-${scheduleEntry.activity}`;
+
+                return (
+                  <Draggable key={id} draggableId={id} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <ListItem>
+                          <ListItemButton>
+                            <ReorderIcon />
+                            <ListItemText>
+                              {`${formatTime(startTime)}-${formatTime(
+                                endTime
+                              )}`}
+                            </ListItemText>
+                            <ListItemText>{eventName}</ListItemText>
+                            <ListItemText>{roundNumStr}</ListItemText>
+                          </ListItemButton>
+                        </ListItem>
+                      </div>
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
             </List>
           </div>

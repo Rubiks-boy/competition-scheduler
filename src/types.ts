@@ -41,7 +41,19 @@ export type Round = {
   scheduledTime: number | null;
 };
 
-type ScheduleEntry = { eventId: EventId; roundNum: number };
+export type OtherActivity =
+  | "registration"
+  | "checkin"
+  | "tutorial"
+  | "lunch"
+  | "awards";
+
+export type ScheduleEntry =
+  | { type: "event"; eventId: EventId; roundNum: number }
+  | {
+      type: "other";
+      activity: OtherActivity;
+    };
 
 export type ScheduleEntryWithTime = ScheduleEntry & {
   startTime: Date;
