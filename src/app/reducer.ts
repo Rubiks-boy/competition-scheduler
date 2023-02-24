@@ -103,14 +103,14 @@ export const reducer = (state: State, action: Action): State => {
         ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
       };
 
+      const updatedRounds = [...state.events[action.eventId]];
+      updatedRounds[action.roundNum] = updatedRound;
+
       return {
         ...state,
         events: {
           ...state.events,
-          [action.eventId]: {
-            ...state.events[action.eventId],
-            [action.roundNum]: updatedRound,
-          },
+          [action.eventId]: updatedRounds,
         },
       };
 
