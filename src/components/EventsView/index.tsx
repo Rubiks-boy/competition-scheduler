@@ -45,6 +45,7 @@ const EventsView = () => {
 
         return (
           <Event
+            key={eventId}
             eventId={eventId}
             rounds={rounds}
             numStations={numStations}
