@@ -30,7 +30,7 @@ export const enabledOtherActivitiesSelector = (state: State) =>
     (activity) =>
       state.schedule.findIndex(
         (scheduleEntry) =>
-          scheduleEntry.type === "other" && scheduleEntry.activity === activity
+          scheduleEntry.type === "other" && scheduleEntry.eventId === activity
       ) > -1
   );
 

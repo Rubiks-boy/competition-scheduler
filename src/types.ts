@@ -52,7 +52,7 @@ export type ScheduleEntry =
   | { type: "event"; eventId: EventId; roundNum: number }
   | {
       type: "other";
-      activity: OtherActivity;
+      eventId: OtherActivity;
     };
 
 export type ScheduleEntryWithTime = ScheduleEntry & {

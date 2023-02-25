@@ -293,7 +293,7 @@ export const reducer = (state: State, action: Action): State => {
         isShowingDefaultInfo: false,
         schedule: [
           ...state.schedule,
-          { type: "other", activity: action.activity },
+          { type: "other", eventId: action.activity },
         ],
       };
 
@@ -304,7 +304,7 @@ export const reducer = (state: State, action: Action): State => {
         schedule: state.schedule.filter(
           (scheduleEntry) =>
             scheduleEntry.type !== "other" ||
-            scheduleEntry.activity !== action.activity
+            scheduleEntry.eventId !== action.activity
         ),
       };
 

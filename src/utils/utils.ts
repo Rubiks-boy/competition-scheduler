@@ -17,7 +17,7 @@ export const constructActivityString = (scheduleEntry: ScheduleEntry) => {
   }
 
   return (
-    scheduleEntry.activity.charAt(0).toUpperCase() +
-    scheduleEntry.activity.slice(1)
+    scheduleEntry.eventId.charAt(0).toUpperCase() +
+    scheduleEntry.eventId.slice(1)
   );
 };

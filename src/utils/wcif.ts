@@ -192,7 +192,7 @@ const createWcifRoom = ({
       const activityCode =
         type === "event"
           ? `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}`
-          : `other-${scheduleEntry.activity}`;
+          : `other-${scheduleEntry.eventId}`;
 
       const originalActivity = originalWcifRoom.activities.find(
         (activity) => activity.activityCode === activityCode

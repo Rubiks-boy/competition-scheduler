@@ -28,13 +28,7 @@ const getColorsForActivities = (schedule: Schedule) => {
 
   // List of all activities and events in the schedule
   const activitiesList = [
-    ...new Set(
-      schedule.map((scheduleEntry) =>
-        scheduleEntry.type === "event"
-          ? scheduleEntry.eventId
-          : scheduleEntry.activity
-      )
-    ),
+    ...new Set(schedule.map((scheduleEntry) => scheduleEntry.eventId)),
   ];
 
   activitiesList.forEach((activity, index) => {
@@ -95,7 +89,7 @@ export const ReorderEvents = () => {
                 const eventName =
                   type === "event"
                     ? EVENT_NAMES[scheduleEntry.eventId]
-                    : scheduleEntry.activity;
+                    : scheduleEntry.eventId;
 
                 const roundNumStr =
                   type === "event"
@@ -109,14 +103,9 @@ export const ReorderEvents = () => {
                 const id =
                   type === "event"
                     ? `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`
-                    : `other-${scheduleEntry.activity}`;
+                    : `other-${scheduleEntry.eventId}`;
 
-                const baseColor =
-                  colors[
-                    type === "event"
-                      ? scheduleEntry.eventId
-                      : scheduleEntry.activity
-                  ] || grey;
+                const baseColor = colors[scheduleEntry.eventId] || grey;
 
                 const backgroundColor =
                   // @ts-expect-error this will always be a valid color.

@@ -105,7 +105,7 @@ export const calcScheduleTimes = (
     const scheduledTime =
       scheduleEntry.type === "event"
         ? events[scheduleEntry.eventId]?.[scheduleEntry.roundNum].scheduledTime
-        : otherActivities[scheduleEntry.activity];
+        : otherActivities[scheduleEntry.eventId];
     const scheduledTimeMs = parseInt(scheduledTime || "0") * 60 * 1000;
 
     roundsWithTimes.push({
