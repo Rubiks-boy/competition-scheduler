@@ -90,6 +90,7 @@ export const OtherActivities = () => {
 
               return (
                 <ActivityRow
+                  key={activity}
                   activity={activity}
                   enabled={enabled}
                   time={otherActivities[activity]}
