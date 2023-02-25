@@ -17,6 +17,7 @@ export type State = {
   numStations: string;
   startTime: Date;
   isShowingDefaultInfo: boolean;
+  hasReorderedEvents: boolean;
   events: Events;
   schedule: Schedule;
   otherActivities: Record<OtherActivity, string>;

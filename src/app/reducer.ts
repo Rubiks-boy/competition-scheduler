@@ -1,4 +1,5 @@
 import { Round } from "../types";
+import { autoReorder } from "../utils/autoReorder";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
@@ -18,6 +19,7 @@ export const initialState: State = {
   wcifPending: false,
   wcif: null,
   isShowingDefaultInfo: true,
+  hasReorderedEvents: false,
   events: makeDefaultEvents(),
   schedule: [],
   otherActivities: {
@@ -29,7 +31,9 @@ export const initialState: State = {
   },
 };
 
-export const reducer = (state: State, action: Action): State => {
+type Reducer = (state: State, action: Action) => State;
+
+const reducer: Reducer = (state, action) => {
   switch (action.type) {
     case "SIGNIN_COMPLETE":
       const { accessToken } = action;
@@ -73,6 +77,7 @@ export const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         isShowingDefaultInfo: true,
+        hasReorderedEvents: false,
         wcifPending: false,
         wcif,
         events,
@@ -271,6 +276,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        hasReorderedEvents: true,
         isShowingDefaultInfo: false,
         schedule: reorderedSchedule,
       };
@@ -312,3 +318,17 @@ export const reducer = (state: State, action: Action): State => {
       return state;
   }
 };
+
+const withAutoScheduleReordering =
+  (reducer: Reducer): Reducer =>
+  (state, action) => {
+    const newState = reducer(state, action);
+
+    if (newState.hasReorderedEvents) {
+      return newState;
+    }
+
+    return { ...newState, schedule: autoReorder(newState.schedule) };
+  };
+
+export default withAutoScheduleReordering(reducer);
