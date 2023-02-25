@@ -130,7 +130,10 @@ export const ReorderEvents = () => {
                 );
                 const height = `${
                   MIN_HEIGHT +
-                  ((scheduleEntry.scheduledTimeMs - shortestEventTime) /
+                  (Math.max(
+                    scheduleEntry.scheduledTimeMs - shortestEventTime,
+                    0
+                  ) /
                     longestEventTime) *
                     MAX_ADDITIONAL_HEIGHT
                 }em`;
