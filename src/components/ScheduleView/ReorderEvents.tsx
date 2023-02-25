@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { List, ListItem, Box, Typography, Color } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import {
@@ -46,7 +46,12 @@ export const ReorderEvents = () => {
   const startTime = useSelector(startTimeSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
 
-  const colors = getColorsForActivities(schedule);
+  const colors = useMemo(() => {
+    return getColorsForActivities(schedule);
+    // Purposely excluding schedule from the dep array so that
+    // colors remain constant whenever re-ordering events
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onDragEnd: OnDragEndResponder = (result) => {
     // dropped outside the list
@@ -109,7 +114,7 @@ export const ReorderEvents = () => {
 
                 const backgroundColor =
                   // @ts-expect-error this will always be a valid color.
-                  baseColor[800 - 100 * scheduleEntry.roundNum];
+                  baseColor[800 - 100 * (scheduleEntry.roundNum || 0)];
 
                 console.log(
                   MIN_HEIGHT,
