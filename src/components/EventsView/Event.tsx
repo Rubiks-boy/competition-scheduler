@@ -79,7 +79,7 @@ export const Event = ({
       </Toolbar>
       {rounds.length > 0 && (
         <TableContainer>
-          <Table sx={{ minWidth: 650 }}>
+          <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Event</TableCell>

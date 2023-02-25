@@ -68,7 +68,7 @@ export const RoundRow = ({
       <TableCell component="th" scope="row" sx={{ minWidth: "10em" }}>
         {EVENT_NAMES[eventId]} {isFinal ? "Final" : `Round ${roundNum + 1}`}
       </TableCell>
-      <TableCell sx={{ minWidth: "10em", width: "20%" }}>
+      <TableCell sx={{ minWidth: "8em", width: "20%" }}>
         <TextField
           hiddenLabel
           size="small"
@@ -77,7 +77,7 @@ export const RoundRow = ({
           onChange={(e) => onUpdateRound("numCompetitors", e.target.value)}
         />
       </TableCell>
-      <TableCell sx={{ minWidth: "10em", width: "20%" }}>
+      <TableCell sx={{ minWidth: "8em", width: "20%" }}>
         <TextField
           hiddenLabel
           size="small"
