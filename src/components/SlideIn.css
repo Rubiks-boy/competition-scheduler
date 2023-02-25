@@ -1,0 +1,7 @@
+.slideIn.animatePresence--entering .slideIn-child {
+  border: 10px solid green;
+}
+
+.slideIn.animatePresence--exiting .slideIn-child {
+  border: 10px solid red;
+}
