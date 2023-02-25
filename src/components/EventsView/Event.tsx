@@ -83,11 +83,10 @@ export const Event = ({
             <TableHead>
               <TableRow>
                 <TableCell>Event</TableCell>
-                <TableCell align="right">Competitors</TableCell>
-                <TableCell align="right">Groups</TableCell>
-                <TableCell align="right">Ratio</TableCell>
-                <TableCell align="right">Calc Time</TableCell>
-                <TableCell align="right">Sch Time</TableCell>
+                <TableCell>Competitors</TableCell>
+                <TableCell>Groups</TableCell>
+                <TableCell>Ratio</TableCell>
+                <TableCell>Scheduled Time</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>{roundRows}</TableBody>

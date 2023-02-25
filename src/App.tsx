@@ -12,6 +12,8 @@ import { useLookupAccessToken } from "./hooks/useLookupAccessToken";
 import { useFetchCompetitions } from "./hooks/useFetchCompetitions";
 import { useFetchWcif } from "./hooks/useFetchWcif";
 
+import "./App.css";
+
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
