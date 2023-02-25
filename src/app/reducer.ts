@@ -137,6 +137,13 @@ export const reducer = (state: State, action: Action): State => {
         ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
       };
 
+      if (!action.isEditingTime && !action.scheduledTime) {
+        updatedRound.scheduledTime = calcTimeForRound(
+          action.eventId,
+          parseInt(updatedRound.numGroups || "0")
+        ).toString();
+      }
+
       const updatedRounds = [...state.events[action.eventId]];
       updatedRounds[action.roundNum] = updatedRound;
 

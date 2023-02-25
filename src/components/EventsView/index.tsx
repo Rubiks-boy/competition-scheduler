@@ -16,12 +16,14 @@ const EventsView = () => {
   const makeOnUpdateRound = (eventId: EventId, roundNum: number) => {
     return (
       field: "numCompetitors" | "numGroups" | "scheduledTime",
-      value: string
+      value: string,
+      isEditingTime: boolean
     ) => {
       dispatch({
         type: "ROUND_UPDATED",
         eventId,
         roundNum,
+        isEditingTime,
         [field]: parseInt(value, 10),
       });
     };

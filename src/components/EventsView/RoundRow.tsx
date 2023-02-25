@@ -52,7 +52,8 @@ export const RoundRow = ({
   numStations: number;
   onUpdateRound: (
     field: "numCompetitors" | "numGroups" | "scheduledTime",
-    value: string
+    value: string,
+    isEditingTime: boolean
   ) => void;
 }) => {
   const { eventId, numCompetitors, numGroups, scheduledTime } = round;
@@ -74,7 +75,9 @@ export const RoundRow = ({
           size="small"
           type="number"
           value={numCompetitors}
-          onChange={(e) => onUpdateRound("numCompetitors", e.target.value)}
+          onChange={(e) =>
+            onUpdateRound("numCompetitors", e.target.value, isEditingTime)
+          }
         />
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%" }}>
@@ -83,7 +86,9 @@ export const RoundRow = ({
           size="small"
           type="number"
           value={numGroups}
-          onChange={(e) => onUpdateRound("numGroups", e.target.value)}
+          onChange={(e) =>
+            onUpdateRound("numGroups", e.target.value, isEditingTime)
+          }
         />
       </TableCell>
       <TableCell sx={{ minWidth: "6em", width: "10%" }}>
@@ -102,7 +107,9 @@ export const RoundRow = ({
               size="small"
               type="number"
               value={scheduledTime}
-              onChange={(e) => onUpdateRound("scheduledTime", e.target.value)}
+              onChange={(e) =>
+                onUpdateRound("scheduledTime", e.target.value, isEditingTime)
+              }
             />
             <TimeDiffTooltip
               calculatedTime={calculatedTime}

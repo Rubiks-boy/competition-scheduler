@@ -26,7 +26,8 @@ type EventProps = {
     roundIndex: number
   ) => (
     field: "numCompetitors" | "numGroups" | "scheduledTime",
-    value: string
+    value: string,
+    isEditingTime: boolean
   ) => void;
   onAddRound: () => void;
   onRemoveRound: () => void;

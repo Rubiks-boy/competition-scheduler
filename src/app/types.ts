@@ -63,6 +63,7 @@ export type Action =
       type: "ROUND_UPDATED";
       eventId: EventId;
       roundNum: number;
+      isEditingTime: boolean;
       numCompetitors?: string;
       numGroups?: string;
       scheduledTime?: string;
