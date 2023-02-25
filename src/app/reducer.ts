@@ -132,9 +132,9 @@ export const reducer = (state: State, action: Action): State => {
 
       const updatedRound = {
         ...oldRound,
-        ...(action.numCompetitors && { numCompetitors: action.numCompetitors }),
-        ...(action.numGroups && { numGroups: action.numGroups }),
-        ...(action.scheduledTime && { scheduledTime: action.scheduledTime }),
+        numCompetitors: action.numCompetitors ?? oldRound.numCompetitors,
+        numGroups: action.numGroups ?? oldRound.numGroups,
+        scheduledTime: action.scheduledTime ?? oldRound.scheduledTime,
       };
 
       if (!action.isEditingTime && !action.scheduledTime) {

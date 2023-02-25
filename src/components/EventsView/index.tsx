@@ -24,7 +24,7 @@ const EventsView = () => {
         eventId,
         roundNum,
         isEditingTime,
-        [field]: parseInt(value, 10),
+        [field]: value,
       });
     };
   };
