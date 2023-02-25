@@ -181,3 +181,23 @@ export const EVENT_COLORS = [
   // colors.brown,
   // colors.grey,
 ];
+
+export const IDEAL_EVENT_ORDERING: Array<EventId> = [
+  "333",
+  "444",
+  "222",
+  "777",
+  "666",
+  "minx",
+  "555",
+  "333oh",
+  "sq1",
+  "pyram",
+  "skewb",
+  "clock",
+  "333bf",
+  "333fm",
+  "444bf",
+  "555bf",
+  "333mbf",
+];
