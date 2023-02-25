@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { accessTokenSelector } from "../app/selectors";
 import { useDispatch, useSelector } from "../app/hooks";
 import { fetchUpcomingManageableCompetitions } from "../utils/wcaApi";
