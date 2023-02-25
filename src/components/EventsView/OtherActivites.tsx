@@ -20,24 +20,9 @@ import {
   enabledOtherActivitiesSelector,
   otherActivitiesSelector,
 } from "../../app/selectors";
+import { ACTIVITIES, ACTIVITY_NAMES } from "../../constants";
 
-const activities = [
-  "registration",
-  "checkin",
-  "tutorial",
-  "lunch",
-  "awards",
-] as const;
-
-type Activity = typeof activities[number];
-
-const acitivityNames = {
-  registration: "Registration",
-  checkin: "Check-in",
-  tutorial: "Tutorial",
-  lunch: "Lunch",
-  awards: "Awards",
-};
+type Activity = typeof ACTIVITIES[number];
 
 const ActivityRow = ({
   activity,
@@ -58,7 +43,7 @@ const ActivityRow = ({
         <Checkbox color="primary" checked={enabled} onChange={onToggle} />
       </TableCell>
       <TableCell component="th" scope="row">
-        {acitivityNames[activity]}
+        {ACTIVITY_NAMES[activity]}
       </TableCell>
       <TableCell align="right">
         <TextField
@@ -96,7 +81,7 @@ export const OtherActivities = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {activities.map((activity) => {
+                {ACTIVITIES.map((activity) => {
                   const enabled = enabledOtherActivities.includes(activity);
 
                   return (

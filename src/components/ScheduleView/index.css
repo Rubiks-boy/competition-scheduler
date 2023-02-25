@@ -1,3 +1,7 @@
-.schedule--evenlySpaced li {
+.schedule--evenlySpaced .schedule-draggableEvent {
   height: 4em;
+}
+
+.schedule-draggableEvent {
+  transition: height var(--transition-duration) ease;
 }

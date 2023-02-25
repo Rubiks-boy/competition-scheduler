@@ -15,7 +15,12 @@ import {
   startTimeSelector,
 } from "../../app/selectors";
 import { formatTime } from "../../utils/formatTime";
-import { EVENT_COLORS, EVENT_NAMES } from "../../constants";
+import {
+  ACTIVITY_NAMES,
+  EVENT_COLORS,
+  EVENT_NAMES,
+  OTHER_ACTIVITES,
+} from "../../constants";
 import { calcScheduleTimes, getRoundNumStr } from "../../utils/calculators";
 import { EventId, OtherActivity, Schedule } from "../../types";
 
@@ -94,15 +99,15 @@ export const ReorderEvents = () => {
                 const eventName =
                   type === "event"
                     ? EVENT_NAMES[scheduleEntry.eventId]
-                    : scheduleEntry.eventId;
+                    : ACTIVITY_NAMES[scheduleEntry.eventId];
 
                 const roundNumStr =
                   type === "event"
-                    ? getRoundNumStr(
+                    ? ` ${getRoundNumStr(
                         scheduleEntry.eventId,
                         scheduleEntry.roundNum,
                         schedule
-                      )
+                      )}`
                     : "";
 
                 const id =
@@ -147,10 +152,11 @@ export const ReorderEvents = () => {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
+                        className="schedule-draggableEvent"
                       >
                         <Box>
                           <Typography variant="body1">
-                            {eventName} {roundNumStr}
+                            {`${eventName}${roundNumStr}`}
                           </Typography>
                           <Typography variant="body2">
                             {`${formatTime(startTime)}-${formatTime(endTime)}`}

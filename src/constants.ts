@@ -201,3 +201,19 @@ export const IDEAL_EVENT_ORDERING: Array<EventId> = [
   "555bf",
   "333mbf",
 ];
+
+export const ACTIVITIES = [
+  "registration",
+  "checkin",
+  "tutorial",
+  "lunch",
+  "awards",
+] as const;
+
+export const ACTIVITY_NAMES = {
+  registration: "Registration",
+  checkin: "Check-in",
+  tutorial: "Tutorial",
+  lunch: "Lunch",
+  awards: "Awards",
+};
