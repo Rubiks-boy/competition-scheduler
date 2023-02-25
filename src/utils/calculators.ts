@@ -112,6 +112,7 @@ export const calcScheduleTimes = (
       ...scheduleEntry,
       startTime: new Date(currStartMs),
       endTime: new Date(currStartMs + scheduledTimeMs),
+      scheduledTimeMs,
     });
 
     currStartMs += scheduledTimeMs;

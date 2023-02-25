@@ -58,6 +58,7 @@ export type ScheduleEntry =
 export type ScheduleEntryWithTime = ScheduleEntry & {
   startTime: Date;
   endTime: Date;
+  scheduledTimeMs: number;
 };
 
 export type Schedule = Array<ScheduleEntry>;
