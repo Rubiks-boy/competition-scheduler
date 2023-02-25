@@ -12,6 +12,7 @@ import { isSignedInSelector } from "../app/selectors";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
+import { AnimatePresence } from "./AnimatePresence";
 
 const steps = ["Configure competition", "Events", "Schedule"];
 
@@ -72,7 +73,9 @@ export const ScheduleStepper = () => {
       ) : (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>{steps[activeStep]}</Typography>
-          <StepContent activeStep={activeStep} />
+          <AnimatePresence>
+            <StepContent activeStep={activeStep} key={activeStep} />
+          </AnimatePresence>
           <Box
             sx={{
               display: "flex",
