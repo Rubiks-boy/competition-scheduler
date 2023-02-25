@@ -1,3 +1,4 @@
 body {
-  --transition-duration: 0.2s;
+  --transition-duration: 200ms;
+  --view-transition-duration: 300ms;
 }

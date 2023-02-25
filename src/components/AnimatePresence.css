@@ -1,0 +1,24 @@
+.animatePresence {
+  transition: opacity var(--view-transition-duration) ease;
+}
+
+.animatePresence--entering {
+  opacity: 0;
+}
+
+.animatePresence--enteringActive {
+  opacity: 1;
+}
+
+.animatePresence--exitingActive {
+  opacity: 0;
+}
+
+.animatePresence--exiting {
+  position: absolute;
+  inset: 0;
+}
+
+.animatePresence-container {
+  position: relative;
+}
