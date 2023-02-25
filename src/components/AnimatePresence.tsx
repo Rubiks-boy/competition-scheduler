@@ -19,7 +19,6 @@ export const AnimatePresence = ({
   duration?: number;
 }) => {
   const previousChildren = useRef<React.ReactElement | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const previousKey = usePrevious(children?.key);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -29,16 +28,7 @@ export const AnimatePresence = ({
   useEffect(() => {
     setIsAnimating(true);
 
-    const container = containerRef.current;
-
-    if (container) {
-      container.style.height = `${container.getBoundingClientRect()?.height}px`;
-    }
-
     const resetAfterAnimating = () => {
-      if (container) {
-        container.style.height = "";
-      }
       previousChildren.current = children;
       setIsAnimating(false);
     };
@@ -56,7 +46,7 @@ export const AnimatePresence = ({
   }, [children?.key, duration]);
 
   return (
-    <div className="animatePresence-container" ref={containerRef}>
+    <div className="animatePresence-container">
       {previousChildren.current &&
         !rerenderWhileAnimating &&
         (newChild || isAnimating) && (
