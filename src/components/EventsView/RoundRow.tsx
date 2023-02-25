@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Edit, Info, Warning, Dangerous } from "@mui/icons-material";
+import { Edit, Info, Warning } from "@mui/icons-material";
 import type { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
 import {
@@ -23,18 +23,13 @@ const TimeDiffTooltip = ({
   timeDiff: number;
   calculatedTime: number;
 }) => {
-  let Icon;
-  if (timeDiff >= 40) {
-    Icon = Dangerous;
-  } else if (timeDiff >= 15) {
-    Icon = Warning;
-  } else {
-    Icon = Info;
-  }
-
   return (
     <Tooltip title={`Recommended time: ${calculatedTime}`}>
-      <Icon fontSize="small" />
+      {timeDiff >= 20 ? (
+        <Warning color="warning" fontSize="small" />
+      ) : (
+        <Info color="info" fontSize="small" />
+      )}
     </Tooltip>
   );
 };
