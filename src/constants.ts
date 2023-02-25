@@ -1,5 +1,6 @@
 import { RoundFormat } from "@wca/helpers";
 import { EventId } from "./types";
+import { colors } from "@mui/material";
 
 export const EVENT_NAMES = {
   "333": "3x3",
@@ -157,4 +158,26 @@ export const OTHER_ACTIVITES = [
   "tutorial",
   "lunch",
   "awards",
+];
+
+export const EVENT_COLORS = [
+  colors.deepPurple,
+  colors.indigo,
+  colors.teal,
+  colors.deepOrange,
+  colors.pink,
+  colors.purple,
+  colors.green,
+  colors.red,
+  colors.orange,
+  colors.blue,
+  colors.lightGreen,
+  // colors.cyan,
+  // colors.blueGrey,
+  // colors.amber,
+  // colors.lightBlue,
+  // colors.lime,
+  // colors.yellow,
+  // colors.brown,
+  // colors.grey,
 ];
