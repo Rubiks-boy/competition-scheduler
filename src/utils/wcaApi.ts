@@ -49,10 +49,6 @@ const updateWcif = (
   wcif: Partial<Wcif>,
   wcaAccessToken: string
 ) => {
-  console.log("updating with", wcif);
-  if (competitionId !== "TestingCompetition2023") {
-    throw new Error("dont do this");
-  }
   wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken, {
     method: "PATCH",
     body: JSON.stringify(wcif),
