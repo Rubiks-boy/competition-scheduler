@@ -14,7 +14,7 @@ export type State = {
   wcifPending: boolean;
   wcif: Wcif | null;
   selectedCompId: string | null;
-  numStations: number;
+  numStations: string;
   startTime: Date;
   events: Events;
   schedule: Schedule;
@@ -52,7 +52,7 @@ export type Action =
     }
   | {
       type: "NUM_STATIONS_CHANGED";
-      numStations: number;
+      numStations: string;
     }
   | {
       type: "START_TIME_CHANGED";
@@ -62,9 +62,9 @@ export type Action =
       type: "ROUND_UPDATED";
       eventId: EventId;
       roundNum: number;
-      numCompetitors?: number;
-      numGroups?: number;
-      scheduledTime?: number;
+      numCompetitors?: string;
+      numGroups?: string;
+      scheduledTime?: string;
     }
   | {
       type: "REMOVE_ROUND";

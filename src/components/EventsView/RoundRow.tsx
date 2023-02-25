@@ -35,7 +35,7 @@ export const RoundRow = ({
           hiddenLabel
           size="small"
           type="number"
-          value={numCompetitors ?? ""}
+          value={numCompetitors}
           onChange={(e) => onUpdateRound("numCompetitors", e.target.value)}
         />
       </TableCell>
@@ -44,7 +44,7 @@ export const RoundRow = ({
           hiddenLabel
           size="small"
           type="number"
-          value={numGroups ?? ""}
+          value={numGroups}
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
         />
       </TableCell>
@@ -52,14 +52,14 @@ export const RoundRow = ({
         {compPerStationsRatio(round, numStations)}
       </TableCell>
       <TableCell align="right">
-        {calcTimeForRound(eventId, numGroups)}
+        {calcTimeForRound(eventId, parseInt(numGroups || "0"))}
       </TableCell>
       <TableCell align="right">
         <TextField
           hiddenLabel
           size="small"
           type="number"
-          value={scheduledTime ?? ""}
+          value={scheduledTime}
           onChange={(e) => onUpdateRound("scheduledTime", e.target.value)}
         />
       </TableCell>

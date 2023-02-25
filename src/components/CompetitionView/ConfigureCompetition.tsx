@@ -11,10 +11,9 @@ export const ConfigureCompetition = () => {
   const onNumStationsChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const newNumStations = parseInt(e.target.value, 10);
     dispatch({
       type: "NUM_STATIONS_CHANGED",
-      numStations: newNumStations,
+      numStations: e.target.value,
     });
   };
 

@@ -59,9 +59,9 @@ const wcifRoundsToEventRounds = (
 
       return {
         eventId,
-        numCompetitors,
-        numGroups,
-        scheduledTime,
+        numCompetitors: numCompetitors.toString(),
+        numGroups: numGroups.toString(),
+        scheduledTime: scheduledTime.toString(),
         roundNum,
       };
     })
@@ -122,7 +122,9 @@ const createWcifEvent = (
     ...getDefaultWcifEvent(eventId),
     ...originalWcifEvent,
     rounds: rounds.map((round, index) => {
-      const numAdvancingCompetitors = rounds[index + 1]?.numCompetitors ?? null;
+      const numAdvancingCompetitors = parseInt(
+        rounds[index + 1]?.numCompetitors || "0"
+      );
       const advancementCondition: AdvancementCondition | null =
         numAdvancingCompetitors
           ? // TODO support other types of advancement conditions
@@ -144,7 +146,7 @@ const createWcifEvent = (
         advancementCondition,
         ...(round.numGroups &&
           !originalRound?.scrambleSets && {
-            scrambleSetCount: round.numGroups + 1,
+            scrambleSetCount: parseInt(round.numGroups || "0") + 1,
           }),
       };
     }),

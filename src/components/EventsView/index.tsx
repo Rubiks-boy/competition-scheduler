@@ -11,7 +11,7 @@ const EventsView = () => {
   const dispatch = useDispatch();
 
   const events = useSelector(eventsSelector);
-  const numStations = useSelector(numStationsSelector);
+  const numStations = parseInt(useSelector(numStationsSelector) || "0");
 
   const makeOnUpdateRound = (eventId: EventId, roundNum: number) => {
     return (

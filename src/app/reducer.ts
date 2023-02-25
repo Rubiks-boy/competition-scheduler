@@ -13,7 +13,7 @@ export const initialState: State = {
   manageableCompsPending: false,
   manageableComps: [],
   selectedCompId: null,
-  numStations: 8,
+  numStations: "8",
   startTime: new Date(0),
   wcifPending: false,
   wcif: null,
@@ -58,7 +58,7 @@ export const reducer = (state: State, action: Action): State => {
       const { wcif } = action;
       const events = getDefaultEventsData({
         wcif,
-        numStations: state.numStations,
+        numStations: parseInt(state.numStations || "0"),
       });
 
       const wcifStartTime = new Date(wcif.schedule.startDate);
@@ -163,14 +163,14 @@ export const reducer = (state: State, action: Action): State => {
       const numGroups = calcNumGroups({
         eventId: action.eventId,
         numCompetitors,
-        numStations: state.numStations,
+        numStations: parseInt(state.numStations || "0"),
       });
 
       const roundToAdd: Round = {
         eventId: action.eventId,
-        numCompetitors,
-        numGroups,
-        scheduledTime: calcTimeForRound(action.eventId, numGroups),
+        numCompetitors: numCompetitors.toString(),
+        numGroups: numGroups.toString(),
+        scheduledTime: calcTimeForRound(action.eventId, numGroups).toString(),
       };
 
       withAddedRound.push(roundToAdd);

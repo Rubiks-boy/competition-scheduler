@@ -36,9 +36,9 @@ export type Events = {
 
 export type Round = {
   eventId: EventId;
-  numCompetitors: number | null;
-  numGroups: number | null;
-  scheduledTime: number | null;
+  numCompetitors: string;
+  numGroups: string;
+  scheduledTime: string;
 };
 
 export type OtherActivity =

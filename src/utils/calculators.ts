@@ -12,10 +12,10 @@ import {
   ScheduleEntryWithTime,
 } from "../types";
 
-export const compPerStationsRatio = (
-  { numCompetitors, numGroups }: Round,
-  numStations: number
-) => {
+export const compPerStationsRatio = (round: Round, numStations: number) => {
+  const numCompetitors = parseInt(round.numCompetitors || "0");
+  const numGroups = parseInt(round.numGroups || "0");
+
   if (!numCompetitors || !numGroups) {
     return "";
   }
@@ -105,8 +105,8 @@ export const calcScheduleTimes = (
     const scheduledTime =
       scheduleEntry.type === "event"
         ? events[scheduleEntry.eventId][scheduleEntry.roundNum].scheduledTime
-        : parseInt(otherActivities[scheduleEntry.activity], 10);
-    const scheduledTimeMs = (scheduledTime || 0) * 60 * 1000;
+        : otherActivities[scheduleEntry.activity];
+    const scheduledTimeMs = parseInt(scheduledTime || "0") * 60 * 1000;
 
     roundsWithTimes.push({
       ...scheduleEntry,
