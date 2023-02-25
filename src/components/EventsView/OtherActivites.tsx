@@ -7,11 +7,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
   Typography,
   TextField,
   Checkbox,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import { ExpandMore } from "@mui/icons-material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   enabledOtherActivitiesSelector,
@@ -26,6 +29,16 @@ const activities = [
   "awards",
 ] as const;
 
+type Activity = typeof activities[number];
+
+const acitivityNames = {
+  registration: "Registration",
+  checkin: "Check-in",
+  tutorial: "Tutorial",
+  lunch: "Lunch",
+  awards: "Awards",
+};
+
 const ActivityRow = ({
   activity,
   enabled,
@@ -33,7 +46,7 @@ const ActivityRow = ({
   onTimeChange,
   onToggle,
 }: {
-  activity: string;
+  activity: Activity;
   enabled: boolean;
   time: string;
   onTimeChange: (time: string) => void;
@@ -45,7 +58,7 @@ const ActivityRow = ({
         <Checkbox color="primary" checked={enabled} onChange={onToggle} />
       </TableCell>
       <TableCell component="th" scope="row">
-        {activity}
+        {acitivityNames[activity]}
       </TableCell>
       <TableCell align="right">
         <TextField
@@ -68,53 +81,53 @@ export const OtherActivities = () => {
 
   return (
     <Paper elevation={3} sx={{ mb: 3 }}>
-      <Toolbar
-        sx={{
-          pl: { sm: 2 },
-        }}
-      >
-        <Typography variant="h6">Other activities</Typography>
-      </Toolbar>
-      <TableContainer>
-        <Table sx={{ minWidth: 650 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>Activity</TableCell>
-              <TableCell align="right">Time</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {activities.map((activity) => {
-              const enabled = enabledOtherActivities.includes(activity);
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMore />}>
+          <Typography variant="h6">Other activities</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TableContainer>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell>Activity</TableCell>
+                  <TableCell align="right">Time</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {activities.map((activity) => {
+                  const enabled = enabledOtherActivities.includes(activity);
 
-              return (
-                <ActivityRow
-                  key={activity}
-                  activity={activity}
-                  enabled={enabled}
-                  time={otherActivities[activity]}
-                  onToggle={() => {
-                    dispatch({
-                      type: enabled
-                        ? "OTHER_ACTIVITY_DISABLED"
-                        : "OTHER_ACTIVITY_ENABLED",
-                      activity,
-                    });
-                  }}
-                  onTimeChange={(time) => {
-                    dispatch({
-                      type: "OTHER_ACTIVITY_TIME_SET",
-                      activity,
-                      time,
-                    });
-                  }}
-                />
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  return (
+                    <ActivityRow
+                      key={activity}
+                      activity={activity}
+                      enabled={enabled}
+                      time={otherActivities[activity]}
+                      onToggle={() => {
+                        dispatch({
+                          type: enabled
+                            ? "OTHER_ACTIVITY_DISABLED"
+                            : "OTHER_ACTIVITY_ENABLED",
+                          activity,
+                        });
+                      }}
+                      onTimeChange={(time) => {
+                        dispatch({
+                          type: "OTHER_ACTIVITY_TIME_SET",
+                          activity,
+                          time,
+                        });
+                      }}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </AccordionDetails>
+      </Accordion>
     </Paper>
   );
 };

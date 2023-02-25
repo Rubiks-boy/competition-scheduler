@@ -43,7 +43,6 @@ const EventsView = () => {
 
   return (
     <>
-      <AddEvent eventIdOptions={addableEventIds} addEvents={addEvents} />
       {EVENT_IDS.map((eventId) => {
         const rounds = events[eventId];
 
@@ -76,6 +75,7 @@ const EventsView = () => {
         );
       })}
       <OtherActivities />
+      <AddEvent eventIdOptions={addableEventIds} addEvents={addEvents} />
     </>
   );
 };
