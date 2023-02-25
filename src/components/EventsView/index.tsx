@@ -6,6 +6,7 @@ import { EventId, EVENT_IDS } from "../../types";
 
 import "./index.css";
 import { OtherActivities } from "./OtherActivites";
+import { AddEvent } from "./AddEvent";
 
 const EventsView = () => {
   const dispatch = useDispatch();
@@ -29,10 +30,26 @@ const EventsView = () => {
     };
   };
 
+  const addableEventIds = EVENT_IDS.filter(
+    (eventId) => events[eventId] === null
+  );
+  const addEvents = (eventIds: Array<EventId>) => {
+    console.log(eventIds);
+    dispatch({
+      type: "ADD_EVENTS",
+      eventIds,
+    });
+  };
+
   return (
     <>
+      <AddEvent eventIdOptions={addableEventIds} addEvents={addEvents} />
       {EVENT_IDS.map((eventId) => {
         const rounds = events[eventId];
+
+        if (rounds === null) {
+          return null;
+        }
 
         const onAddRound = () =>
           dispatch({

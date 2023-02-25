@@ -6,7 +6,7 @@ export const pick = (obj: { [key: string]: any }, keys: Array<string>) =>
 
 export const makeDefaultEvents = () =>
   EVENT_IDS.reduce(
-    (events, eventId) => ({ ...events, [eventId]: [] }),
+    (events, eventId) => ({ ...events, [eventId]: null }),
     {} as Events
   );
 

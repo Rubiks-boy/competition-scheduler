@@ -124,7 +124,7 @@ export const reducer = (state: State, action: Action): State => {
       };
 
     case "ROUND_UPDATED":
-      const oldRound = state.events[action.eventId][action.roundNum];
+      const oldRound = state.events[action.eventId]?.[action.roundNum];
 
       if (!oldRound) {
         return state;
@@ -144,7 +144,7 @@ export const reducer = (state: State, action: Action): State => {
         ).toString();
       }
 
-      const updatedRounds = [...state.events[action.eventId]];
+      const updatedRounds = [...(state.events[action.eventId] ?? [])];
       updatedRounds[action.roundNum] = updatedRound;
 
       return {
@@ -157,7 +157,7 @@ export const reducer = (state: State, action: Action): State => {
       };
 
     case "REMOVE_ROUND":
-      const withoutRemovedRound = [...state.events[action.eventId]];
+      const withoutRemovedRound = [...(state.events[action.eventId] ?? [])];
       withoutRemovedRound.pop();
 
       return {
@@ -177,8 +177,40 @@ export const reducer = (state: State, action: Action): State => {
         ],
       };
 
+    case "ADD_EVENTS":
+      const eventsToAdd = action.eventIds.map((eventId) => {
+        const numCompetitors = calcExpectedNumCompetitors(
+          eventId,
+          state.wcif?.competitorLimit || 0
+        );
+        const numGroups = calcNumGroups({
+          eventId,
+          numCompetitors,
+          numStations: parseInt(state.numStations || "0"),
+        });
+
+        return {
+          [eventId]: [
+            {
+              eventId,
+              numCompetitors: numCompetitors.toString(),
+              numGroups: numGroups.toString(),
+              scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
+            },
+          ],
+        };
+      });
+
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          ...Object.assign({}, ...eventsToAdd),
+        },
+      };
+
     case "ADD_ROUND":
-      const withAddedRound = [...state.events[action.eventId]];
+      const withAddedRound = [...(state.events[action.eventId] ?? [])];
 
       const numCompetitors = !withAddedRound.length
         ? calcExpectedNumCompetitors(

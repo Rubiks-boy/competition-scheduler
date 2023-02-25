@@ -31,7 +31,7 @@ export type ManageableCompetition = {
 };
 
 export type Events = {
-  [E in EventId]: Array<Round>;
+  [E in EventId]: Array<Round> | null;
 };
 
 export type Round = {

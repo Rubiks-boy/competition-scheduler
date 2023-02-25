@@ -73,6 +73,10 @@ export type Action =
       eventId: EventId;
     }
   | {
+      type: "ADD_EVENTS";
+      eventIds: Array<EventId>;
+    }
+  | {
       type: "ADD_ROUND";
       eventId: EventId;
     }

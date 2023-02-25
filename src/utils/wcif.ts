@@ -93,7 +93,11 @@ export const getDefaultEventsData = ({
 
 export const getDefaultSchedule = (events: Events): Schedule => {
   return EVENT_IDS.flatMap((eventId) =>
-    events[eventId].map((_, roundNum) => ({ type: "event", eventId, roundNum }))
+    (events[eventId] || []).map((_, roundNum) => ({
+      type: "event",
+      eventId,
+      roundNum,
+    }))
   );
 };
 
@@ -158,13 +162,17 @@ export const createWcifEvents = (
   originalWcifEvents: Array<WcifEvent>
 ): Array<WcifEvent> =>
   Object.entries(events)
-    .filter(([_, rounds]) => rounds.length)
+    .filter(([_, rounds]) => rounds?.length)
     .map(([eventId, rounds]) => {
       const originalWcifEvent = originalWcifEvents.find(
         ({ id }) => id === eventId
       );
 
-      return createWcifEvent(eventId as EventId, rounds, originalWcifEvent);
+      return createWcifEvent(
+        eventId as EventId,
+        rounds ?? [],
+        originalWcifEvent
+      );
     });
 
 const createWcifRoom = ({

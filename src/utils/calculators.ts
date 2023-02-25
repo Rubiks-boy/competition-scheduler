@@ -104,7 +104,7 @@ export const calcScheduleTimes = (
   schedule.forEach((scheduleEntry) => {
     const scheduledTime =
       scheduleEntry.type === "event"
-        ? events[scheduleEntry.eventId][scheduleEntry.roundNum].scheduledTime
+        ? events[scheduleEntry.eventId]?.[scheduleEntry.roundNum].scheduledTime
         : otherActivities[scheduleEntry.activity];
     const scheduledTimeMs = parseInt(scheduledTime || "0") * 60 * 1000;
 
