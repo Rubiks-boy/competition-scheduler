@@ -16,6 +16,7 @@ export type State = {
   selectedCompId: string | null;
   numStations: string;
   startTime: Date;
+  isShowingDefaultInfo: boolean;
   events: Events;
   schedule: Schedule;
   otherActivities: Record<OtherActivity, string>;

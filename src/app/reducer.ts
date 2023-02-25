@@ -17,6 +17,7 @@ export const initialState: State = {
   startTime: new Date(0),
   wcifPending: false,
   wcif: null,
+  isShowingDefaultInfo: true,
   events: makeDefaultEvents(),
   schedule: [],
   otherActivities: {
@@ -71,6 +72,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        isShowingDefaultInfo: true,
         wcifPending: false,
         wcif,
         events,
@@ -93,15 +95,31 @@ export const reducer = (state: State, action: Action): State => {
 
     case "NUM_STATIONS_CHANGED":
       const { numStations } = action;
+
+      if (!state.isShowingDefaultInfo || !state.wcif) {
+        return {
+          ...state,
+          numStations,
+        };
+      }
+
+      const updatedDefaultEvents = getDefaultEventsData({
+        wcif: state.wcif,
+        numStations: parseInt(numStations || "0"),
+      });
+
       return {
         ...state,
         numStations,
+        events: updatedDefaultEvents,
+        schedule: getDefaultSchedule(updatedDefaultEvents),
       };
 
     case "START_TIME_CHANGED":
       const { startTime } = action;
       return {
         ...state,
+        isShowingDefaultInfo: false,
         startTime,
       };
 
@@ -124,6 +142,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        isShowingDefaultInfo: false,
         events: {
           ...state.events,
           [action.eventId]: updatedRounds,
@@ -136,6 +155,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        isShowingDefaultInfo: false,
         events: {
           ...state.events,
           [action.eventId]: withoutRemovedRound,
@@ -177,6 +197,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        isShowingDefaultInfo: false,
         events: {
           ...state.events,
           [action.eventId]: withAddedRound,
@@ -203,6 +224,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        isShowingDefaultInfo: false,
         schedule: reorderedSchedule,
       };
 
@@ -211,6 +233,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
+        isShowingDefaultInfo: false,
         otherActivities: {
           ...state.otherActivities,
           [activity]: time,
@@ -220,6 +243,7 @@ export const reducer = (state: State, action: Action): State => {
     case "OTHER_ACTIVITY_ENABLED":
       return {
         ...state,
+        isShowingDefaultInfo: false,
         schedule: [
           ...state.schedule,
           { type: "other", activity: action.activity },
@@ -229,6 +253,7 @@ export const reducer = (state: State, action: Action): State => {
     case "OTHER_ACTIVITY_DISABLED":
       return {
         ...state,
+        isShowingDefaultInfo: false,
         schedule: state.schedule.filter(
           (scheduleEntry) =>
             scheduleEntry.type !== "other" ||
