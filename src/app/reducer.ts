@@ -207,6 +207,14 @@ export const reducer = (state: State, action: Action): State => {
           ...state.events,
           ...Object.assign({}, ...eventsToAdd),
         },
+        schedule: [
+          ...state.schedule,
+          ...action.eventIds.map((eventId) => ({
+            type: "event" as const,
+            eventId,
+            roundNum: 0,
+          })),
+        ],
       };
 
     case "ADD_ROUND":
