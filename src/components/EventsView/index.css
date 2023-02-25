@@ -32,9 +32,10 @@
   transition: opacity var(--transition-duration) ease;
 }
 
-/* .events-editScheduledTime > svg {
-  position: absolute;
-  right: -1.5em;
-  top: 50%;
-  transform: translateY(-50%);
-} */
+.animatePresence--entering .events-event {
+  transform: translateY(10px);
+}
+
+.animatePresence--enteringActive .events-event {
+  transform: translateY(0);
+}

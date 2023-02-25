@@ -14,9 +14,11 @@ const usePrevious = (val: any) => {
 export const AnimatePresence = ({
   children,
   duration = 300,
+  className,
 }: {
   children: React.ReactElement;
   duration?: number;
+  className?: string;
 }) => {
   const previousChildren = useRef<React.ReactElement | null>(null);
   const previousKey = usePrevious(children?.key);
@@ -60,7 +62,7 @@ export const AnimatePresence = ({
           </div>
         )}
       <div
-        className={classNames("animatePresence", {
+        className={classNames("animatePresence", className, {
           "animatePresence--entering": newChild || isAnimating,
           "animatePresence--enteringActive": isAnimating,
         })}
