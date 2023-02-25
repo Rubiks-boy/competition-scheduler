@@ -134,7 +134,7 @@ export const ROUND_FORMAT: Record<EventId, RoundFormat> = {
   "555": "a",
   "666": "m",
   "777": "m",
-  "333bf": "m",
+  "333bf": "3",
   "333fm": "1",
   "333oh": "a",
   clock: "a",
