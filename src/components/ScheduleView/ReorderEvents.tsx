@@ -15,12 +15,7 @@ import {
   startTimeSelector,
 } from "../../app/selectors";
 import { formatTime } from "../../utils/formatTime";
-import {
-  ACTIVITY_NAMES,
-  EVENT_COLORS,
-  EVENT_NAMES,
-  OTHER_ACTIVITES,
-} from "../../constants";
+import { ACTIVITY_NAMES, EVENT_COLORS, EVENT_NAMES } from "../../constants";
 import { calcScheduleTimes, getRoundNumStr } from "../../utils/calculators";
 import { EventId, OtherActivity, Schedule } from "../../types";
 
