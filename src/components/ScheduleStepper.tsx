@@ -12,12 +12,14 @@ import { isSignedInSelector } from "../app/selectors";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
+import { TestView } from "./TestView";
 
 const steps = ["Configure competition", "Events", "Schedule"];
 
 const StepContent = ({ activeStep }: { activeStep: number }) => {
   switch (activeStep) {
     case 0:
+      return <TestView />;
       return <CompetitionView />;
     case 1:
       return <EventsView />;

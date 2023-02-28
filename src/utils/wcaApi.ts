@@ -1,4 +1,4 @@
-import { WCA_ORIGIN } from "./auth";
+import { wcaAccessToken, WCA_ORIGIN } from "./auth";
 import type { ManageableCompetition } from "../types";
 import type { Wcif } from "../types";
 import { pick } from "./utils";
@@ -49,7 +49,7 @@ const updateWcif = (
   wcif: Partial<Wcif>,
   wcaAccessToken: string
 ) => {
-  wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken, {
+  return wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken, {
     method: "PATCH",
     body: JSON.stringify(wcif),
   });
@@ -66,4 +66,31 @@ export const saveWcifChanges = (
   );
   if (keysDiff.length === 0) return Promise.resolve();
   return updateWcif(newWcif.id, pick(newWcif, keysDiff), wcaAccessToken);
+};
+
+export const fetchCompetitionsWithin = (
+  startDate: Date,
+  endDate: Date,
+  wcaAccessToken: string
+) => {
+  const start = startDate.toISOString().split("T")[0];
+  const end = endDate.toISOString().split("T")[0];
+
+  const fetchPage = (page: number) =>
+    wcaApiFetch(
+      `/competitions?country_iso2=US&start=${start}&end=${end}&page=${page}`,
+      wcaAccessToken
+    );
+
+  const fetchAllPages = async (page: number = 1): Promise<any> => {
+    const comps = await fetchPage(page);
+
+    return comps.length ? [...comps, ...(await fetchAllPages(page + 1))] : [];
+  };
+
+  return fetchAllPages();
+};
+
+export const fetchResults = (competitionId: string, wcaAccessToken: string) => {
+  return wcaApiFetch(`/competitions/${competitionId}/results`, wcaAccessToken);
 };
