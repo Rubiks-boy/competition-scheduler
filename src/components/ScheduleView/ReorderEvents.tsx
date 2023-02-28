@@ -1,5 +1,12 @@
 import React, { useMemo } from "react";
-import { List, ListItem, Box, Typography, Color } from "@mui/material";
+import {
+  List,
+  ListItem,
+  Box,
+  Typography,
+  Color,
+  useMediaQuery,
+} from "@mui/material";
 import { grey } from "@mui/material/colors";
 import {
   DragDropContext,
@@ -44,6 +51,8 @@ const getColorsForActivities = (schedule: Schedule) => {
 
 export const ReorderEvents = () => {
   const dispatch = useDispatch();
+
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
@@ -116,9 +125,7 @@ export const ReorderEvents = () => {
 
                 const baseColor = colors[scheduleEntry.eventId] || grey;
 
-                const backgroundColor =
-                  // @ts-expect-error this will always be a valid color.
-                  baseColor[800 - 100 * (scheduleEntry.roundNum || 0)];
+                const backgroundColor = baseColor[prefersDarkMode ? 800 : 300];
 
                 console.log(
                   MIN_HEIGHT,
