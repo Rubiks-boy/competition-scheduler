@@ -27,12 +27,16 @@ const getColorsForActivities = (schedule: Schedule) => {
   const colors: Partial<Record<EventId | OtherActivity, Color>> = {};
 
   // List of all activities and events in the schedule
-  const activitiesList = [
-    ...new Set(schedule.map((scheduleEntry) => scheduleEntry.eventId)),
+  const eventsList = [
+    ...new Set(
+      schedule
+        .filter(({ type }) => type === "event")
+        .map(({ eventId }) => eventId)
+    ),
   ];
 
-  activitiesList.forEach((activity, index) => {
-    colors[activity] = EVENT_COLORS[index % EVENT_COLORS.length] || grey;
+  eventsList.forEach((event, index) => {
+    colors[event] = EVENT_COLORS[index % EVENT_COLORS.length] || grey;
   });
 
   return colors;
