@@ -34,7 +34,6 @@ const EventsView = () => {
     (eventId) => events[eventId] === null
   );
   const addEvents = (eventIds: Array<EventId>) => {
-    console.log(eventIds);
     dispatch({
       type: "ADD_EVENTS",
       eventIds,

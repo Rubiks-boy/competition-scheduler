@@ -127,12 +127,6 @@ export const ReorderEvents = () => {
 
                 const backgroundColor = baseColor[prefersDarkMode ? 800 : 300];
 
-                console.log(
-                  MIN_HEIGHT,
-                  scheduleEntry.scheduledTimeMs,
-                  shortestEventTime,
-                  longestEventTime
-                );
                 const height = `${
                   MIN_HEIGHT +
                   (Math.max(
