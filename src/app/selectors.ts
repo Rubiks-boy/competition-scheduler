@@ -48,3 +48,17 @@ export const wcifScheduleSelector = (state: State) =>
 export const venueNameSelector = (state: State) => state.venueName;
 
 export const stagesSelector = (state: State) => state.stages;
+
+export const canAdvanceToNext = (state: State, activeStep: number) => {
+  if (activeStep !== 3) {
+    return true;
+  }
+  const hasVenueName =
+    !!wcifScheduleSelector(state)?.venues.length || state.venueName;
+
+  const numRooms = wcifScheduleSelector(state)?.venues?.[0]?.rooms.length || 0;
+
+  const hasRooms = numRooms > 0 || stagesSelector(state).length > 0;
+
+  return hasVenueName && hasRooms;
+};

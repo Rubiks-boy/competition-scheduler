@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import CompetitionView from "./CompetitionView";
 import { useSelector } from "../app/hooks";
 import { SignIn } from "./Header/SignIn";
-import { isSignedInSelector } from "../app/selectors";
+import { canAdvanceToNext, isSignedInSelector } from "../app/selectors";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
@@ -42,6 +42,9 @@ const StepContent = ({ activeStep }: { activeStep: number }) => {
 export const ScheduleStepper = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const isSignedIn = useSelector(isSignedInSelector);
+  const isNextDisabled = !useSelector((state) =>
+    canAdvanceToNext(state, activeStep)
+  );
 
   const handleNext = () =>
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -103,7 +106,9 @@ export const ScheduleStepper = () => {
             {activeStep === steps.length - 1 ? (
               <Button onClick={handleReset}>Reset</Button>
             ) : (
-              <Button onClick={handleNext}>Next</Button>
+              <Button onClick={handleNext} disabled={isNextDisabled}>
+                Next
+              </Button>
             )}
           </Box>
         </React.Fragment>
