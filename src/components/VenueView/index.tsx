@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Alert,
   Grid,
@@ -7,8 +7,13 @@ import {
   FormControlLabel,
   FormLabel,
 } from "@mui/material";
-import { useSelector } from "../../app/hooks";
-import { wcifScheduleSelector } from "../../app/selectors";
+import { useDispatch, useSelector } from "../../app/hooks";
+import {
+  stagesSelector,
+  venueNameSelector,
+  wcifScheduleSelector,
+} from "../../app/selectors";
+import type { Stage } from "../../types";
 
 const STAGE_NAMES_AND_COLORS = [
   {
@@ -27,28 +32,40 @@ const STAGE_NAMES_AND_COLORS = [
     name: "Orange",
     color: "#e09635",
   },
-];
+] as Array<{ name: Stage; color: string }>;
 
 const VenueView = () => {
+  const dispatch = useDispatch();
+  const venueName = useSelector(venueNameSelector);
+  const stages = useSelector(stagesSelector);
+
   const originalWcifSchedule = useSelector(wcifScheduleSelector);
   const numExistingVenues = originalWcifSchedule?.venues.length || 0;
   const numExistingRooms = originalWcifSchedule?.venues?.[0]?.rooms.length || 0;
 
-  const [venueName, setVenueName] = useState<String>("");
+  const onVenueNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const venueName = e.target.value;
 
-  const [activeStages, setActiveStages] = useState<Array<String>>([
-    "Red",
-    "Blue",
-  ]);
-
-  const onStageChecked = (stageName: string) => {
-    setActiveStages((prev) => [...prev, stageName]);
+    dispatch({
+      type: "VENUE_NAME_CHANGED",
+      venueName,
+    });
   };
 
-  const onStageUnchecked = (stageName: string) => {
-    setActiveStages((prev) =>
-      prev.filter((prevStage) => prevStage !== stageName)
-    );
+  const onStageChecked = (stage: Stage) => {
+    dispatch({
+      type: "STAGE_CHECKED",
+      stage,
+      checked: true,
+    });
+  };
+
+  const onStageUnchecked = (stage: Stage) => {
+    dispatch({
+      type: "STAGE_CHECKED",
+      stage,
+      checked: false,
+    });
   };
 
   if (numExistingVenues > 1) {
@@ -81,7 +98,7 @@ const VenueView = () => {
             label="Name"
             type="string"
             value={venueName}
-            onChange={(e) => setVenueName(e.target.value)}
+            onChange={onVenueNameChange}
           />
         </Grid>
       )}
@@ -89,11 +106,11 @@ const VenueView = () => {
         <Grid container item xs={12}>
           <FormLabel>Stages</FormLabel>
           {STAGE_NAMES_AND_COLORS.map(({ name, color }) => (
-            <Grid item xs={12}>
+            <Grid item xs={12} key={name}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={activeStages.includes(name)}
+                    checked={stages.includes(name)}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       e.target.checked
                         ? onStageChecked(name)

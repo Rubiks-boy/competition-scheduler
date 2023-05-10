@@ -73,3 +73,5 @@ export type {
   Schedule as WcifSchedule,
   Room as WcifRoom,
 } from "@wca/helpers";
+
+export type Stage = "Red" | "Blue" | "Green " | "Orange";

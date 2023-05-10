@@ -43,3 +43,7 @@ export const wcifEventsSelector = (state: State) =>
 
 export const wcifScheduleSelector = (state: State) =>
   wcifSelector(state)?.schedule;
+
+export const venueNameSelector = (state: State) => state.venueName;
+
+export const stagesSelector = (state: State) => state.stages;

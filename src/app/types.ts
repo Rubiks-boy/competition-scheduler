@@ -5,6 +5,7 @@ import {
   Events,
   Schedule,
   OtherActivity,
+  Stage,
 } from "../types";
 
 export type State = {
@@ -21,6 +22,8 @@ export type State = {
   events: Events;
   schedule: Schedule;
   otherActivities: Record<OtherActivity, string>;
+  venueName: string;
+  stages: Array<Stage>;
 };
 
 export type Action =
@@ -98,4 +101,13 @@ export type Action =
   | {
       type: "OTHER_ACTIVITY_DISABLED";
       activity: OtherActivity;
+    }
+  | {
+      type: "VENUE_NAME_CHANGED";
+      venueName: string;
+    }
+  | {
+      type: "STAGE_CHECKED";
+      stage: Stage;
+      checked: boolean;
     };

@@ -29,6 +29,8 @@ export const initialState: State = {
     lunch: "45",
     awards: "15",
   },
+  venueName: "",
+  stages: ["Red", "Blue"],
 };
 
 type Reducer = (state: State, action: Action) => State;
@@ -313,6 +315,26 @@ const reducer: Reducer = (state, action) => {
             scheduleEntry.eventId !== action.activity
         ),
       };
+
+    case "VENUE_NAME_CHANGED":
+      return {
+        ...state,
+        venueName: action.venueName,
+      };
+
+    case "STAGE_CHECKED": {
+      if (action.checked) {
+        return {
+          ...state,
+          stages: [...state.stages, action.stage],
+        };
+      }
+
+      return {
+        ...state,
+        stages: state.stages.filter((prevStage) => prevStage !== action.stage),
+      };
+    }
 
     default:
       return state;
