@@ -27,6 +27,7 @@ export type State = ShareableState & {
   manageableComps: Array<ManageableCompetition>;
   wcifPending: boolean;
   wcif: Wcif | null;
+  fromImport: boolean;
 };
 
 export type Action =
@@ -113,4 +114,8 @@ export type Action =
       type: "STAGE_CHECKED";
       stage: Stage;
       checked: boolean;
+    }
+  | {
+      type: "IMPORT_APP_STATE";
+      appState: ShareableState;
     };

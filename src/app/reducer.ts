@@ -31,11 +31,13 @@ export const initialState: State = {
   },
   venueName: "",
   stages: ["Red", "Blue"],
+  fromImport: false,
 };
 
 type Reducer = (state: State, action: Action) => State;
 
 const reducer: Reducer = (state, action) => {
+  console.log(action.type);
   switch (action.type) {
     case "SIGNIN_COMPLETE":
       const { accessToken } = action;
@@ -49,7 +51,9 @@ const reducer: Reducer = (state, action) => {
         ...state,
         manageableCompsPending: false,
         manageableComps,
-        selectedCompId: manageableComps[0].id,
+        selectedCompId: state.fromImport
+          ? state.selectedCompId
+          : manageableComps[0].id,
       };
     case "MANAGEABLE_COMPS_ERROR":
       return {
@@ -74,6 +78,14 @@ const reducer: Reducer = (state, action) => {
         wcifStartTime.setHours(8, 0, 0, 0); // previous 8:00am
       } else {
         wcifStartTime.setHours(32, 0, 0, 0); // next 8:00am
+      }
+
+      if (state.fromImport) {
+        return {
+          ...state,
+          wcifPending: false,
+          wcif,
+        };
       }
 
       return {
@@ -333,6 +345,27 @@ const reducer: Reducer = (state, action) => {
       return {
         ...state,
         stages: state.stages.filter((prevStage) => prevStage !== action.stage),
+      };
+    }
+
+    case "IMPORT_APP_STATE": {
+      const { appState } = action;
+
+      console.log(appState);
+
+      return {
+        ...state,
+        fromImport: true,
+        selectedCompId: appState.selectedCompId,
+        numStations: appState.numStations,
+        startTime: new Date(appState.startTime),
+        isShowingDefaultInfo: appState.isShowingDefaultInfo,
+        hasReorderedEvents: appState.hasReorderedEvents,
+        events: appState.events,
+        schedule: appState.schedule,
+        otherActivities: appState.otherActivities,
+        venueName: appState.venueName,
+        stages: appState.stages,
       };
     }
 

@@ -13,6 +13,7 @@ import { useFetchCompetitions } from "./hooks/useFetchCompetitions";
 import { useFetchWcif } from "./hooks/useFetchWcif";
 
 import "./App.css";
+import { useImportAppState } from "./hooks/useImportAppState";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -30,6 +31,7 @@ function App() {
   useLookupAccessToken();
   useFetchCompetitions();
   useFetchWcif();
+  useImportAppState();
 
   return (
     <div className="App">
