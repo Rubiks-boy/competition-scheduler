@@ -21,6 +21,8 @@ export const useFetchCompetitions = () => {
         accessToken
       );
 
+      console.log(manageableComps);
+
       if (!manageableComps) {
         dispatch({ type: "MANAGEABLE_COMPS_ERROR" });
         return;

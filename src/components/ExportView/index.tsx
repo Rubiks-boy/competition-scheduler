@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import { Alert, Button } from "@mui/material";
 import { useSelector } from "../../app/hooks";
 import {
   eventsSelector,
@@ -24,10 +24,14 @@ const ExportView = () => {
   const originalWcif = useSelector(wcifSelector);
   const wcaAccessToken = useSelector(accessTokenSelector);
 
+  const [wcifError, setWcifError] = useState<String | null>(null);
+
   const handleClick = async () => {
     if (!originalWcif || !originalWcifSchedule || !wcaAccessToken) {
       return;
     }
+
+    setWcifError(null);
 
     const newWcifEvents = createWcifEvents(events, originalWcifEvents);
     const newWcifSchedule = createWcifSchedule({
@@ -43,12 +47,20 @@ const ExportView = () => {
       events: newWcifEvents,
       schedule: newWcifSchedule,
     };
+
     const resp = await saveWcifChanges(originalWcif, newWcif, wcaAccessToken);
-    console.log("resp back", resp);
+
+    if (resp.error) {
+      setWcifError(resp.error);
+      return;
+    }
   };
 
   return (
     <div>
+      {wcifError && (
+        <Alert severity="error">Error while saving WCIF: {wcifError}</Alert>
+      )}
       <Button onClick={handleClick}>Save wcif</Button>
     </div>
   );

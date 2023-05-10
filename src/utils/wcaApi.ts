@@ -18,12 +18,7 @@ const wcaApiFetch = (
         "Content-Type": "application/json",
       }),
     })
-  )
-    .then((response) => {
-      if (!response.ok) throw new Error(response.statusText);
-      return response;
-    })
-    .then((response) => response.json());
+  ).then((response) => response.json());
 };
 
 export const fetchUpcomingManageableCompetitions = (
@@ -49,7 +44,7 @@ const updateWcif = (
   wcif: Partial<Wcif>,
   wcaAccessToken: string
 ) => {
-  wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken, {
+  return wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken, {
     method: "PATCH",
     body: JSON.stringify(wcif),
   });
