@@ -14,25 +14,7 @@ import {
   wcifScheduleSelector,
 } from "../../app/selectors";
 import type { Stage } from "../../types";
-
-const STAGE_NAMES_AND_COLORS = [
-  {
-    name: "Red",
-    color: "#963030",
-  },
-  {
-    name: "Blue",
-    color: "#304a96",
-  },
-  {
-    name: "Green",
-    color: "#309644",
-  },
-  {
-    name: "Orange",
-    color: "#e09635",
-  },
-] as Array<{ name: Stage; color: string }>;
+import { STAGE_NAMES_AND_COLORS } from "../../constants";
 
 const VenueView = () => {
   const dispatch = useDispatch();
@@ -105,16 +87,16 @@ const VenueView = () => {
       {numExistingRooms === 0 && (
         <Grid container item xs={12}>
           <FormLabel>Stages</FormLabel>
-          {STAGE_NAMES_AND_COLORS.map(({ name, color }) => (
-            <Grid item xs={12} key={name}>
+          {STAGE_NAMES_AND_COLORS.map(({ stage, color }) => (
+            <Grid item xs={12} key={stage}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={stages.includes(name)}
+                    checked={stages.includes(stage)}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       e.target.checked
-                        ? onStageChecked(name)
-                        : onStageUnchecked(name)
+                        ? onStageChecked(stage)
+                        : onStageUnchecked(stage)
                     }
                     sx={{
                       color,
@@ -124,7 +106,7 @@ const VenueView = () => {
                     }}
                   />
                 }
-                label={name}
+                label={stage}
               />
             </Grid>
           ))}

@@ -32,6 +32,13 @@ export const fetchUpcomingManageableCompetitions = (
   return wcaApiFetch(`/competitions?${params.toString()}`, wcaAccessToken);
 };
 
+export const fetchCompetition = (
+  competitionId: string,
+  wcaAccessToken: string
+): Promise<ManageableCompetition> => {
+  return wcaApiFetch(`/competitions/${competitionId}`, wcaAccessToken);
+};
+
 export const fetchWcif = (
   competitionId: string,
   wcaAccessToken: string

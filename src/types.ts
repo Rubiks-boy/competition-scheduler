@@ -28,6 +28,9 @@ export const EVENT_IDS: Array<EventId> = [
 export type ManageableCompetition = {
   id: string;
   name: string;
+  latitude_degrees: number;
+  longitude_degrees: number;
+  country_iso2: string;
 };
 
 export type Events = {

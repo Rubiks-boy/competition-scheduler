@@ -1,13 +1,21 @@
-import { ActivityCode, AdvancementCondition, RoundFormat } from "@wca/helpers";
-import { ROUND_FORMAT } from "../constants";
+import type {
+  ActivityCode,
+  AdvancementCondition,
+  Room,
+  RoundFormat,
+  Venue,
+} from "@wca/helpers";
+import { getColorForStage, ROUND_FORMAT } from "../constants";
 import {
   EventId,
   Events,
   EVENT_IDS,
+  ManageableCompetition,
   OtherActivity,
   Round,
   Schedule,
   ScheduleEntryWithTime,
+  Stage,
   Wcif,
   WcifEvent,
   WcifRoom,
@@ -220,21 +228,55 @@ export const createWcifSchedule = ({
   schedule,
   startTime,
   originalWcifSchedule,
+  originalCompetition,
   events,
   otherActivities,
+  venueName,
+  stages,
 }: {
   schedule: Schedule;
   startTime: Date;
   originalWcifSchedule: WcifSchedule;
+  originalCompetition: ManageableCompetition;
   events: Events;
   otherActivities: Record<OtherActivity, string>;
+  venueName: string;
+  stages: Array<Stage>;
 }) => {
-  if (originalWcifSchedule.venues.length !== 1) {
+  if (originalWcifSchedule.venues.length > 1) {
     // TODO: better erroring
     return originalWcifSchedule;
   }
 
   const originalVenue = originalWcifSchedule.venues[0];
+
+  const newVenue: Venue = {
+    id: 1,
+    name: venueName,
+    latitudeMicrodegrees: originalCompetition.latitude_degrees * 10 ** 6,
+    longitudeMicrodegrees: originalCompetition.longitude_degrees * 10 ** 6,
+    countryIso2: originalCompetition.country_iso2,
+    // TODO don't autofill LA for everyone :(
+    // There's probably some smart library someone made to convert lat/long -> timezone?
+    timezone: "America/Los_Angeles",
+    // Leave rooms blank here. We'll merge in rooms below.
+    rooms: [],
+    extensions: [],
+  };
+
+  const baseVenueInfo =
+    originalWcifSchedule.venues.length > 0 ? originalVenue : newVenue;
+
+  const newRooms: Array<Room> = stages.map((stage, id) => ({
+    id,
+    name: `${stage} Stage`,
+    color: getColorForStage(stage),
+    activities: [],
+    extensions: [],
+  }));
+
+  const venueRooms =
+    baseVenueInfo.rooms.length > 0 ? baseVenueInfo.rooms : newRooms;
 
   const scheduleWithTimes = calcScheduleTimes(
     startTime,
@@ -245,10 +287,15 @@ export const createWcifSchedule = ({
 
   return {
     ...originalWcifSchedule,
+    // Situations for venues / rooms:
+    // 1. No venue and no rooms currently on website -> Use our new venue/stage info.
+    // 2. Both venue and rooms already on website -> Keep the existing info
+    // 3. A venue with no rooms on the website -> Keep existing venue, but add rooms (stages) to that venue.
+    // Using baseVenueInfo + venueRooms makes sure it uses information already on the site or adds in the new info if needed.
     venues: [
       {
-        ...originalVenue,
-        rooms: originalVenue.rooms.map((originalWcifRoom) =>
+        ...baseVenueInfo,
+        rooms: venueRooms.map((originalWcifRoom) =>
           createWcifRoom({ scheduleWithTimes, originalWcifRoom })
         ),
       },

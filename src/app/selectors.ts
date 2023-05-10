@@ -15,6 +15,9 @@ export const selectedCompSelector = (state: State) => {
 export const manageableCompsPendingSelector = (state: State) =>
   state.manageableCompsPending;
 
+export const competitionSelector = (state: State) =>
+  state.manageableComps.find((comp) => comp.id === state.selectedCompId);
+
 export const numStationsSelector = (state: State) => state.numStations;
 
 export const startTimeSelector = (state: State) => state.startTime;
@@ -24,8 +27,6 @@ export const eventsSelector = (state: State) => state.events;
 export const scheduleSelector = (state: State) => state.schedule;
 
 export const otherActivitiesSelector = (state: State) => state.otherActivities;
-
-export const competitionNameSelector = (state: State) => state.wcif?.name || "";
 
 export const enabledOtherActivitiesSelector = (state: State) =>
   OTHER_ACTIVITES.filter(

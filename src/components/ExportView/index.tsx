@@ -17,7 +17,9 @@ import {
   startTimeSelector,
   wcifScheduleSelector,
   otherActivitiesSelector,
-  competitionNameSelector,
+  competitionSelector,
+  venueNameSelector,
+  stagesSelector,
 } from "../../app/selectors";
 import { saveWcifChanges } from "../../utils/wcaApi";
 import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
@@ -31,7 +33,9 @@ const ExportView = () => {
   const originalWcifSchedule = useSelector(wcifScheduleSelector);
   const originalWcif = useSelector(wcifSelector);
   const wcaAccessToken = useSelector(accessTokenSelector);
-  const competitionName = useSelector(competitionNameSelector);
+  const competition = useSelector(competitionSelector);
+  const venueName = useSelector(venueNameSelector);
+  const stages = useSelector(stagesSelector);
 
   const [errorMessage, setErrorMessage] = useState<String | null>(null);
   const [successMessage, setSuccessMessage] = useState<String | null>(null);
@@ -47,9 +51,14 @@ const ExportView = () => {
   const handleSaveClick = async () => {
     closeDialog();
 
-    if (!originalWcif || !originalWcifSchedule || !wcaAccessToken) {
+    if (
+      !originalWcif ||
+      !originalWcifSchedule ||
+      !wcaAccessToken ||
+      !competition
+    ) {
       setErrorMessage(
-        "Unexpected error: Missing original WCIF schedule or access token. Please refresh the page and try again."
+        "Unexpected error: Missing original WCIF schedule, comp info, or access token. Please refresh the page and try again."
       );
       return;
     }
@@ -63,6 +72,9 @@ const ExportView = () => {
       originalWcifSchedule,
       events,
       otherActivities,
+      originalCompetition: competition,
+      venueName,
+      stages,
     });
 
     const newWcif = {
@@ -90,8 +102,8 @@ const ExportView = () => {
       <DialogTitle>Woah there! Are you sure?</DialogTitle>
       <DialogContent>
         Continuing will overwrite all event and schedule info on the WCA website
-        for {competitionName}. This can't be undone. Are you sure you want to
-        continue?
+        for {competition?.name || "your competition"}. This can't be undone. Are
+        you sure you want to continue?
       </DialogContent>
       <DialogActions>
         <Button onClick={closeDialog}>No</Button>

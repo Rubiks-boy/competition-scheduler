@@ -1,5 +1,5 @@
 import { RoundFormat } from "@wca/helpers";
-import { EventId } from "./types";
+import type { EventId, Stage } from "./types";
 import { colors } from "@mui/material";
 
 export const EVENT_NAMES = {
@@ -216,4 +216,29 @@ export const ACTIVITY_NAMES = {
   tutorial: "Tutorial",
   lunch: "Lunch",
   awards: "Awards",
+};
+
+export const STAGE_NAMES_AND_COLORS = [
+  {
+    stage: "Red",
+    color: "#963030",
+  },
+  {
+    stage: "Blue",
+    color: "#304a96",
+  },
+  {
+    stage: "Green",
+    color: "#309644",
+  },
+  {
+    stage: "Orange",
+    color: "#e09635",
+  },
+] as Array<{ stage: Stage; color: string }>;
+
+export const getColorForStage = (stage: Stage) => {
+  return (
+    STAGE_NAMES_AND_COLORS.find((s) => s.stage === stage)?.color || "#304a96"
+  );
 };
