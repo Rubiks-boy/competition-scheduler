@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Grid, IconButton, Typography } from "@mui/material";
+import {
+  Grid,
+  IconButton,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import { UnfoldMore, UnfoldLess } from "@mui/icons-material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import { startTimeSelector } from "../../app/selectors";
@@ -34,9 +40,14 @@ const ScheduleView = () => {
           />
         </Grid>
         <Grid item xs={1}>
-          <IconButton onClick={() => setEvenlySpaced(!evenlySpaced)}>
-            {evenlySpaced ? <UnfoldMore /> : <UnfoldLess />}
-          </IconButton>
+          <ToggleButtonGroup
+            value={evenlySpaced ? [] : ["expand"]}
+            onChange={() => setEvenlySpaced(!evenlySpaced)}
+          >
+            <ToggleButton value="expand">
+              {evenlySpaced ? <UnfoldMore /> : <UnfoldLess />}
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Grid>
       </Grid>
       <ReorderEvents />
