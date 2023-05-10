@@ -13,7 +13,7 @@ import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
 
-const steps = ["Configure competition", "Events", "Schedule"];
+const steps = ["Configure competition", "Events", "Schedule", "Export"];
 
 const StepContent = ({ activeStep }: { activeStep: number }) => {
   switch (activeStep) {
@@ -23,6 +23,8 @@ const StepContent = ({ activeStep }: { activeStep: number }) => {
       return <EventsView />;
     case 2:
       return <ScheduleView />;
+    case 3:
+      return <ExportView />;
     default:
       return <div>tbd</div>;
   }
@@ -89,9 +91,11 @@ export const ScheduleStepper = () => {
               Back
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
-            </Button>
+            {activeStep === steps.length - 1 ? (
+              <Button onClick={handleReset}>Reset</Button>
+            ) : (
+              <Button onClick={handleNext}>Next</Button>
+            )}
           </Box>
         </React.Fragment>
       )}
