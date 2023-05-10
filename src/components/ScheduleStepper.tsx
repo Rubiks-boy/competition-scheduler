@@ -12,8 +12,15 @@ import { isSignedInSelector } from "../app/selectors";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
+import VenueView from "./VenueView";
 
-const steps = ["Configure competition", "Events", "Schedule", "Export"];
+const steps = [
+  "Configure competition",
+  "Events",
+  "Schedule",
+  "Venue",
+  "Export",
+];
 
 const StepContent = ({ activeStep }: { activeStep: number }) => {
   switch (activeStep) {
@@ -24,6 +31,8 @@ const StepContent = ({ activeStep }: { activeStep: number }) => {
     case 2:
       return <ScheduleView />;
     case 3:
+      return <VenueView />;
+    case 4:
       return <ExportView />;
     default:
       return <div>tbd</div>;
