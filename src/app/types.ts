@@ -8,12 +8,7 @@ import {
   Stage,
 } from "../types";
 
-export type State = {
-  accessToken: string | null;
-  manageableCompsPending: boolean;
-  manageableComps: Array<ManageableCompetition>;
-  wcifPending: boolean;
-  wcif: Wcif | null;
+export type ShareableState = {
   selectedCompId: string | null;
   numStations: string;
   startTime: Date;
@@ -24,6 +19,14 @@ export type State = {
   otherActivities: Record<OtherActivity, string>;
   venueName: string;
   stages: Array<Stage>;
+};
+
+export type State = ShareableState & {
+  accessToken: string | null;
+  manageableCompsPending: boolean;
+  manageableComps: Array<ManageableCompetition>;
+  wcifPending: boolean;
+  wcif: Wcif | null;
 };
 
 export type Action =

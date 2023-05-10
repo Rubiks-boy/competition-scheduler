@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Buffer } from "buffer";
 import {
   Alert,
   Button,
@@ -20,11 +21,26 @@ import {
   competitionSelector,
   venueNameSelector,
   stagesSelector,
+  shareableAppStateSelector,
 } from "../../app/selectors";
 import { saveWcifChanges } from "../../utils/wcaApi";
 import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
+import type { ShareableState } from "../../app/types";
+import { ContentCopy } from "@mui/icons-material";
+
+const getShareableUrl = (state: ShareableState) => {
+  const stateStr = JSON.stringify(state);
+  const encodedState = Buffer.from(stateStr).toString("base64");
+
+  const { origin } = window.location;
+
+  const shareableUrl = `${origin}/?appState=${encodedState}`;
+
+  return shareableUrl;
+};
 
 const ExportView = () => {
+  const shareableState = useSelector(shareableAppStateSelector);
   const events = useSelector(eventsSelector);
   const schedule = useSelector(scheduleSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
@@ -36,6 +52,8 @@ const ExportView = () => {
   const competition = useSelector(competitionSelector);
   const venueName = useSelector(venueNameSelector);
   const stages = useSelector(stagesSelector);
+
+  const shareableUrl = getShareableUrl(shareableState);
 
   const [errorMessage, setErrorMessage] = useState<String | null>(null);
   const [successMessage, setSuccessMessage] = useState<String | null>(null);
@@ -97,6 +115,10 @@ const ExportView = () => {
     setSuccessMessage("Successfully saved your updated events and schedule");
   };
 
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(shareableUrl);
+  };
+
   const dialog = (
     <Dialog open={isDialogOpen} onClose={closeDialog}>
       <DialogTitle>Woah there! Are you sure?</DialogTitle>
@@ -119,6 +141,11 @@ const ExportView = () => {
       {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       <Button onClick={openDialog} disabled={isDialogOpen || isSavePending}>
         Export to competition website
+      </Button>
+      <br />
+      <Button onClick={handleCopyClick}>
+        <ContentCopy sx={{ mr: 1 }} />
+        Copy shareable URL
       </Button>
     </div>
   );

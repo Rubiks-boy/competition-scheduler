@@ -1,5 +1,6 @@
 import { OTHER_ACTIVITES } from "../constants";
-import type { State } from "./types";
+import { pick } from "../utils/utils";
+import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
 
@@ -61,4 +62,19 @@ export const canAdvanceToNext = (state: State, activeStep: number) => {
   const hasRooms = numRooms > 0 || stagesSelector(state).length > 0;
 
   return hasVenueName && hasRooms;
+};
+
+export const shareableAppStateSelector = (state: State): ShareableState => {
+  return pick(state, [
+    "selectedCompId",
+    "numStations",
+    "startTime",
+    "isShowingDefaultInfo",
+    "hasReorderedEvents",
+    "events",
+    "schedule",
+    "otherActivities",
+    "venueName",
+    "stages",
+  ]) as ShareableState;
 };
