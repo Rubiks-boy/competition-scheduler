@@ -25,6 +25,8 @@ export const scheduleSelector = (state: State) => state.schedule;
 
 export const otherActivitiesSelector = (state: State) => state.otherActivities;
 
+export const competitionNameSelector = (state: State) => state.wcif?.name || "";
+
 export const enabledOtherActivitiesSelector = (state: State) =>
   OTHER_ACTIVITES.filter(
     (activity) =>
