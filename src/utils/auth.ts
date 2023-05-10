@@ -7,7 +7,7 @@ export const signIn = () => {
   const params = new URLSearchParams({
     client_id: WCA_OAUTH_CLIENT_ID,
     response_type: "token",
-    redirect_uri: window.location.origin,
+    redirect_uri: window.location.href.split("#")[0],
     scope: "manage_competitions",
   });
   window.location.href = `${WCA_ORIGIN}/oauth/authorize?${params.toString()}`;
