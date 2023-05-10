@@ -19,7 +19,7 @@ export const TimePicker = ({
       .split(":")
       .map((str: string) => parseInt(str, 10));
 
-    const newTime = new Date(time?.getMilliseconds() || 0);
+    const newTime = new Date(time?.getTime() || 0);
     newTime.setHours(hours, minutes);
     onChange(newTime);
   };
