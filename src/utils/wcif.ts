@@ -54,7 +54,7 @@ const wcifRoundsToEventRounds = (
   return wcifRounds
     .map(({ id }) => {
       // ex. '333-r2' -> 2
-      const roundNum = parseInt(id[id.indexOf("r") + 1], 10);
+      const roundNum = parseInt(id[id.indexOf("-r") + 2], 10);
 
       const numCompetitors =
         roundNum === 1
