@@ -37,7 +37,6 @@ export const initialState: State = {
 type Reducer = (state: State, action: Action) => State;
 
 const reducer: Reducer = (state, action) => {
-  console.log(action.type);
   switch (action.type) {
     case "SIGNIN_COMPLETE":
       const { accessToken } = action;
@@ -81,10 +80,17 @@ const reducer: Reducer = (state, action) => {
       }
 
       if (state.fromImport) {
+        const startTimeWithWcifDate = new Date(wcifStartTime);
+        startTimeWithWcifDate.setHours(
+          state.startTime.getHours(),
+          state.startTime.getMinutes()
+        );
+
         return {
           ...state,
           wcifPending: false,
           wcif,
+          startTime: startTimeWithWcifDate,
         };
       }
 
