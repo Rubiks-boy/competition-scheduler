@@ -186,11 +186,13 @@ export const createWcifEvents = (
 const createWcifRoom = ({
   scheduleWithTimes,
   originalWcifRoom,
+  startingId = 1,
 }: {
   scheduleWithTimes: Array<ScheduleEntryWithTime>;
   originalWcifRoom: WcifRoom;
+  startingId: number;
 }) => {
-  let nextId = 1;
+  let nextId = startingId;
 
   return {
     ...originalWcifRoom,
@@ -295,8 +297,12 @@ export const createWcifSchedule = ({
     venues: [
       {
         ...baseVenueInfo,
-        rooms: venueRooms.map((originalWcifRoom) =>
-          createWcifRoom({ scheduleWithTimes, originalWcifRoom })
+        rooms: venueRooms.map((originalWcifRoom, idx) =>
+          createWcifRoom({
+            scheduleWithTimes,
+            originalWcifRoom,
+            startingId: idx * 10000,
+          })
         ),
       },
     ],
