@@ -242,3 +242,53 @@ export const getColorForStage = (stage: Stage) => {
     STAGE_NAMES_AND_COLORS.find((s) => s.stage === stage)?.color || "#304a96"
   );
 };
+
+export const DEFAULT_CUTOFFS = {
+  "333": null,
+  "222": null,
+  "444": { attemptResult: 9000, numberOfAttempts: 2 },
+  "555": { attemptResult: 15000, numberOfAttempts: 2 },
+  "666": { attemptResult: 25500, numberOfAttempts: 1 },
+  "777": { attemptResult: 36000, numberOfAttempts: 1 },
+  "333bf": null,
+  "333fm": null,
+  "333oh": { attemptResult: 4500, numberOfAttempts: 2 },
+  clock: { attemptResult: 3000, numberOfAttempts: 2 },
+  pyram: null,
+  minx: { attemptResult: 15000, numberOfAttempts: 2 },
+  skewb: null,
+  sq1: { attemptResult: 4000, numberOfAttempts: 2 },
+  "444bf": null,
+  "555bf": null,
+  "333mbf": null,
+  // Deprecated events
+  magic: null,
+  mmagic: null,
+  "333mbo": null,
+  "333ft": null,
+};
+
+export const DEFAULT_TIME_LIMITS = {
+  "333": { centiseconds: 60000, cumulativeRoundIds: [] },
+  "222": { centiseconds: 9000, cumulativeRoundIds: [] },
+  "444": { centiseconds: 24000, cumulativeRoundIds: [] },
+  "555": { centiseconds: 39000, cumulativeRoundIds: [] },
+  "666": { centiseconds: 60000, cumulativeRoundIds: [] },
+  "777": { centiseconds: 60000, cumulativeRoundIds: [] },
+  "333bf": { centiseconds: 60000, cumulativeRoundIds: ["333bf-r1"] },
+  "333fm": null,
+  "333oh": { centiseconds: 12000, cumulativeRoundIds: [] },
+  clock: { centiseconds: 9000, cumulativeRoundIds: [] },
+  pyram: { centiseconds: 9000, cumulativeRoundIds: [] },
+  minx: { centiseconds: 39000, cumulativeRoundIds: [] },
+  skewb: { centiseconds: 9000, cumulativeRoundIds: [] },
+  sq1: { centiseconds: 10000, cumulativeRoundIds: [] },
+  "444bf": null,
+  "555bf": null,
+  "333mbf": null,
+  // Deprecated events
+  magic: null,
+  mmagic: null,
+  "333mbo": null,
+  "333ft": null,
+};

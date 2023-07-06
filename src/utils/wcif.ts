@@ -1,11 +1,17 @@
 import type {
-  ActivityCode,
   AdvancementCondition,
+  Cutoff,
   Room,
   RoundFormat,
+  TimeLimit,
   Venue,
 } from "@wca/helpers";
-import { getColorForStage, ROUND_FORMAT } from "../constants";
+import {
+  getColorForStage,
+  ROUND_FORMAT,
+  DEFAULT_CUTOFFS,
+  DEFAULT_TIME_LIMITS,
+} from "../constants";
 import {
   EventId,
   Events,
@@ -115,15 +121,53 @@ const getDefaultWcifEvent = (eventId: EventId) => ({
   extensions: [],
 });
 
-const getDefaultWcifRound = (id: ActivityCode, format: RoundFormat) => ({
-  id,
-  format,
-  timeLimit: null,
-  cutoff: null,
-  advancementCondition: null,
-  results: [],
-  extensions: [],
-});
+const getDefaultTimeLimit = (
+  eventId: EventId,
+  roundNum: number
+): TimeLimit | null => {
+  const defaultTimeLimit = DEFAULT_TIME_LIMITS[eventId];
+
+  if (roundNum === 1) {
+    return defaultTimeLimit;
+  }
+
+  if (eventId === "333bf") {
+    return defaultTimeLimit;
+  }
+
+  // For all events with a time limit in the first round,
+  // set the time limit to 10 min in subsequent rounds
+  return !!defaultTimeLimit
+    ? { centiseconds: 60000, cumulativeRoundIds: [] }
+    : null;
+};
+
+const getDefaultCutoff = (
+  eventId: EventId,
+  roundNum: number
+): Cutoff | null => {
+  if (roundNum > 1) {
+    return null;
+  }
+
+  return DEFAULT_CUTOFFS[eventId];
+};
+
+const getDefaultWcifRound = (
+  eventId: EventId,
+  roundNum: number,
+  format: RoundFormat
+) => {
+  return {
+    id: `${eventId}-r${roundNum}`,
+    format,
+    timeLimit: getDefaultTimeLimit(eventId, roundNum),
+    cutoff: getDefaultCutoff(eventId, roundNum),
+    advancementCondition: null,
+    results: [],
+    extensions: [],
+  };
+};
 
 const createWcifEvent = (
   eventId: EventId,
@@ -146,14 +190,12 @@ const createWcifEvent = (
             }
           : null;
 
-      const roundId = `${eventId}-r${index + 1}`;
-
       const originalRound = originalWcifEvent?.rounds.find(
-        ({ id }) => id === roundId
+        ({ id }) => id === `${eventId}-r${index + 1}`
       );
 
       return {
-        ...getDefaultWcifRound(roundId, ROUND_FORMAT[eventId]),
+        ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
         advancementCondition,
         ...(round.numGroups &&
