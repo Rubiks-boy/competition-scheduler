@@ -10,6 +10,7 @@ import {
   getDefaultEventsData,
   getDefaultNumStations,
   getDefaultSchedule,
+  getNumStationsFromWcif,
 } from "../utils/wcif";
 import type { State, Action } from "./types";
 
@@ -73,7 +74,9 @@ const reducer: Reducer = (state, action) => {
     case "FETCH_WCIF_SUCCESS":
       const { wcif } = action;
       const defaultCompetitorLimit = wcif.competitorLimit || 120;
-      const defaultNumStations = getDefaultNumStations(defaultCompetitorLimit);
+      const defaultNumStations =
+        getNumStationsFromWcif(wcif) ||
+        getDefaultNumStations(defaultCompetitorLimit);
       const events = getDefaultEventsData({
         wcif,
         numStations: defaultNumStations,

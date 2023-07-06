@@ -82,6 +82,26 @@ const wcifRoundsToEventRounds = (
     .sort((a, b) => a.roundNum - b.roundNum);
 };
 
+export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
+  const { rooms } = wcif.schedule.venues[0];
+
+  let sum = 0;
+  rooms.forEach((room) => {
+    const groupifierRoomConfig = room.extensions.find(
+      ({ id }) => id === "groupifier.RoomConfig"
+    );
+
+    if (groupifierRoomConfig) {
+      const data = groupifierRoomConfig.data as { stations: number };
+      sum += data.stations;
+    }
+  });
+
+  console.log("sum", sum, rooms);
+
+  return sum;
+};
+
 export const getDefaultNumStations = (
   competitorLimit: number | null
 ): number => {
@@ -254,15 +274,32 @@ const createWcifRoom = ({
   scheduleWithTimes,
   originalWcifRoom,
   startingId = 1,
+  stationsPerRoom,
 }: {
   scheduleWithTimes: Array<ScheduleEntryWithTime>;
   originalWcifRoom: WcifRoom;
   startingId: number;
+  stationsPerRoom: number;
 }) => {
   let nextId = startingId;
 
+  const groupifierRoomConfig = {
+    id: "groupifier.RoomConfig",
+    specUrl:
+      "https://groupifier.jonatanklosko.com/wcif-extensions/RoomConfig.json",
+    data: { stations: stationsPerRoom },
+  };
+
+  const newExtensions = [
+    ...originalWcifRoom.extensions.filter(
+      ({ id }) => id !== "groupifier.RoomConfig"
+    ),
+    groupifierRoomConfig,
+  ];
+
   return {
     ...originalWcifRoom,
+    extensions: newExtensions,
     activities: scheduleWithTimes.map((scheduleEntry) => {
       const { type, startTime, endTime } = scheduleEntry;
 
@@ -302,6 +339,7 @@ export const createWcifSchedule = ({
   otherActivities,
   venueName,
   stages,
+  numStations,
 }: {
   schedule: Schedule;
   startTime: Date;
@@ -311,6 +349,7 @@ export const createWcifSchedule = ({
   otherActivities: Record<OtherActivity, string>;
   venueName: string;
   stages: Array<Stage>;
+  numStations: number;
 }) => {
   if (originalWcifSchedule.venues.length > 1) {
     // TODO: better erroring
@@ -369,6 +408,7 @@ export const createWcifSchedule = ({
             scheduleWithTimes,
             originalWcifRoom,
             startingId: idx * 10000,
+            stationsPerRoom: Math.floor(numStations / venueRooms.length),
           })
         ),
       },
