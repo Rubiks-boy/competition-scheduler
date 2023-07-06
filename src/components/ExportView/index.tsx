@@ -22,6 +22,7 @@ import {
   venueNameSelector,
   stagesSelector,
   shareableAppStateSelector,
+  competitorLimitSelector,
 } from "../../app/selectors";
 import { saveWcifChanges } from "../../utils/wcaApi";
 import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
@@ -41,6 +42,7 @@ const getShareableUrl = (state: ShareableState) => {
 
 const ExportView = () => {
   const shareableState = useSelector(shareableAppStateSelector);
+  const competitorLimit = useSelector(competitorLimitSelector);
   const events = useSelector(eventsSelector);
   const schedule = useSelector(scheduleSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
@@ -97,6 +99,7 @@ const ExportView = () => {
 
     const newWcif = {
       ...originalWcif,
+      competitorLimit: parseInt(competitorLimit),
       events: newWcifEvents,
       schedule: newWcifSchedule,
     };

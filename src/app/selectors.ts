@@ -19,6 +19,8 @@ export const manageableCompsPendingSelector = (state: State) =>
 export const competitionSelector = (state: State) =>
   state.manageableComps.find((comp) => comp.id === state.selectedCompId);
 
+export const competitorLimitSelector = (state: State) => state.competitorLimit;
+
 export const numStationsSelector = (state: State) => state.numStations;
 
 export const startTimeSelector = (state: State) => state.startTime;

@@ -10,6 +10,8 @@ import {
 
 export type ShareableState = {
   selectedCompId: string | null;
+  competitorLimit: string;
+  isNumStationsTouched: boolean;
   numStations: string;
   startTime: Date;
   isShowingDefaultInfo: boolean;
@@ -58,6 +60,10 @@ export type Action =
   | {
       type: "COMP_SELECTED";
       newId: string;
+    }
+  | {
+      type: "COMPETITOR_LIMIT_CHANGED";
+      competitorLimit: string;
     }
   | {
       type: "NUM_STATIONS_CHANGED";

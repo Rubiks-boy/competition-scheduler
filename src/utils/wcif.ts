@@ -82,14 +82,39 @@ const wcifRoundsToEventRounds = (
     .sort((a, b) => a.roundNum - b.roundNum);
 };
 
+export const getDefaultNumStations = (
+  competitorLimit: number | null
+): number => {
+  if (!competitorLimit) {
+    return 8;
+  }
+
+  if (competitorLimit >= 200) {
+    return 24;
+  }
+  if (competitorLimit >= 150) {
+    return 20;
+  }
+  if (competitorLimit >= 120) {
+    return 16;
+  }
+  if (competitorLimit >= 80) {
+    return 12;
+  }
+
+  return 8;
+};
+
 export const getDefaultEventsData = ({
   wcif,
   numStations,
+  competitorLimit,
 }: {
   wcif: Wcif;
   numStations: number;
+  competitorLimit: number;
 }): Events => {
-  const { events: wcifEvents, competitorLimit } = wcif;
+  const { events: wcifEvents } = wcif;
 
   const events = makeDefaultEvents();
 

@@ -6,7 +6,11 @@ import {
   calcTimeForRound,
 } from "../utils/calculators";
 import { makeDefaultEvents } from "../utils/utils";
-import { getDefaultEventsData, getDefaultSchedule } from "../utils/wcif";
+import {
+  getDefaultEventsData,
+  getDefaultNumStations,
+  getDefaultSchedule,
+} from "../utils/wcif";
 import type { State, Action } from "./types";
 
 export const initialState: State = {
@@ -14,6 +18,8 @@ export const initialState: State = {
   manageableCompsPending: false,
   manageableComps: [],
   selectedCompId: null,
+  competitorLimit: "100",
+  isNumStationsTouched: false,
   numStations: "8",
   startTime: new Date(0),
   wcifPending: false,
@@ -66,9 +72,12 @@ const reducer: Reducer = (state, action) => {
       return { ...state, wcifPending: true };
     case "FETCH_WCIF_SUCCESS":
       const { wcif } = action;
+      const defaultCompetitorLimit = wcif.competitorLimit || 120;
+      const defaultNumStations = getDefaultNumStations(defaultCompetitorLimit);
       const events = getDefaultEventsData({
         wcif,
-        numStations: parseInt(state.numStations || "0"),
+        numStations: defaultNumStations,
+        competitorLimit: defaultCompetitorLimit,
       });
 
       const wcifStartTime = new Date(wcif.schedule.startDate);
@@ -91,6 +100,8 @@ const reducer: Reducer = (state, action) => {
           wcifPending: false,
           wcif,
           startTime: startTimeWithWcifDate,
+          competitorLimit: `${defaultCompetitorLimit}`,
+          numStations: `${defaultNumStations}`,
         };
       }
 
@@ -100,6 +111,9 @@ const reducer: Reducer = (state, action) => {
         hasReorderedEvents: false,
         wcifPending: false,
         wcif,
+        competitorLimit: `${defaultCompetitorLimit}`,
+        isNumStationsTouched: false,
+        numStations: `${defaultNumStations}`,
         events,
         schedule: getDefaultSchedule(events),
         startTime: wcifStartTime,
@@ -118,6 +132,37 @@ const reducer: Reducer = (state, action) => {
         selectedCompId: newId,
       };
 
+    case "COMPETITOR_LIMIT_CHANGED":
+      const { competitorLimit } = action;
+
+      if (state.isNumStationsTouched || !state.wcif) {
+        return { ...state, competitorLimit };
+      }
+
+      const newNumStations = getDefaultNumStations(parseInt(competitorLimit));
+
+      if (!state.isShowingDefaultInfo) {
+        return {
+          ...state,
+          competitorLimit,
+          numStations: `${newNumStations}`,
+        };
+      }
+
+      const newDefaultEvents = getDefaultEventsData({
+        wcif: state.wcif,
+        numStations: newNumStations,
+        competitorLimit: parseInt(competitorLimit),
+      });
+
+      return {
+        ...state,
+        competitorLimit,
+        numStations: `${newNumStations}`,
+        events: newDefaultEvents,
+        schedule: getDefaultSchedule(newDefaultEvents),
+      };
+
     case "NUM_STATIONS_CHANGED":
       const { numStations } = action;
 
@@ -125,17 +170,20 @@ const reducer: Reducer = (state, action) => {
         return {
           ...state,
           numStations,
+          isNumStationsTouched: true,
         };
       }
 
       const updatedDefaultEvents = getDefaultEventsData({
         wcif: state.wcif,
         numStations: parseInt(numStations || "0"),
+        competitorLimit: parseInt(state.competitorLimit),
       });
 
       return {
         ...state,
         numStations,
+        isNumStationsTouched: true,
         events: updatedDefaultEvents,
         schedule: getDefaultSchedule(updatedDefaultEvents),
       };
