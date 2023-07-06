@@ -47,6 +47,7 @@ export const ConfigureCompetition = () => {
           type="number"
           value={competitorLimit}
           onChange={onCompetitorLimitChanged}
+          disabled
         />
       </Grid>
       <Grid item xs={6} sm={4} md={2}>
