@@ -142,8 +142,8 @@ export const ROUND_FORMAT: Record<EventId, RoundFormat> = {
   minx: "a",
   skewb: "a",
   sq1: "a",
-  "444bf": "1",
-  "555bf": "1",
+  "444bf": "3",
+  "555bf": "3",
   "333mbf": "1",
   // Deprecated events
   magic: "a",
