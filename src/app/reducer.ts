@@ -103,8 +103,9 @@ const reducer: Reducer = (state, action) => {
           wcifPending: false,
           wcif,
           startTime: startTimeWithWcifDate,
-          competitorLimit: `${defaultCompetitorLimit}`,
-          numStations: `${defaultNumStations}`,
+          // Fields below this point were added after import functionality was implemented
+          // For backwards compatibility they also have to be able to fill in a default value if it doesn't exist.
+          competitorLimit: state.competitorLimit || `${defaultCompetitorLimit}`,
         };
       }
 
