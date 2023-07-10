@@ -83,7 +83,13 @@ const wcifRoundsToEventRounds = (
 };
 
 export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
-  const { rooms } = wcif.schedule.venues[0];
+  const venue = wcif.schedule?.venues?.[0];
+
+  if (!venue) {
+    return 0;
+  }
+
+  const { rooms } = venue;
 
   let sum = 0;
   rooms.forEach((room) => {
@@ -96,8 +102,6 @@ export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
       sum += data.stations;
     }
   });
-
-  console.log("sum", sum, rooms);
 
   return sum;
 };
