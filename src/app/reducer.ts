@@ -40,7 +40,7 @@ export const initialState: State = {
   venueName: "",
   stages: ["Red", "Blue"],
   isUsingCustomStages: false,
-  customStages: [],
+  customStages: [{ stage: "Stage 1", color: STAGE_NAMES_AND_COLORS[1].color }],
   fromImport: false,
 };
 
