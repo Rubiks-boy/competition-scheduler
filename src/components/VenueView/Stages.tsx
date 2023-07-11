@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Checkbox, FormControlLabel, FormLabel } from "@mui/material";
+import { Grid, Checkbox, FormControlLabel } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import { stagesSelector } from "../../app/selectors";
 import type { Stage } from "../../types";
@@ -26,8 +26,7 @@ export const Stages = () => {
   };
 
   return (
-    <Grid container item xs={12}>
-      <FormLabel>Stages</FormLabel>
+    <>
       {STAGE_NAMES_AND_COLORS.map(({ stage, color }) => (
         <Grid item xs={12} key={stage}>
           <FormControlLabel
@@ -51,6 +50,6 @@ export const Stages = () => {
           />
         </Grid>
       ))}
-    </Grid>
+    </>
   );
 };

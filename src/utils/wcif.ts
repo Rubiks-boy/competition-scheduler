@@ -7,12 +7,12 @@ import type {
   Venue,
 } from "@wca/helpers";
 import {
-  getColorForStage,
   ROUND_FORMAT,
   DEFAULT_CUTOFFS,
   DEFAULT_TIME_LIMITS,
 } from "../constants";
 import {
+  CustomStage,
   EventId,
   Events,
   EVENT_IDS,
@@ -21,7 +21,6 @@ import {
   Round,
   Schedule,
   ScheduleEntryWithTime,
-  Stage,
   Wcif,
   WcifEvent,
   WcifRoom,
@@ -342,7 +341,7 @@ export const createWcifSchedule = ({
   events,
   otherActivities,
   venueName,
-  stages,
+  stagesInUse,
   numStations,
 }: {
   schedule: Schedule;
@@ -352,7 +351,7 @@ export const createWcifSchedule = ({
   events: Events;
   otherActivities: Record<OtherActivity, string>;
   venueName: string;
-  stages: Array<Stage>;
+  stagesInUse: Array<CustomStage>;
   numStations: number;
 }) => {
   if (originalWcifSchedule.venues.length > 1) {
@@ -379,10 +378,10 @@ export const createWcifSchedule = ({
   const baseVenueInfo =
     originalWcifSchedule.venues.length > 0 ? originalVenue : newVenue;
 
-  const newRooms: Array<Room> = stages.map((stage, id) => ({
+  const newRooms: Array<Room> = stagesInUse.map(({ stage, color }, id) => ({
     id,
-    name: `${stage} Stage`,
-    color: getColorForStage(stage),
+    name: stage,
+    color,
     activities: [],
     extensions: [],
   }));

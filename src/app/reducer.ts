@@ -1,3 +1,4 @@
+import { STAGE_NAMES_AND_COLORS } from "../constants";
 import { Round } from "../types";
 import { autoReorder } from "../utils/autoReorder";
 import {
@@ -38,6 +39,8 @@ export const initialState: State = {
   },
   venueName: "",
   stages: ["Red", "Blue"],
+  isUsingCustomStages: false,
+  customStages: [],
   fromImport: false,
 };
 
@@ -406,6 +409,45 @@ const reducer: Reducer = (state, action) => {
       };
     }
 
+    case "USING_CUSTOM_STAGES_TOGGLED": {
+      return {
+        ...state,
+        isUsingCustomStages: action.isUsingCustomStages,
+      };
+    }
+
+    case "ADD_CUSTOM_STAGE": {
+      const newCustomStageNum = state.customStages.length + 1;
+      return {
+        ...state,
+        customStages: [
+          ...state.customStages,
+          {
+            stage: `Stage ${newCustomStageNum}`,
+            color: STAGE_NAMES_AND_COLORS.map(({ color }) => color)[
+              newCustomStageNum % STAGE_NAMES_AND_COLORS.length
+            ],
+          },
+        ],
+      };
+    }
+
+    case "REMOVE_CUSTOM_STAGE": {
+      return {
+        ...state,
+        customStages: state.customStages.filter((_, i) => i !== action.index),
+      };
+    }
+
+    case "CUSTOM_STAGE_CHANGED": {
+      return {
+        ...state,
+        customStages: state.customStages.map((stage, i) =>
+          i === action.index ? action.customStage : stage
+        ),
+      };
+    }
+
     case "IMPORT_APP_STATE": {
       const { appState } = action;
 
@@ -429,6 +471,9 @@ const reducer: Reducer = (state, action) => {
 
         // From ShareableState
         competitorLimit: appState.competitorLimit ?? state.competitorLimit,
+        customStages: appState.customStages ?? state.customStages,
+        isUsingCustomStages:
+          appState.isUsingCustomStages ?? state.isUsingCustomStages,
 
         // Remaining state
         accessToken: state.accessToken,

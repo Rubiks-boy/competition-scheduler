@@ -1,0 +1,8 @@
+.CustomStages-PickerContainer > div {
+  align-items: center;
+  width: unset;
+}
+
+.CustomStages-PickerContainer > div > div {
+  width: 100%;
+}

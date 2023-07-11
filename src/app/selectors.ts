@@ -1,4 +1,4 @@
-import { OTHER_ACTIVITES } from "../constants";
+import { getColorForStage, OTHER_ACTIVITES } from "../constants";
 import { pick } from "../utils/utils";
 import type { ShareableState, State } from "./types";
 
@@ -51,6 +51,22 @@ export const wcifScheduleSelector = (state: State) =>
 export const venueNameSelector = (state: State) => state.venueName;
 
 export const stagesSelector = (state: State) => state.stages;
+
+export const customStagesSelector = (state: State) => state.customStages;
+
+export const isUsingCustomStagesSelector = (state: State) =>
+  state.isUsingCustomStages;
+
+export const stagesInUseSelector = (state: State) => {
+  if (isUsingCustomStagesSelector(state)) {
+    return customStagesSelector(state);
+  }
+
+  return stagesSelector(state).map((stage) => ({
+    stage: `${stage} Stage`,
+    color: getColorForStage(stage),
+  }));
+};
 
 export const canAdvanceToNext = (state: State, activeStep: number) => {
   if (activeStep !== 3) {

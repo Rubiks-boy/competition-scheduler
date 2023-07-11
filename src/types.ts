@@ -78,3 +78,8 @@ export type {
 } from "@wca/helpers";
 
 export type Stage = "Red" | "Blue" | "Green " | "Orange" | "Purple";
+
+export type CustomStage = {
+  stage: string;
+  color: string; // hex values
+};

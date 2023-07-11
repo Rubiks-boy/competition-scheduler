@@ -1,12 +1,25 @@
 import React from "react";
-import { Alert, Grid, TextField } from "@mui/material";
+import {
+  Alert,
+  FormControlLabel,
+  FormLabel,
+  Grid,
+  Switch,
+  TextField,
+} from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
-import { venueNameSelector, wcifScheduleSelector } from "../../app/selectors";
+import {
+  isUsingCustomStagesSelector,
+  venueNameSelector,
+  wcifScheduleSelector,
+} from "../../app/selectors";
 import { Stages } from "./Stages";
+import { CustomStages } from "./CustomStages";
 
 const VenueView = () => {
   const dispatch = useDispatch();
   const venueName = useSelector(venueNameSelector);
+  const isUsingCustomStages = useSelector(isUsingCustomStagesSelector);
 
   const originalWcifSchedule = useSelector(wcifScheduleSelector);
   const numExistingVenues = originalWcifSchedule?.venues.length || 0;
@@ -42,6 +55,13 @@ const VenueView = () => {
     );
   }
 
+  const setUsingCustomStages = () => {
+    dispatch({
+      type: "USING_CUSTOM_STAGES_TOGGLED",
+      isUsingCustomStages: !isUsingCustomStages,
+    });
+  };
+
   return (
     <Grid container spacing={2}>
       {numExistingVenues === 0 && (
@@ -55,7 +75,25 @@ const VenueView = () => {
           />
         </Grid>
       )}
-      {numExistingRooms === 0 && <Stages />}
+      <Grid container item xs={12} spacing={2}>
+        <Grid item xs={3} sx={{ mb: 0, alignItems: "center", display: "flex" }}>
+          <FormLabel>Stages</FormLabel>
+        </Grid>
+        <Grid item xs={9} sx={{ justifyContent: "right", display: "flex" }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isUsingCustomStages}
+                onChange={setUsingCustomStages}
+                size="small"
+              />
+            }
+            label="Custom stages"
+          />
+        </Grid>
+        {numExistingRooms === 0 && isUsingCustomStages && <CustomStages />}
+        {numExistingRooms === 0 && !isUsingCustomStages && <Stages />}
+      </Grid>
     </Grid>
   );
 };

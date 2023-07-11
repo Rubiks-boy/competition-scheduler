@@ -6,6 +6,7 @@ import {
   Schedule,
   OtherActivity,
   Stage,
+  CustomStage,
 } from "../types";
 
 // These properties existed prior to export functionality being initially implemented and can always be exported
@@ -26,6 +27,8 @@ export type AlwaysImportableAppState = {
 // These properties are included on new schedule exports
 export type ShareableState = AlwaysImportableAppState & {
   competitorLimit: string;
+  customStages: Array<CustomStage>;
+  isUsingCustomStages: boolean;
 };
 
 // When importing a schedule from a sharable URL, we're guaranteed to have all
@@ -132,6 +135,22 @@ export type Action =
       checked: boolean;
     }
   | {
+      type: "USING_CUSTOM_STAGES_TOGGLED";
+      isUsingCustomStages: boolean;
+    }
+  | {
+      type: "CUSTOM_STAGE_CHANGED";
+      index: number;
+      customStage: CustomStage;
+    }
+  | {
+      type: "ADD_CUSTOM_STAGE";
+    }
+  | {
+      type: "REMOVE_CUSTOM_STAGE";
+      index: number;
+    }
+  | {
       type: "IMPORT_APP_STATE";
-      appState: ShareableState;
+      appState: ImportableAppState;
     };
