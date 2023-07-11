@@ -1,25 +1,12 @@
 import React from "react";
-import {
-  Alert,
-  Grid,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-  FormLabel,
-} from "@mui/material";
+import { Alert, Grid, TextField } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
-import {
-  stagesSelector,
-  venueNameSelector,
-  wcifScheduleSelector,
-} from "../../app/selectors";
-import type { Stage } from "../../types";
-import { STAGE_NAMES_AND_COLORS } from "../../constants";
+import { venueNameSelector, wcifScheduleSelector } from "../../app/selectors";
+import { Stages } from "./Stages";
 
 const VenueView = () => {
   const dispatch = useDispatch();
   const venueName = useSelector(venueNameSelector);
-  const stages = useSelector(stagesSelector);
 
   const originalWcifSchedule = useSelector(wcifScheduleSelector);
   const numExistingVenues = originalWcifSchedule?.venues.length || 0;
@@ -31,22 +18,6 @@ const VenueView = () => {
     dispatch({
       type: "VENUE_NAME_CHANGED",
       venueName,
-    });
-  };
-
-  const onStageChecked = (stage: Stage) => {
-    dispatch({
-      type: "STAGE_CHECKED",
-      stage,
-      checked: true,
-    });
-  };
-
-  const onStageUnchecked = (stage: Stage) => {
-    dispatch({
-      type: "STAGE_CHECKED",
-      stage,
-      checked: false,
     });
   };
 
@@ -84,34 +55,7 @@ const VenueView = () => {
           />
         </Grid>
       )}
-      {numExistingRooms === 0 && (
-        <Grid container item xs={12}>
-          <FormLabel>Stages</FormLabel>
-          {STAGE_NAMES_AND_COLORS.map(({ stage, color }) => (
-            <Grid item xs={12} key={stage}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={stages.includes(stage)}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      e.target.checked
-                        ? onStageChecked(stage)
-                        : onStageUnchecked(stage)
-                    }
-                    sx={{
-                      color,
-                      "&.Mui-checked": {
-                        color,
-                      },
-                    }}
-                  />
-                }
-                label={stage}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
+      {numExistingRooms === 0 && <Stages />}
     </Grid>
   );
 };
