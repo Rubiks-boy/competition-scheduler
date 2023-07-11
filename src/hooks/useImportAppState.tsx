@@ -14,6 +14,10 @@ const getAppStateFromUrl = () => {
   return parsedQueryParams.find(({ key }) => key === "appState")?.value;
 };
 
+const getAppStateFromLocalStorage = () => {
+  return localStorage.getItem("ScheduleGenerator.savedAppState");
+};
+
 export const useImportAppState = () => {
   const dispatch = useDispatch();
   const accessToken = useSelector(accessTokenSelector);
@@ -26,7 +30,12 @@ export const useImportAppState = () => {
       return;
     }
 
-    const maybeEncodedAppState = getAppStateFromUrl();
+    const maybeEncodedAppStateFromUrl = getAppStateFromUrl();
+    const maybeEncodedAppStateFromLocalStorage = getAppStateFromLocalStorage();
+
+    const source = !!maybeEncodedAppStateFromUrl ? "url" : "local_storage";
+    const maybeEncodedAppState =
+      maybeEncodedAppStateFromUrl || maybeEncodedAppStateFromLocalStorage;
 
     if (!maybeEncodedAppState) {
       return;
@@ -35,7 +44,7 @@ export const useImportAppState = () => {
     const appStateStr = Buffer.from(maybeEncodedAppState, "base64").toString();
     const appState = JSON.parse(appStateStr);
 
-    dispatch({ type: "IMPORT_APP_STATE", appState });
+    dispatch({ type: "IMPORT_APP_STATE", appState, source });
 
     setHasDispatched(true);
   }, [dispatch, hasDispatched, manageableComps, accessToken]);

@@ -41,7 +41,7 @@ export const initialState: State = {
   stages: ["Red", "Blue"],
   isUsingCustomStages: false,
   customStages: [{ stage: "Stage 1", color: STAGE_NAMES_AND_COLORS[1].color }],
-  fromImport: false,
+  importSource: null,
 };
 
 type Reducer = (state: State, action: Action) => State;
@@ -60,7 +60,7 @@ const reducer: Reducer = (state, action) => {
         ...state,
         manageableCompsPending: false,
         manageableComps,
-        selectedCompId: state.fromImport
+        selectedCompId: state.importSource
           ? state.selectedCompId
           : manageableComps[0].id,
       };
@@ -94,7 +94,7 @@ const reducer: Reducer = (state, action) => {
         wcifStartTime.setHours(32, 0, 0, 0); // next 8:00am
       }
 
-      if (state.fromImport) {
+      if (state.importSource) {
         const startTimeWithWcifDate = new Date(wcifStartTime);
         startTimeWithWcifDate.setHours(
           state.startTime.getHours(),
@@ -449,12 +449,12 @@ const reducer: Reducer = (state, action) => {
     }
 
     case "IMPORT_APP_STATE": {
-      const { appState } = action;
+      const { source, appState } = action;
 
-      console.log(appState);
+      console.log("Imported app state", source, appState);
 
       const stateAfterImport: State = {
-        fromImport: true,
+        importSource: source,
 
         // From AlwaysImportableAppState
         selectedCompId: appState.selectedCompId,

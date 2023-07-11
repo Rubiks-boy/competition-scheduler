@@ -11,9 +11,10 @@ import { ScheduleStepper } from "./components/ScheduleStepper";
 import { useLookupAccessToken } from "./hooks/useLookupAccessToken";
 import { useFetchCompetitions } from "./hooks/useFetchCompetitions";
 import { useFetchWcif } from "./hooks/useFetchWcif";
+import { useImportAppState } from "./hooks/useImportAppState";
+import { useSaveToLocalStorage } from "./hooks/useSaveToLocalStorage";
 
 import "./App.css";
-import { useImportAppState } from "./hooks/useImportAppState";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -32,6 +33,7 @@ function App() {
   useFetchCompetitions();
   useFetchWcif();
   useImportAppState();
+  useSaveToLocalStorage();
 
   return (
     <div className="App">

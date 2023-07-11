@@ -117,3 +117,6 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     isUsingCustomStages,
   };
 };
+
+export const fromImportSelector = (state: State): boolean =>
+  !!state.importSource;

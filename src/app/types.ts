@@ -42,7 +42,7 @@ export type State = ShareableState & {
   manageableComps: Array<ManageableCompetition>;
   wcifPending: boolean;
   wcif: Wcif | null;
-  fromImport: boolean;
+  importSource: "url" | "local_storage" | null;
 };
 
 export type Action =
@@ -153,4 +153,5 @@ export type Action =
   | {
       type: "IMPORT_APP_STATE";
       appState: ImportableAppState;
+      source: "url" | "local_storage";
     };
