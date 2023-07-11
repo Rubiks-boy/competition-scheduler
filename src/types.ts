@@ -77,4 +77,4 @@ export type {
   Room as WcifRoom,
 } from "@wca/helpers";
 
-export type Stage = "Red" | "Blue" | "Green " | "Orange";
+export type Stage = "Red" | "Blue" | "Green " | "Orange" | "Purple";

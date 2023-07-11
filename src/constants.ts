@@ -235,6 +235,10 @@ export const STAGE_NAMES_AND_COLORS = [
     stage: "Orange",
     color: "#e09635",
   },
+  {
+    stage: "Purple",
+    color: "#800080",
+  },
 ] as Array<{ stage: Stage; color: string }>;
 
 export const getColorForStage = (stage: Stage) => {
