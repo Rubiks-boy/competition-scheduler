@@ -7,6 +7,8 @@ export const isSignedInSelector = (state: State) => !!state.accessToken;
 
 export const manageableCompsSelector = (state: State) => state.manageableComps;
 
+export const selectedCompIdSelector = (state: State) => state.selectedCompId;
+
 export const selectedCompSelector = (state: State) => {
   const { selectedCompId, manageableComps } = state;
   return manageableComps.find(({ id }) => id === selectedCompId);

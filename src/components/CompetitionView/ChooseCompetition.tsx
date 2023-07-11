@@ -9,16 +9,21 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
+  importSourceSelector,
   manageableCompsSelector,
+  selectedCompIdSelector,
   selectedCompSelector,
 } from "../../app/selectors";
 
 export const ChooseCompetition = () => {
   const manageableComps = useSelector(manageableCompsSelector);
-  const selectedComps = useSelector(selectedCompSelector);
+  const selectedCompId = useSelector(selectedCompIdSelector);
+  const selectedComp = useSelector(selectedCompSelector);
   const dispatch = useDispatch();
 
-  if (!selectedComps) {
+  const importedFromUrl = useSelector(importSourceSelector) === "url";
+
+  if (!selectedCompId) {
     return null;
   }
 
@@ -40,14 +45,22 @@ export const ChooseCompetition = () => {
           <Select
             labelId="choose-competition-label"
             label="Competition"
-            value={selectedComps.id}
+            value={selectedCompId}
             onChange={handleChooseComp}
+            disabled={importedFromUrl}
           >
-            {manageableComps.map(({ id, name }) => (
-              <MenuItem value={id} key={id}>
-                {name}
+            {importedFromUrl && (
+              <MenuItem value={selectedCompId}>
+                {/* TODO: Fetch the comp's name when importing someone else's schedule */}
+                {selectedComp?.name ?? selectedCompId}
               </MenuItem>
-            ))}
+            )}
+            {!importedFromUrl &&
+              manageableComps.map(({ id, name }) => (
+                <MenuItem value={id} key={id}>
+                  {name}
+                </MenuItem>
+              ))}
           </Select>
         </FormControl>
       </Grid>
