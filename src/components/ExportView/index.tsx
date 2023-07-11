@@ -8,7 +8,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { useSelector } from "../../app/hooks";
+import { useDispatch, useSelector } from "../../app/hooks";
 import {
   eventsSelector,
   wcifSelector,
@@ -42,6 +42,7 @@ const getShareableUrl = (state: ShareableState) => {
 };
 
 const ExportView = () => {
+  const dispatch = useDispatch();
   const shareableState = useSelector(shareableAppStateSelector);
   const competitorLimit = useSelector(competitorLimitSelector);
   const events = useSelector(eventsSelector);
@@ -118,6 +119,7 @@ const ExportView = () => {
       return;
     }
 
+    dispatch({ type: "EXPORTED" });
     setSuccessMessage("Successfully saved your updated events and schedule");
   };
 

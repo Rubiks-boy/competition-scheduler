@@ -43,6 +43,7 @@ export const initialState: State = {
   customStages: [{ stage: "Stage 1", color: STAGE_NAMES_AND_COLORS[1].color }],
   importSource: null,
   activeStep: 0,
+  isExported: false,
 };
 
 type Reducer = (state: State, action: Action) => State;
@@ -147,6 +148,7 @@ const reducer: Reducer = (state, action) => {
       return {
         ...state,
         selectedCompId: newId,
+        isExported: false,
       };
 
     case "COMPETITOR_LIMIT_CHANGED":
@@ -178,6 +180,7 @@ const reducer: Reducer = (state, action) => {
         numStations: `${newNumStations}`,
         events: newDefaultEvents,
         schedule: getDefaultSchedule(newDefaultEvents),
+        isExported: false,
       };
 
     case "NUM_STATIONS_CHANGED":
@@ -203,6 +206,7 @@ const reducer: Reducer = (state, action) => {
         isNumStationsTouched: true,
         events: updatedDefaultEvents,
         schedule: getDefaultSchedule(updatedDefaultEvents),
+        isExported: false,
       };
 
     case "START_TIME_CHANGED":
@@ -211,6 +215,7 @@ const reducer: Reducer = (state, action) => {
         ...state,
         isShowingDefaultInfo: false,
         startTime,
+        isExported: false,
       };
 
     case "ROUND_UPDATED":
@@ -244,6 +249,7 @@ const reducer: Reducer = (state, action) => {
           ...state.events,
           [action.eventId]: updatedRounds,
         },
+        isExported: false,
       };
 
     case "REMOVE_ROUND":
@@ -265,6 +271,7 @@ const reducer: Reducer = (state, action) => {
               scheduleEntry.roundNum !== withoutRemovedRound.length
           ),
         ],
+        isExported: false,
       };
 
     case "ADD_EVENTS":
@@ -305,6 +312,7 @@ const reducer: Reducer = (state, action) => {
             roundNum: 0,
           })),
         ],
+        isExported: false,
       };
 
     case "ADD_ROUND":
@@ -347,6 +355,7 @@ const reducer: Reducer = (state, action) => {
             roundNum: withAddedRound.length - 1,
           },
         ],
+        isExported: false,
       };
 
     case "REORDER_ROUND":
@@ -364,6 +373,7 @@ const reducer: Reducer = (state, action) => {
         hasReorderedEvents: true,
         isShowingDefaultInfo: false,
         schedule: reorderedSchedule,
+        isExported: false,
       };
 
     case "OTHER_ACTIVITY_TIME_SET":
@@ -376,6 +386,7 @@ const reducer: Reducer = (state, action) => {
           ...state.otherActivities,
           [activity]: time,
         },
+        isExported: false,
       };
 
     case "OTHER_ACTIVITY_ENABLED":
@@ -386,6 +397,7 @@ const reducer: Reducer = (state, action) => {
           ...state.schedule,
           { type: "other", eventId: action.activity },
         ],
+        isExported: false,
       };
 
     case "OTHER_ACTIVITY_DISABLED":
@@ -397,12 +409,14 @@ const reducer: Reducer = (state, action) => {
             scheduleEntry.type !== "other" ||
             scheduleEntry.eventId !== action.activity
         ),
+        isExported: false,
       };
 
     case "VENUE_NAME_CHANGED":
       return {
         ...state,
         venueName: action.venueName,
+        isExported: false,
       };
 
     case "STAGE_CHECKED": {
@@ -410,6 +424,7 @@ const reducer: Reducer = (state, action) => {
         return {
           ...state,
           stages: [...state.stages, action.stage],
+          isExported: false,
         };
       }
 
@@ -423,6 +438,7 @@ const reducer: Reducer = (state, action) => {
       return {
         ...state,
         isUsingCustomStages: action.isUsingCustomStages,
+        isExported: false,
       };
     }
 
@@ -439,6 +455,7 @@ const reducer: Reducer = (state, action) => {
             ],
           },
         ],
+        isExported: false,
       };
     }
 
@@ -446,6 +463,7 @@ const reducer: Reducer = (state, action) => {
       return {
         ...state,
         customStages: state.customStages.filter((_, i) => i !== action.index),
+        isExported: false,
       };
     }
 
@@ -455,6 +473,7 @@ const reducer: Reducer = (state, action) => {
         customStages: state.customStages.map((stage, i) =>
           i === action.index ? action.customStage : stage
         ),
+        isExported: false,
       };
     }
 
@@ -492,6 +511,7 @@ const reducer: Reducer = (state, action) => {
         wcifPending: state.wcifPending,
         wcif: state.wcif,
         activeStep: state.activeStep,
+        isExported: false,
       };
 
       return stateAfterImport;
@@ -501,6 +521,12 @@ const reducer: Reducer = (state, action) => {
       return {
         ...state,
         activeStep: action.activeStep,
+      };
+
+    case "EXPORTED":
+      return {
+        ...state,
+        isExported: true,
       };
 
     default:

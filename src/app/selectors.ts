@@ -120,7 +120,6 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
 
 export const importSourceSelector = (state: State) => state.importSource;
 
-export const fromImportSelector = (state: State): boolean =>
-  !!state.importSource;
-
 export const activeStepSelector = (state: State) => state.activeStep;
+
+export const isExportedSelector = (state: State) => state.isExported;

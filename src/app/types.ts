@@ -44,6 +44,7 @@ export type State = ShareableState & {
   wcif: Wcif | null;
   importSource: "url" | "local_storage" | null;
   activeStep: number;
+  isExported: boolean;
 };
 
 export type Action =
@@ -162,4 +163,7 @@ export type Action =
   | {
       type: "SET_ACTIVE_STEP";
       activeStep: number;
+    }
+  | {
+      type: "EXPORTED";
     };
