@@ -58,7 +58,8 @@ export const UrlImportBanner = () => {
 
   const resetState = () => {
     localStorage.removeItem("ScheduleGenerator.savedAppState");
-    window.location.reload();
+    // Refresh without query params
+    window.location.replace(window.location.pathname);
   };
 
   return (
