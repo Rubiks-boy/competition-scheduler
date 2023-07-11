@@ -1,5 +1,4 @@
 import { getColorForStage, OTHER_ACTIVITES } from "../constants";
-import { pick } from "../utils/utils";
 import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
@@ -83,16 +82,37 @@ export const canAdvanceToNext = (state: State, activeStep: number) => {
 };
 
 export const shareableAppStateSelector = (state: State): ShareableState => {
-  return pick(state, [
-    "selectedCompId",
-    "numStations",
-    "startTime",
-    "isShowingDefaultInfo",
-    "hasReorderedEvents",
-    "events",
-    "schedule",
-    "otherActivities",
-    "venueName",
-    "stages",
-  ]) as ShareableState;
+  const {
+    selectedCompId,
+    numStations,
+    startTime,
+    isShowingDefaultInfo,
+    hasReorderedEvents,
+    events,
+    schedule,
+    otherActivities,
+    venueName,
+    stages,
+    isNumStationsTouched,
+    competitorLimit,
+    customStages,
+    isUsingCustomStages,
+  } = state;
+
+  return {
+    selectedCompId,
+    numStations,
+    startTime,
+    isShowingDefaultInfo,
+    hasReorderedEvents,
+    events,
+    schedule,
+    otherActivities,
+    venueName,
+    stages,
+    isNumStationsTouched,
+    competitorLimit,
+    customStages,
+    isUsingCustomStages,
+  };
 };
