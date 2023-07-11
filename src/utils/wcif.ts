@@ -82,13 +82,7 @@ const wcifRoundsToEventRounds = (
 };
 
 export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
-  const venue = wcif.schedule?.venues?.[0];
-
-  if (!venue) {
-    return 0;
-  }
-
-  const { rooms } = venue;
+  const rooms = wcif.schedule.venues?.flatMap((venue) => venue.rooms) || [];
 
   let sum = 0;
   rooms.forEach((room) => {
