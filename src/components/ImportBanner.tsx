@@ -3,21 +3,24 @@ import { Alert, Box, Link } from "@mui/material";
 import { useDispatch, useSelector } from "../app/hooks";
 import { activeStepSelector, importSourceSelector } from "../app/selectors";
 
-export const ImportBanner = () => {
-  const importSource = useSelector(importSourceSelector);
+export const LocalStorageBanner = () => {
   const dispatch = useDispatch();
-  const [showBanner, setShowBanner] = useState(true);
+  const importSource = useSelector(importSourceSelector);
   const activeStep = useSelector(activeStepSelector);
+
+  const [showBanner, setShowBanner] = useState(true);
+
+  const isFromLocalStorage = importSource === "local_storage";
 
   const hideBanner = () => setShowBanner(false);
 
   useEffect(() => {
-    if (activeStep > 0) {
+    if (isFromLocalStorage && activeStep > 0) {
       setShowBanner(false);
     }
-  }, [activeStep]);
+  }, [activeStep, isFromLocalStorage]);
 
-  if (!importSource || !showBanner) {
+  if (!isFromLocalStorage || !showBanner) {
     return null;
   }
 
@@ -28,26 +31,60 @@ export const ImportBanner = () => {
     });
   };
 
-  const severity = importSource === "local_storage" ? "info" : "success";
-  const alertBody =
-    importSource === "local_storage"
-      ? "It looks like you previously worked on a schedule, and your progress was imported automatically."
-      : "You are viewing someone else's saved schedule.";
-  const resetBody =
-    importSource === "local_storage"
-      ? "Click to delete this schedule."
-      : "Create a new schedule instead.";
-
   return (
     <Box sx={{ mb: 3 }}>
-      <Alert severity={severity} onClose={hideBanner}>
-        {alertBody}
+      <Alert severity={"info"} onClose={hideBanner}>
+        It looks like you previously worked on a schedule, and your progress was
+        imported automatically.
         <br />
         Want to start from scratch instead?{" "}
         <Link href="#" variant="body2" onClick={resetState}>
-          {resetBody}
+          Click to delete this schedule.
         </Link>
       </Alert>
     </Box>
+  );
+};
+
+export const UrlImportBanner = () => {
+  const dispatch = useDispatch();
+  const importSource = useSelector(importSourceSelector);
+
+  const [showBanner, setShowBanner] = useState(true);
+
+  const isFromUrl = importSource === "url";
+
+  const hideBanner = () => setShowBanner(false);
+
+  if (!isFromUrl || !showBanner) {
+    return null;
+  }
+
+  const resetState = () => {
+    localStorage.removeItem("ScheduleGenerator.savedAppState");
+    dispatch({
+      type: "RESET_STATE",
+    });
+  };
+
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Alert severity={"success"} onClose={hideBanner}>
+        You are viewing someone else's saved schedule.
+        <br />
+        Want to start from scratch instead?{" "}
+        <Link href="#" variant="body2" onClick={resetState}>
+          Create a new schedule.
+        </Link>
+      </Alert>
+    </Box>
+  );
+};
+export const ImportBanner = () => {
+  return (
+    <>
+      <LocalStorageBanner />
+      <UrlImportBanner />
+    </>
   );
 };
