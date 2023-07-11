@@ -26,7 +26,7 @@ export type AlwaysImportableAppState = {
 
 // These properties are included on new schedule exports
 export type ShareableState = AlwaysImportableAppState & {
-  competitorLimit: string;
+  competitorLimit: string | null;
   customStages: Array<CustomStage>;
   isUsingCustomStages: boolean;
 };

@@ -20,7 +20,7 @@ export const initialState: State = {
   manageableCompsPending: false,
   manageableComps: [],
   selectedCompId: null,
-  competitorLimit: "100",
+  competitorLimit: null,
   isNumStationsTouched: false,
   numStations: "8",
   startTime: new Date(0),
@@ -184,7 +184,7 @@ const reducer: Reducer = (state, action) => {
       const updatedDefaultEvents = getDefaultEventsData({
         wcif: state.wcif,
         numStations: parseInt(numStations || "0"),
-        competitorLimit: parseInt(state.competitorLimit),
+        competitorLimit: parseInt(state.competitorLimit || "0"),
       });
 
       return {
