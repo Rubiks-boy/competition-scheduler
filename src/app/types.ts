@@ -8,9 +8,9 @@ import {
   Stage,
 } from "../types";
 
-export type ShareableState = {
+// These properties existed prior to export functionality being initially implemented and can always be exported
+export type AlwaysImportableAppState = {
   selectedCompId: string | null;
-  competitorLimit: string;
   isNumStationsTouched: boolean;
   numStations: string;
   startTime: Date;
@@ -22,6 +22,16 @@ export type ShareableState = {
   venueName: string;
   stages: Array<Stage>;
 };
+
+// These properties are included on new schedule exports
+export type ShareableState = AlwaysImportableAppState & {
+  competitorLimit: string;
+};
+
+// When importing a schedule from a sharable URL, we're guaranteed to have all
+// AlwaysImportableAppState state and will have a subset of remaining ShareableState
+export type ImportableAppState = AlwaysImportableAppState &
+  Partial<ShareableState>;
 
 export type State = ShareableState & {
   accessToken: string | null;

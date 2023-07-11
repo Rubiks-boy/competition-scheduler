@@ -411,10 +411,12 @@ const reducer: Reducer = (state, action) => {
 
       console.log(appState);
 
-      return {
-        ...state,
+      const stateAfterImport: State = {
         fromImport: true,
+
+        // From AlwaysImportableAppState
         selectedCompId: appState.selectedCompId,
+        isNumStationsTouched: state.isNumStationsTouched,
         numStations: appState.numStations,
         startTime: new Date(appState.startTime),
         isShowingDefaultInfo: appState.isShowingDefaultInfo,
@@ -424,7 +426,19 @@ const reducer: Reducer = (state, action) => {
         otherActivities: appState.otherActivities,
         venueName: appState.venueName,
         stages: appState.stages,
+
+        // From ShareableState
+        competitorLimit: appState.competitorLimit ?? state.competitorLimit,
+
+        // Remaining state
+        accessToken: state.accessToken,
+        manageableCompsPending: state.manageableCompsPending,
+        manageableComps: state.manageableComps,
+        wcifPending: state.wcifPending,
+        wcif: state.wcif,
       };
+
+      return stateAfterImport;
     }
 
     default:
