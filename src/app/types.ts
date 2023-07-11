@@ -154,4 +154,7 @@ export type Action =
       type: "IMPORT_APP_STATE";
       appState: ImportableAppState;
       source: "url" | "local_storage";
+    }
+  | {
+      type: "RESET_STATE";
     };

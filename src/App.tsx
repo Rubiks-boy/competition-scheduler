@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { Header } from "./components/Header";
 import { ScheduleStepper } from "./components/ScheduleStepper";
+import { ImportBanner } from "./components/ImportBanner";
 import { useLookupAccessToken } from "./hooks/useLookupAccessToken";
 import { useFetchCompetitions } from "./hooks/useFetchCompetitions";
 import { useFetchWcif } from "./hooks/useFetchWcif";
@@ -41,6 +42,7 @@ function App() {
         <CssBaseline />
         <Header />
         <Container maxWidth={"md"}>
+          <ImportBanner />
           <ScheduleStepper />
         </Container>
       </ThemeProvider>
