@@ -158,9 +158,6 @@ export type Action =
       source: "url" | "local_storage";
     }
   | {
-      type: "RESET_STATE";
-    }
-  | {
       type: "SET_ACTIVE_STEP";
       activeStep: number;
     }

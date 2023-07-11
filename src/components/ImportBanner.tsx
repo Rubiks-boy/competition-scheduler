@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Alert, Box, Link } from "@mui/material";
-import { useDispatch, useSelector } from "../app/hooks";
+import { useSelector } from "../app/hooks";
 import { activeStepSelector, importSourceSelector } from "../app/selectors";
 
 export const LocalStorageBanner = () => {
-  const dispatch = useDispatch();
   const importSource = useSelector(importSourceSelector);
   const activeStep = useSelector(activeStepSelector);
 
@@ -26,9 +25,7 @@ export const LocalStorageBanner = () => {
 
   const resetState = () => {
     localStorage.removeItem("ScheduleGenerator.savedAppState");
-    dispatch({
-      type: "RESET_STATE",
-    });
+    window.location.reload();
   };
 
   return (
@@ -47,7 +44,6 @@ export const LocalStorageBanner = () => {
 };
 
 export const UrlImportBanner = () => {
-  const dispatch = useDispatch();
   const importSource = useSelector(importSourceSelector);
 
   const [showBanner, setShowBanner] = useState(true);
@@ -62,9 +58,7 @@ export const UrlImportBanner = () => {
 
   const resetState = () => {
     localStorage.removeItem("ScheduleGenerator.savedAppState");
-    dispatch({
-      type: "RESET_STATE",
-    });
+    window.location.reload();
   };
 
   return (

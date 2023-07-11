@@ -50,15 +50,6 @@ type Reducer = (state: State, action: Action) => State;
 
 const reducer: Reducer = (state, action) => {
   switch (action.type) {
-    case "RESET_STATE":
-      return {
-        ...initialState,
-        accessToken: state.accessToken,
-        manageableCompsPending: state.manageableCompsPending,
-        manageableComps: state.manageableComps,
-        selectedCompId: state.manageableComps?.[0]?.id,
-      };
-
     case "SIGNIN_COMPLETE":
       const { accessToken } = action;
       return { ...state, accessToken };
