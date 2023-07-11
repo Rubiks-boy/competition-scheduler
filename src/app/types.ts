@@ -43,6 +43,7 @@ export type State = ShareableState & {
   wcifPending: boolean;
   wcif: Wcif | null;
   importSource: "url" | "local_storage" | null;
+  activeStep: number;
 };
 
 export type Action =
@@ -157,4 +158,8 @@ export type Action =
     }
   | {
       type: "RESET_STATE";
+    }
+  | {
+      type: "SET_ACTIVE_STEP";
+      activeStep: number;
     };

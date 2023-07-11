@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useSelector } from "../app/hooks";
 import {
+  activeStepSelector,
   fromImportSelector,
   shareableAppStateSelector,
 } from "../app/selectors";
@@ -9,9 +10,11 @@ import { Buffer } from "buffer";
 export const useSaveToLocalStorage = () => {
   const shareableState = useSelector(shareableAppStateSelector);
   const fromImport = useSelector(fromImportSelector);
+  const activeStep = useSelector(activeStepSelector);
 
   useEffect(() => {
-    if (!shareableState.selectedCompId) {
+    // Only export after the user has made some amount of progress making the schedule
+    if (!shareableState.selectedCompId || activeStep === 0) {
       return;
     }
 
@@ -23,5 +26,5 @@ export const useSaveToLocalStorage = () => {
     if (!fromImport) {
       localStorage.setItem("ScheduleGenerator.savedAppState", encodedState);
     }
-  }, [shareableState, fromImport]);
+  }, [shareableState, fromImport, activeStep]);
 };

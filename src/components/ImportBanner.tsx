@@ -1,20 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Box, Link } from "@mui/material";
 import { useDispatch, useSelector } from "../app/hooks";
-import { importSourceSelector } from "../app/selectors";
+import { activeStepSelector, importSourceSelector } from "../app/selectors";
 
 export const ImportBanner = () => {
   const importSource = useSelector(importSourceSelector);
   const dispatch = useDispatch();
   const [showBanner, setShowBanner] = useState(true);
+  const activeStep = useSelector(activeStepSelector);
 
   const hideBanner = () => setShowBanner(false);
+
+  useEffect(() => {
+    if (activeStep > 0) {
+      setShowBanner(false);
+    }
+  }, [activeStep]);
 
   if (!importSource || !showBanner) {
     return null;
   }
 
   const resetState = () => {
+    localStorage.removeItem("ScheduleGenerator.savedAppState");
     dispatch({
       type: "RESET_STATE",
     });
@@ -25,6 +33,10 @@ export const ImportBanner = () => {
     importSource === "local_storage"
       ? "It looks like you previously worked on a schedule, and your progress was imported automatically."
       : "You are viewing someone else's saved schedule.";
+  const resetBody =
+    importSource === "local_storage"
+      ? "Click to delete this schedule."
+      : "Create a new schedule instead.";
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -33,7 +45,7 @@ export const ImportBanner = () => {
         <br />
         Want to start from scratch instead?{" "}
         <Link href="#" variant="body2" onClick={resetState}>
-          Click here to reset.
+          {resetBody}
         </Link>
       </Alert>
     </Box>

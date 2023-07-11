@@ -6,9 +6,13 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CompetitionView from "./CompetitionView";
-import { useSelector } from "../app/hooks";
+import { useDispatch, useSelector } from "../app/hooks";
 import { SignIn } from "./Header/SignIn";
-import { canAdvanceToNext, isSignedInSelector } from "../app/selectors";
+import {
+  activeStepSelector,
+  canAdvanceToNext,
+  isSignedInSelector,
+} from "../app/selectors";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
@@ -40,17 +44,23 @@ const StepContent = ({ activeStep }: { activeStep: number }) => {
 };
 
 export const ScheduleStepper = () => {
-  const [activeStep, setActiveStep] = React.useState(0);
+  const dispatch = useDispatch();
+  const activeStep = useSelector(activeStepSelector);
   const isSignedIn = useSelector(isSignedInSelector);
   const isNextDisabled = !useSelector((state) =>
     canAdvanceToNext(state, activeStep)
   );
 
-  const handleNext = () =>
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  const setActiveStep = (activeStep: number) => {
+    dispatch({
+      type: "SET_ACTIVE_STEP",
+      activeStep,
+    });
+  };
 
-  const handleBack = () =>
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  const handleNext = () => setActiveStep(activeStep + 1);
+
+  const handleBack = () => setActiveStep(activeStep - 1);
 
   const handleReset = () => {
     setActiveStep(0);

@@ -42,6 +42,7 @@ export const initialState: State = {
   isUsingCustomStages: false,
   customStages: [{ stage: "Stage 1", color: STAGE_NAMES_AND_COLORS[1].color }],
   importSource: null,
+  activeStep: 0,
 };
 
 type Reducer = (state: State, action: Action) => State;
@@ -490,10 +491,17 @@ const reducer: Reducer = (state, action) => {
         manageableComps: state.manageableComps,
         wcifPending: state.wcifPending,
         wcif: state.wcif,
+        activeStep: state.activeStep,
       };
 
       return stateAfterImport;
     }
+
+    case "SET_ACTIVE_STEP":
+      return {
+        ...state,
+        activeStep: action.activeStep,
+      };
 
     default:
       return state;

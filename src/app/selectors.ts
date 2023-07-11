@@ -122,3 +122,5 @@ export const importSourceSelector = (state: State) => state.importSource;
 
 export const fromImportSelector = (state: State): boolean =>
   !!state.importSource;
+
+export const activeStepSelector = (state: State) => state.activeStep;
