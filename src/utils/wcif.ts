@@ -183,7 +183,7 @@ export const getDefaultEventsData = ({
 
 export const findMatchingWcifActivity = (
   wcifSchedule: WcifSchedule,
-  type?: "event" | "other",
+  type: "event" | "other",
   eventId?: string,
   roundNum?: number
 ) => {
@@ -583,4 +583,31 @@ export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
   });
 
   return numOtherActivities;
+};
+
+export const getOtherActivityLengths = (
+  stateOtherActivities: Record<OtherActivity, string>,
+  wcifSchedule: WcifSchedule
+) => {
+  const otherActivities = { ...stateOtherActivities };
+
+  OTHER_ACTIVITES.forEach((otherActivity) => {
+    const wcifActivity = findMatchingWcifActivity(
+      wcifSchedule,
+      "other",
+      otherActivity
+    );
+
+    if (wcifActivity) {
+      const wcifScheduledTime =
+        new Date(wcifActivity.endTime).getTime() -
+        new Date(wcifActivity.startTime).getTime();
+
+      otherActivities[otherActivity] = `${Math.floor(
+        wcifScheduledTime / 1000 / 60
+      )}`;
+    }
+  });
+
+  return otherActivities;
 };

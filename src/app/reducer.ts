@@ -13,6 +13,7 @@ import {
   getDefaultSchedule,
   getNumberOfActivities,
   getNumStationsFromWcif,
+  getOtherActivityLengths,
   reorderFromWcif,
 } from "../utils/wcif";
 import type { State, Action } from "./types";
@@ -176,6 +177,10 @@ const reducer: Reducer = (state, action) => {
             wcif.schedule.numberOfDays,
             defaultNumOtherActivities
           ),
+          wcif.schedule
+        ),
+        otherActivities: getOtherActivityLengths(
+          state.otherActivities,
           wcif.schedule
         ),
         numOtherActivities: defaultNumOtherActivities,
