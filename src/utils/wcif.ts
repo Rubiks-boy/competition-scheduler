@@ -35,7 +35,7 @@ import {
   calcScheduleTimes,
   calcTimeForRound,
 } from "./calculators";
-import { constructActivityString, makeDefaultEvents } from "./utils";
+import { constructActivityString, makeDefaultEvents, range } from "./utils";
 
 const getAdvancementLevelForRound = (
   wcifRounds: Array<WcifRound>,
@@ -158,14 +158,28 @@ export const getDefaultEventsData = ({
   return events;
 };
 
-export const getDefaultSchedule = (events: Events): Schedule => {
-  return EVENT_IDS.flatMap((eventId) =>
+export const getDefaultSchedule = (
+  events: Events,
+  numberOfDays: number
+): Schedule => {
+  const scheduleEvents = EVENT_IDS.flatMap((eventId) =>
     (events[eventId] || []).map((_, roundNum) => ({
-      type: "event",
+      type: "event" as const,
       eventId,
       roundNum,
     }))
   );
+
+  const dayDividers = range(1, numberOfDays).map((dayIndex) => ({
+    type: "day-divider" as const,
+    dayIndex,
+  }));
+
+  return [
+    { type: "day-divider", dayIndex: 0 },
+    ...scheduleEvents,
+    ...dayDividers,
+  ];
 };
 
 const getDefaultWcifEvent = (eventId: EventId) => ({
