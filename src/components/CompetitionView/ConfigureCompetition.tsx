@@ -84,6 +84,7 @@ export const ConfigureCompetition = () => {
           type="number"
           value={numberOfDays}
           onChange={onNumberOfDaysChange}
+          disabled
         />
       </Grid>
     </>
