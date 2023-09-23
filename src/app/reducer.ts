@@ -470,6 +470,22 @@ const reducer: Reducer = (state, action) => {
       };
 
     case "OTHER_ACTIVITY_ENABLED":
+      if (action.activity === "lunch") {
+        return {
+          ...state,
+          isShowingDefaultInfo: false,
+          schedule: [
+            ...state.schedule,
+            ...range(parseInt(state.numberOfDays ?? "1")).map((index) => ({
+              type: "other" as const,
+              eventId: action.activity,
+              index,
+            })),
+          ],
+          isExported: false,
+        };
+      }
+
       return {
         ...state,
         isShowingDefaultInfo: false,

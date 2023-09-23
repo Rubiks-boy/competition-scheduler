@@ -110,7 +110,9 @@ export const ReorderEvents = () => {
                 const id =
                   scheduleEntry.type === "event"
                     ? `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`
-                    : `other-${scheduleEntry.eventId}`;
+                    : `other-${scheduleEntry.eventId}-${
+                        "index" in scheduleEntry ? scheduleEntry.index : "0"
+                      }`;
 
                 return (
                   <DraggableEvent

@@ -44,18 +44,24 @@ export type Round = {
   scheduledTime: string;
 };
 
-export type OtherActivity =
+export type OtherActivityPerDay = "lunch";
+export type OtherActivityOnce =
   | "registration"
   | "checkin"
   | "tutorial"
-  | "lunch"
   | "awards";
+export type OtherActivity = OtherActivityOnce | OtherActivityPerDay;
 
 export type ScheduleEntry =
   | { type: "event"; eventId: EventId; roundNum: number }
   | {
       type: "other";
-      eventId: OtherActivity;
+      eventId: OtherActivityPerDay;
+      index: number;
+    }
+  | {
+      type: "other";
+      eventId: OtherActivityOnce;
     };
 
 export type DayDivider = {
