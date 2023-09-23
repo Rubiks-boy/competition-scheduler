@@ -14,6 +14,7 @@ import {
   getNumberOfActivities,
   getNumStationsFromWcif,
   getOtherActivityLengths,
+  getWcifStartTime,
   reorderFromWcif,
 } from "../utils/wcif";
 import type { State, Action } from "./types";
@@ -101,13 +102,7 @@ const reducer: Reducer = (state, action) => {
         competitorLimit: defaultCompetitorLimit,
       });
 
-      const wcifStartTime = new Date(wcif.schedule.startDate);
-      // Correct for the start date being in UTC
-      if (wcifStartTime.getHours() < 12) {
-        wcifStartTime.setHours(8, 0, 0, 0); // previous 8:00am
-      } else {
-        wcifStartTime.setHours(32, 0, 0, 0); // next 8:00am
-      }
+      const wcifStartTime = getWcifStartTime(wcif);
 
       if (state.importSource) {
         const startTimeWithWcifDate = new Date(wcifStartTime);

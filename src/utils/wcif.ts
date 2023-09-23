@@ -181,14 +181,18 @@ export const getDefaultEventsData = ({
   return events;
 };
 
+export const getAllActivities = (wcifSchedule: WcifSchedule) => {
+  const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
+  return rooms?.flatMap((room) => room.activities);
+};
+
 export const findMatchingWcifActivity = (
   wcifSchedule: WcifSchedule,
   type: "event" | "other",
   eventId?: string,
   roundNum?: number
 ) => {
-  const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
-  const allActivities = rooms?.flatMap((room) => room.activities);
+  const allActivities = getAllActivities(wcifSchedule);
 
   const activityCode =
     type === "event" && roundNum
@@ -610,4 +614,25 @@ export const getOtherActivityLengths = (
   });
 
   return otherActivities;
+};
+
+export const getWcifStartTime = (wcif: Wcif) => {
+  const startTimes = getAllActivities(wcif.schedule).map(
+    (a) => new Date(a.startTime)
+  );
+  startTimes.sort();
+  const firstStartTime = startTimes?.[0];
+
+  if (firstStartTime) {
+    return firstStartTime;
+  }
+
+  const wcifStartTime = new Date(wcif.schedule.startDate);
+  // Correct for the start date being in UTC
+  if (wcifStartTime.getHours() < 12) {
+    wcifStartTime.setHours(8, 0, 0, 0); // previous 8:00am
+  } else {
+    wcifStartTime.setHours(32, 0, 0, 0); // next 8:00am
+  }
+  return wcifStartTime;
 };
