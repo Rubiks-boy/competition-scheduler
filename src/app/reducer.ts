@@ -13,6 +13,7 @@ import {
   getDefaultSchedule,
   getNumberOfActivities,
   getNumStationsFromWcif,
+  reorderFromWcif,
 } from "../utils/wcif";
 import type { State, Action } from "./types";
 
@@ -149,6 +150,8 @@ const reducer: Reducer = (state, action) => {
           competitorLimit: state.competitorLimit || `${defaultCompetitorLimit}`,
           numberOfDays: `${wcif.schedule.numberOfDays}`,
           schedule,
+          hasReorderedEvents:
+            state.hasReorderedEvents || wcif.schedule.venues.length > 0,
         };
       }
 
@@ -159,7 +162,7 @@ const reducer: Reducer = (state, action) => {
       return {
         ...state,
         isShowingDefaultInfo: true,
-        hasReorderedEvents: false,
+        hasReorderedEvents: wcif.schedule.venues.length > 0,
         wcifPending: false,
         wcif,
         competitorLimit: `${defaultCompetitorLimit}`,
@@ -167,10 +170,13 @@ const reducer: Reducer = (state, action) => {
         numStations: `${defaultNumStations}`,
         numberOfDays: `${wcif.schedule.numberOfDays}`,
         events,
-        schedule: getDefaultSchedule(
-          events,
-          wcif.schedule.numberOfDays,
-          defaultNumOtherActivities
+        schedule: reorderFromWcif(
+          getDefaultSchedule(
+            events,
+            wcif.schedule.numberOfDays,
+            defaultNumOtherActivities
+          ),
+          wcif.schedule
         ),
         numOtherActivities: defaultNumOtherActivities,
         startTimes,

@@ -161,6 +161,46 @@ export const getDefaultEventsData = ({
   return events;
 };
 
+export const reorderFromWcif = (
+  schedule: Schedule,
+  wcifSchedule: WcifSchedule
+) => {
+  const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
+  const allActivities = rooms?.flatMap((room) => room.activities);
+
+  const findActivity = (scheduleEntry: ScheduleEntry) => {
+    const activityCode =
+      scheduleEntry.type === "event"
+        ? `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}`
+        : `other-${scheduleEntry.eventId}`;
+
+    return allActivities.find(
+      (activity) => activity.activityCode === activityCode
+    );
+  };
+
+  const sortedSchedule = [...schedule];
+  sortedSchedule.sort((a, b) => {
+    if (a.type === "day-divider" || b.type === "day-divider") {
+      return 0;
+    }
+
+    const activityA = findActivity(a);
+    const activityB = findActivity(b);
+
+    if (activityA && activityB) {
+      return (
+        new Date(activityA.startTime).getTime() -
+        new Date(activityB.startTime).getTime()
+      );
+    }
+
+    return 0;
+  });
+
+  return sortedSchedule;
+};
+
 export const getDefaultSchedule = (
   events: Events,
   numberOfDays: number,
