@@ -59,7 +59,8 @@ const wcifRoundsToEventRounds = (
   wcifRounds: Array<WcifRound>,
   eventId: EventId,
   competitorLimit: number,
-  numStations: number
+  numStations: number,
+  wcifSchedule: WcifSchedule
 ): Array<Round> => {
   return wcifRounds
     .map(({ id, extensions }) => {
@@ -84,13 +85,31 @@ const wcifRoundsToEventRounds = (
 
       const scheduledTime = calcTimeForRound(eventId, numGroups);
 
-      return {
+      const scheduleEntry = {
         eventId,
         numCompetitors: numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: scheduledTime.toString(),
         roundNum,
       };
+
+      const wcifActivity = findMatchingWcifActivity(
+        wcifSchedule,
+        "event",
+        eventId,
+        roundNum
+      );
+      if (wcifActivity) {
+        const wcifScheduledTime =
+          new Date(wcifActivity.endTime).getTime() -
+          new Date(wcifActivity.startTime).getTime();
+
+        scheduleEntry.scheduledTime = `${Math.floor(
+          wcifScheduledTime / 1000 / 60
+        )}`;
+      }
+
+      return scheduleEntry;
     })
     .sort((a, b) => a.roundNum - b.roundNum);
 };
@@ -154,39 +173,55 @@ export const getDefaultEventsData = ({
       rounds,
       id,
       competitorLimit || 0,
-      numStations
+      numStations,
+      wcif.schedule
     );
   });
 
   return events;
 };
 
-export const reorderFromWcif = (
-  schedule: Schedule,
-  wcifSchedule: WcifSchedule
+export const findMatchingWcifActivity = (
+  wcifSchedule: WcifSchedule,
+  type?: "event" | "other",
+  eventId?: string,
+  roundNum?: number
 ) => {
   const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
   const allActivities = rooms?.flatMap((room) => room.activities);
 
-  const findActivity = (scheduleEntry: ScheduleEntry) => {
-    const activityCode =
-      scheduleEntry.type === "event"
-        ? `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}`
-        : `other-${scheduleEntry.eventId}`;
+  const activityCode =
+    type === "event" && roundNum
+      ? `${eventId}-r${roundNum}`
+      : `other-${eventId}`;
 
-    return allActivities.find(
-      (activity) => activity.activityCode === activityCode
-    );
-  };
+  return allActivities.find(
+    (activity) => activity.activityCode === activityCode
+  );
+};
 
+export const reorderFromWcif = (
+  schedule: Schedule,
+  wcifSchedule: WcifSchedule
+) => {
   const sortedSchedule = [...schedule];
   sortedSchedule.sort((a, b) => {
     if (a.type === "day-divider" || b.type === "day-divider") {
       return 0;
     }
 
-    const activityA = findActivity(a);
-    const activityB = findActivity(b);
+    const activityA = findMatchingWcifActivity(
+      wcifSchedule,
+      a.type,
+      a.eventId,
+      a.type === "event" ? a.roundNum + 1 : undefined
+    );
+    const activityB = findMatchingWcifActivity(
+      wcifSchedule,
+      b.type,
+      b.eventId,
+      b.type === "event" ? b.roundNum + 1 : undefined
+    );
 
     if (activityA && activityB) {
       return (
