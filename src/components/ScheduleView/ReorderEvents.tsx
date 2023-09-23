@@ -1,17 +1,9 @@
-import React, { useMemo } from "react";
-import {
-  List,
-  ListItem,
-  Box,
-  Typography,
-  Color,
-  useMediaQuery,
-} from "@mui/material";
+import { useMemo } from "react";
+import { List, Color } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import {
   DragDropContext,
   Droppable,
-  Draggable,
   OnDragEndResponder,
 } from "react-beautiful-dnd";
 import { useDispatch, useSelector } from "../../app/hooks";
@@ -21,14 +13,10 @@ import {
   scheduleSelector,
   startTimeSelector,
 } from "../../app/selectors";
-import { formatTime } from "../../utils/formatTime";
-import { ACTIVITY_NAMES, EVENT_COLORS, EVENT_NAMES } from "../../constants";
-import { calcScheduleTimes, getRoundNumStr } from "../../utils/calculators";
-import { EventId, OtherActivity, Schedule } from "../../types";
-
-// in ems
-const MIN_HEIGHT = 3;
-const MAX_ADDITIONAL_HEIGHT = 10;
+import { EVENT_COLORS } from "../../constants";
+import { calcScheduleTimes } from "../../utils/calculators";
+import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
+import { DraggableEvent } from "./DraggableEvent";
 
 const getColorsForActivities = (schedule: Schedule) => {
   const colors: Partial<Record<EventId | OtherActivity, Color>> = {};
@@ -38,7 +26,7 @@ const getColorsForActivities = (schedule: Schedule) => {
     ...new Set(
       schedule
         .filter(({ type }) => type === "event")
-        .map(({ eventId }) => eventId)
+        .map((scheduleEntry) => (scheduleEntry as ScheduleEntry).eventId)
     ),
   ];
 
@@ -51,8 +39,6 @@ const getColorsForActivities = (schedule: Schedule) => {
 
 export const ReorderEvents = () => {
   const dispatch = useDispatch();
-
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
@@ -78,21 +64,11 @@ export const ReorderEvents = () => {
     });
   };
 
-  const roundsWithTimes = calcScheduleTimes(
+  const scheduleWithTimes = calcScheduleTimes(
     startTime,
     schedule,
     events,
     otherActivities
-  );
-
-  const longestEventTime = Math.max(
-    ...roundsWithTimes.map(({ scheduledTimeMs }) => scheduledTimeMs)
-  );
-  const shortestEventTime = Math.min(
-    // Require events to be at least 15 mins
-    ...roundsWithTimes.map(({ scheduledTimeMs }) =>
-      Math.max(scheduledTimeMs, 15 * 60000)
-    )
   );
 
   return (
@@ -101,70 +77,18 @@ export const ReorderEvents = () => {
         {(provided, snapshot) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             <List>
-              {roundsWithTimes.map((scheduleEntry, index) => {
-                const { startTime, endTime, type } = scheduleEntry;
-
-                const eventName =
-                  type === "event"
-                    ? EVENT_NAMES[scheduleEntry.eventId]
-                    : ACTIVITY_NAMES[scheduleEntry.eventId];
-
-                const roundNumStr =
-                  type === "event"
-                    ? ` ${getRoundNumStr(
-                        scheduleEntry.eventId,
-                        scheduleEntry.roundNum,
-                        schedule
-                      )}`
-                    : "";
-
-                const id =
-                  type === "event"
-                    ? `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`
-                    : `other-${scheduleEntry.eventId}`;
-
-                const baseColor = colors[scheduleEntry.eventId] || grey;
-
-                const backgroundColor = baseColor[prefersDarkMode ? 800 : 300];
-
-                const height = `${
-                  MIN_HEIGHT +
-                  (Math.max(
-                    scheduleEntry.scheduledTimeMs - shortestEventTime,
-                    0
-                  ) /
-                    longestEventTime) *
-                    MAX_ADDITIONAL_HEIGHT
-                }em`;
+              {scheduleWithTimes.map((scheduleEntry, index) => {
+                if (scheduleEntry.type === "day-divider") {
+                  return null;
+                }
 
                 return (
-                  <Draggable key={id} draggableId={id} index={index}>
-                    {(provided, snapshot) => (
-                      <ListItem
-                        sx={{
-                          backgroundColor,
-                          borderRadius: "1em",
-                          marginBlock: "1em",
-                          height,
-                          justifyContent: "center",
-                          textAlign: "center",
-                        }}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="schedule-draggableEvent"
-                      >
-                        <Box>
-                          <Typography variant="body1">
-                            {`${eventName}${roundNumStr}`}
-                          </Typography>
-                          <Typography variant="body2">
-                            {`${formatTime(startTime)}-${formatTime(endTime)}`}
-                          </Typography>
-                        </Box>
-                      </ListItem>
-                    )}
-                  </Draggable>
+                  <DraggableEvent
+                    scheduleEntry={scheduleEntry}
+                    index={index}
+                    colors={colors}
+                    scheduleWithTimes={scheduleWithTimes}
+                  />
                 );
               })}
               {provided.placeholder}

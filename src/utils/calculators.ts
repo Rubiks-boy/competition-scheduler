@@ -10,7 +10,7 @@ import {
   OtherActivity,
   Round,
   Schedule,
-  ScheduleEntryWithTime,
+  ScheduleWithTimes,
 } from "../types";
 
 export const compPerStationsRatio = (round: Round, numStations: number) => {
@@ -97,14 +97,20 @@ export const calcScheduleTimes = (
   schedule: Schedule,
   events: Events,
   otherActivities: Record<OtherActivity, string>
-): Array<ScheduleEntryWithTime> => {
-  const roundsWithTimes: Array<ScheduleEntryWithTime> = [];
+): ScheduleWithTimes => {
+  const roundsWithTimes: ScheduleWithTimes = [];
 
   let currStartMs = startTime.getTime();
 
   schedule.forEach((scheduleEntry) => {
     if (scheduleEntry.type === "day-divider") {
       currStartMs = startTime.getTime() + ONE_DAY_MS * scheduleEntry.dayIndex;
+      roundsWithTimes.push({
+        ...scheduleEntry,
+        startTime: new Date(currStartMs),
+        endTime: new Date(currStartMs),
+        scheduledTimeMs: 0,
+      });
       return;
     }
 

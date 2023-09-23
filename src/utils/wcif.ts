@@ -22,12 +22,14 @@ import {
   Round,
   RoundExtension,
   Schedule,
-  ScheduleEntryWithTime,
+  ScheduleEntry,
+  ScheduleWithTimes,
   Wcif,
   WcifEvent,
   WcifRoom,
   WcifRound,
   WcifSchedule,
+  WithTime,
 } from "../types";
 import {
   calcExpectedNumCompetitors,
@@ -315,7 +317,7 @@ const createWcifRoom = ({
   startingId = 1,
   stationsPerRoom,
 }: {
-  scheduleWithTimes: Array<ScheduleEntryWithTime>;
+  scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
   startingId: number;
   stationsPerRoom: number;
@@ -336,10 +338,14 @@ const createWcifRoom = ({
     groupifierRoomConfig,
   ];
 
+  const scheduleEntriesWithTimes = scheduleWithTimes.filter(
+    ({ type }) => type !== "day-divider"
+  ) as Array<WithTime<ScheduleEntry>>;
+
   return {
     ...originalWcifRoom,
     extensions: newExtensions,
-    activities: scheduleWithTimes.map((scheduleEntry) => {
+    activities: scheduleEntriesWithTimes.map((scheduleEntry) => {
       const { type, startTime, endTime } = scheduleEntry;
 
       const activityCode =

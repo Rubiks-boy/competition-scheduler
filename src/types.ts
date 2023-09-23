@@ -63,13 +63,14 @@ export type DayDivider = {
   dayIndex: number;
 };
 
-export type ScheduleEntryWithTime = ScheduleEntry & {
+export type WithTime<T> = T & {
   startTime: Date;
   endTime: Date;
   scheduledTimeMs: number;
 };
 
 export type Schedule = Array<ScheduleEntry | DayDivider>;
+export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
 
 // Re-export the WCA types with Wcif prefix,
 // to denote project-specific types from the WCA's types
