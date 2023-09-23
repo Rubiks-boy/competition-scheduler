@@ -1,4 +1,4 @@
-import { STAGE_NAMES_AND_COLORS } from "../constants";
+import { ONE_DAY_MS, STAGE_NAMES_AND_COLORS } from "../constants";
 import { Round } from "../types";
 import { autoReorder } from "../utils/autoReorder";
 import {
@@ -23,7 +23,7 @@ export const initialState: State = {
   competitorLimit: null,
   isNumStationsTouched: false,
   numStations: "8",
-  startTime: new Date(0),
+  startTimes: [new Date(0)],
   wcifPending: false,
   wcif: null,
   isShowingDefaultInfo: true,
@@ -100,21 +100,51 @@ const reducer: Reducer = (state, action) => {
       if (state.importSource) {
         const startTimeWithWcifDate = new Date(wcifStartTime);
         startTimeWithWcifDate.setHours(
-          state.startTime.getHours(),
-          state.startTime.getMinutes()
+          state.startTimes[0].getHours(),
+          state.startTimes[0].getMinutes()
         );
+
+        const startTimes = range(wcif.schedule.numberOfDays).map(
+          (i) => new Date(startTimeWithWcifDate.getTime() + ONE_DAY_MS * i)
+        );
+
+        const numDaysDiff =
+          wcif.schedule.numberOfDays - parseInt(state.numberOfDays || "1");
+        let schedule = state.schedule;
+        if (numDaysDiff > 0) {
+          // Add day dividers
+          schedule = [
+            ...state.schedule,
+            ...range(
+              parseInt(state.numberOfDays || "1"),
+              wcif.schedule.numberOfDays
+            ).map((i) => ({ type: "day-divider" as const, dayIndex: i })),
+          ];
+        } else {
+          // Remove day dividers
+          schedule = state.schedule.filter(
+            (e) =>
+              e.type !== "day-divider" ||
+              e.dayIndex < wcif.schedule.numberOfDays
+          );
+        }
 
         return {
           ...state,
           wcifPending: false,
           wcif,
-          startTime: startTimeWithWcifDate,
+          startTimes: startTimes,
           // Fields below this point were added after import functionality was implemented
           // For backwards compatibility they also have to be able to fill in a default value if it doesn't exist.
           competitorLimit: state.competitorLimit || `${defaultCompetitorLimit}`,
           numberOfDays: `${wcif.schedule.numberOfDays}`,
+          schedule,
         };
       }
+
+      const startTimes = range(wcif.schedule.numberOfDays).map(
+        (_, i) => new Date(wcifStartTime.getTime() + ONE_DAY_MS * i)
+      );
 
       return {
         ...state,
@@ -128,7 +158,7 @@ const reducer: Reducer = (state, action) => {
         numberOfDays: `${wcif.schedule.numberOfDays}`,
         events,
         schedule: getDefaultSchedule(events, wcif.schedule.numberOfDays),
-        startTime: wcifStartTime,
+        startTimes,
       };
     case "FETCH_WCIF_ERROR":
       return {
@@ -226,6 +256,7 @@ const reducer: Reducer = (state, action) => {
               scheduleEntry.type !== "day-divider" ||
               scheduleEntry.dayIndex < newNumberOfDays
           ),
+          startTimes: state.startTimes.slice(0, newNumberOfDays),
         };
       } else {
         const newDayDividers = range(currentNumberOfDays, newNumberOfDays).map(
@@ -240,15 +271,29 @@ const reducer: Reducer = (state, action) => {
           isShowingDefaultInfo: false,
           numberOfDays,
           schedule: [...state.schedule, ...newDayDividers],
+          startTimes: [
+            ...state.startTimes,
+            ...range(currentNumberOfDays, newNumberOfDays).map(
+              (i) => new Date(state.startTimes[0].getTime() + i * ONE_DAY_MS)
+            ),
+          ],
         };
       }
 
     case "START_TIME_CHANGED":
-      const { startTime } = action;
+      const { startTime, dayIndex } = action;
+
+      let newStartTimes;
+      if (dayIndex === -1) {
+        // Change all
+        newStartTimes = state.startTimes.map(() => startTime);
+      } else {
+        newStartTimes = state.startTimes.splice(dayIndex, 0, startTime);
+      }
       return {
         ...state,
         isShowingDefaultInfo: false,
-        startTime,
+        startTimes: newStartTimes,
         isExported: false,
       };
 
@@ -523,7 +568,8 @@ const reducer: Reducer = (state, action) => {
         selectedCompId: appState.selectedCompId,
         isNumStationsTouched: state.isNumStationsTouched,
         numStations: appState.numStations,
-        startTime: new Date(appState.startTime),
+        startTimes:
+          appState.startTimes?.map((d) => new Date(d)) ?? state.startTimes,
         isShowingDefaultInfo: appState.isShowingDefaultInfo,
         hasReorderedEvents: appState.hasReorderedEvents,
         events: appState.events,

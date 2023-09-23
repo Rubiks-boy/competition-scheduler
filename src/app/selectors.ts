@@ -27,7 +27,7 @@ export const numStationsSelector = (state: State) => state.numStations;
 
 export const numberOfDaysSelector = (state: State) => state.numberOfDays ?? "1";
 
-export const startTimeSelector = (state: State) => state.startTime;
+export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
 
@@ -90,7 +90,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
   const {
     selectedCompId,
     numStations,
-    startTime,
+    startTimes,
     isShowingDefaultInfo,
     hasReorderedEvents,
     events,
@@ -108,7 +108,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
   return {
     selectedCompId,
     numStations,
-    startTime,
+    startTimes,
     isShowingDefaultInfo,
     hasReorderedEvents,
     events,

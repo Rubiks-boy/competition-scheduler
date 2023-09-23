@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitorLimitSelector,
   numStationsSelector,
-  startTimeSelector,
+  startTimesSelector,
   numberOfDaysSelector,
 } from "../../app/selectors";
 import { TimePicker } from "../TimePicker";
@@ -12,7 +12,7 @@ export const ConfigureCompetition = () => {
   const dispatch = useDispatch();
   const competitorLimit = useSelector(competitorLimitSelector);
   const numStations = useSelector(numStationsSelector);
-  const startTime = useSelector(startTimeSelector);
+  const startTimes = useSelector(startTimesSelector);
   const numberOfDays = useSelector(numberOfDaysSelector);
 
   const onCompetitorLimitChanged = (
@@ -37,6 +37,7 @@ export const ConfigureCompetition = () => {
     dispatch({
       type: "START_TIME_CHANGED",
       startTime,
+      dayIndex: -1,
     });
   };
 
@@ -72,7 +73,7 @@ export const ConfigureCompetition = () => {
       <Grid item xs={12} sm={4} md={3}>
         <TimePicker
           label="Start time"
-          time={startTime}
+          time={startTimes[0]}
           onChange={onStartTimeChange}
         />
       </Grid>

@@ -1,7 +1,6 @@
 import {
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
-  ONE_DAY_MS,
   TIME_PER_GROUP,
 } from "../constants";
 import {
@@ -93,18 +92,19 @@ export const getRoundNumStr = (
 };
 
 export const calcScheduleTimes = (
-  startTime: Date,
+  startTimes: Array<Date>,
   schedule: Schedule,
   events: Events,
   otherActivities: Record<OtherActivity, string>
 ): ScheduleWithTimes => {
   const roundsWithTimes: ScheduleWithTimes = [];
 
-  let currStartMs = startTime.getTime();
+  let currStartMs = startTimes[0].getTime();
 
   schedule.forEach((scheduleEntry) => {
     if (scheduleEntry.type === "day-divider") {
-      currStartMs = startTime.getTime() + ONE_DAY_MS * scheduleEntry.dayIndex;
+      currStartMs = startTimes[scheduleEntry.dayIndex].getTime();
+
       roundsWithTimes.push({
         ...scheduleEntry,
         startTime: new Date(currStartMs),

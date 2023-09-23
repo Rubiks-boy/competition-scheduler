@@ -11,7 +11,7 @@ import {
   eventsSelector,
   otherActivitiesSelector,
   scheduleSelector,
-  startTimeSelector,
+  startTimesSelector,
 } from "../../app/selectors";
 import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
@@ -43,7 +43,7 @@ export const ReorderEvents = () => {
 
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
-  const startTime = useSelector(startTimeSelector);
+  const startTimes = useSelector(startTimesSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
 
   const colors = useMemo(() => {
@@ -66,7 +66,7 @@ export const ReorderEvents = () => {
   };
 
   const scheduleWithTimes = calcScheduleTimes(
-    startTime,
+    startTimes,
     schedule,
     events,
     otherActivities

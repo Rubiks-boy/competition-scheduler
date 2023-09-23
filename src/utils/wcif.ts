@@ -377,7 +377,7 @@ const createWcifRoom = ({
 
 export const createWcifSchedule = ({
   schedule,
-  startTime,
+  startTimes,
   originalWcifSchedule,
   originalCompetition,
   events,
@@ -387,7 +387,7 @@ export const createWcifSchedule = ({
   numStations,
 }: {
   schedule: Schedule;
-  startTime: Date;
+  startTimes: Array<Date>;
   originalWcifSchedule: WcifSchedule;
   originalCompetition: ManageableCompetition;
   events: Events;
@@ -432,7 +432,7 @@ export const createWcifSchedule = ({
     baseVenueInfo.rooms.length > 0 ? baseVenueInfo.rooms : newRooms;
 
   const scheduleWithTimes = calcScheduleTimes(
-    startTime,
+    startTimes,
     schedule,
     events,
     otherActivities

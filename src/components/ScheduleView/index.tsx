@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { UnfoldMore, UnfoldLess } from "@mui/icons-material";
 import { useDispatch, useSelector } from "../../app/hooks";
-import { startTimeSelector } from "../../app/selectors";
+import { numberOfDaysSelector, startTimesSelector } from "../../app/selectors";
 import { ReorderEvents } from "./ReorderEvents";
 import { TimePicker } from "../TimePicker";
 import classNames from "classnames";
@@ -16,13 +16,15 @@ import "./index.css";
 
 const ScheduleView = () => {
   const dispatch = useDispatch();
-  const startTime = useSelector(startTimeSelector);
+  const startTimes = useSelector(startTimesSelector);
+  const numberOfDays = parseInt(useSelector(numberOfDaysSelector));
   const [evenlySpaced, setEvenlySpaced] = useState(true);
 
   const onStartTimeChange = (startTime: Date) => {
     dispatch({
       type: "START_TIME_CHANGED",
       startTime,
+      dayIndex: -1,
     });
   };
   return (
@@ -31,14 +33,16 @@ const ScheduleView = () => {
         <Grid item xs={8}>
           <Typography variant="h6">Rearrange events</Typography>
         </Grid>
-        <Grid item xs={3}>
-          <TimePicker
-            label="Start time"
-            time={startTime}
-            onChange={onStartTimeChange}
-          />
-        </Grid>
-        <Grid item xs={1}>
+        {numberOfDays === 1 && (
+          <Grid item xs={3}>
+            <TimePicker
+              label="Start time"
+              time={startTimes[0]}
+              onChange={onStartTimeChange}
+            />
+          </Grid>
+        )}
+        <Grid item xs={1} sx={{ marginLeft: "auto" }}>
           <ToggleButtonGroup
             value={evenlySpaced ? [] : ["expand"]}
             onChange={() => setEvenlySpaced(!evenlySpaced)}

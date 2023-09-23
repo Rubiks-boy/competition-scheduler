@@ -15,7 +15,7 @@ import {
   wcifEventsSelector,
   accessTokenSelector,
   scheduleSelector,
-  startTimeSelector,
+  startTimesSelector,
   wcifScheduleSelector,
   otherActivitiesSelector,
   competitionSelector,
@@ -48,7 +48,7 @@ const ExportView = () => {
   const events = useSelector(eventsSelector);
   const schedule = useSelector(scheduleSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
-  const startTime = useSelector(startTimeSelector);
+  const startTimes = useSelector(startTimesSelector);
   const originalWcifEvents = useSelector(wcifEventsSelector);
   const originalWcifSchedule = useSelector(wcifScheduleSelector);
   const originalWcif = useSelector(wcifSelector);
@@ -91,7 +91,7 @@ const ExportView = () => {
     const newWcifEvents = createWcifEvents(events, originalWcifEvents);
     const newWcifSchedule = createWcifSchedule({
       schedule,
-      startTime,
+      startTimes,
       originalWcifSchedule,
       events,
       otherActivities,

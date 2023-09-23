@@ -14,7 +14,6 @@ export type AlwaysImportableAppState = {
   selectedCompId: string | null;
   isNumStationsTouched: boolean;
   numStations: string;
-  startTime: Date;
   isShowingDefaultInfo: boolean;
   hasReorderedEvents: boolean;
   events: Events;
@@ -26,6 +25,7 @@ export type AlwaysImportableAppState = {
 
 // These properties are included on new schedule exports
 export type ShareableState = AlwaysImportableAppState & {
+  startTimes: Array<Date>;
   competitorLimit: string | null;
   customStages: Array<CustomStage>;
   isUsingCustomStages: boolean;
@@ -88,6 +88,7 @@ export type Action =
   | {
       type: "START_TIME_CHANGED";
       startTime: Date;
+      dayIndex: number; // -1 => change all
     }
   | {
       type: "NUMBER_OF_DAYS_CHANGED";
