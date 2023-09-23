@@ -6,7 +6,7 @@ import {
   calcNumGroups,
   calcTimeForRound,
 } from "../utils/calculators";
-import { makeDefaultEvents } from "../utils/utils";
+import { makeDefaultEvents, range } from "../utils/utils";
 import {
   getDefaultEventsData,
   getDefaultNumStations,
@@ -44,6 +44,7 @@ export const initialState: State = {
   importSource: null,
   activeStep: 0,
   isExported: false,
+  numberOfDays: null,
 };
 
 type Reducer = (state: State, action: Action) => State;
@@ -111,6 +112,7 @@ const reducer: Reducer = (state, action) => {
           // Fields below this point were added after import functionality was implemented
           // For backwards compatibility they also have to be able to fill in a default value if it doesn't exist.
           competitorLimit: state.competitorLimit || `${defaultCompetitorLimit}`,
+          numberOfDays: `${wcif.schedule.numberOfDays}`,
         };
       }
 
@@ -123,8 +125,9 @@ const reducer: Reducer = (state, action) => {
         competitorLimit: `${defaultCompetitorLimit}`,
         isNumStationsTouched: false,
         numStations: `${defaultNumStations}`,
+        numberOfDays: `${wcif.schedule.numberOfDays}`,
         events,
-        schedule: getDefaultSchedule(events),
+        schedule: getDefaultSchedule(events, wcif.schedule.numberOfDays),
         startTime: wcifStartTime,
       };
     case "FETCH_WCIF_ERROR":
@@ -170,7 +173,10 @@ const reducer: Reducer = (state, action) => {
         competitorLimit,
         numStations: `${newNumStations}`,
         events: newDefaultEvents,
-        schedule: getDefaultSchedule(newDefaultEvents),
+        schedule: getDefaultSchedule(
+          newDefaultEvents,
+          parseInt(state.numberOfDays ?? "0")
+        ),
         isExported: false,
       };
 
@@ -196,9 +202,46 @@ const reducer: Reducer = (state, action) => {
         numStations,
         isNumStationsTouched: true,
         events: updatedDefaultEvents,
-        schedule: getDefaultSchedule(updatedDefaultEvents),
+        schedule: getDefaultSchedule(
+          updatedDefaultEvents,
+          parseInt(state.numberOfDays ?? "0")
+        ),
         isExported: false,
       };
+
+    case "NUMBER_OF_DAYS_CHANGED":
+      const { numberOfDays } = action;
+
+      const currentNumberOfDays = parseInt(state.numberOfDays || "1");
+      const newNumberOfDays = parseInt(numberOfDays || "1");
+
+      if (currentNumberOfDays >= newNumberOfDays) {
+        // Remove day dividers
+        return {
+          ...state,
+          isShowingDefaultInfo: false,
+          numberOfDays,
+          schedule: state.schedule.filter(
+            (scheduleEntry) =>
+              scheduleEntry.type !== "day-divider" ||
+              scheduleEntry.dayIndex < newNumberOfDays
+          ),
+        };
+      } else {
+        const newDayDividers = range(currentNumberOfDays, newNumberOfDays).map(
+          (dayIndex) => ({
+            type: "day-divider" as const,
+            dayIndex,
+          })
+        );
+
+        return {
+          ...state,
+          isShowingDefaultInfo: false,
+          numberOfDays,
+          schedule: [...state.schedule, ...newDayDividers],
+        };
+      }
 
     case "START_TIME_CHANGED":
       const { startTime } = action;
@@ -494,6 +537,7 @@ const reducer: Reducer = (state, action) => {
         customStages: appState.customStages ?? state.customStages,
         isUsingCustomStages:
           appState.isUsingCustomStages ?? state.isUsingCustomStages,
+        numberOfDays: appState.numberOfDays ?? state.numberOfDays,
 
         // Remaining state
         accessToken: state.accessToken,

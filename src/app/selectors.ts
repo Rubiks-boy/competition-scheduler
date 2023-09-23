@@ -25,6 +25,8 @@ export const competitorLimitSelector = (state: State) =>
 
 export const numStationsSelector = (state: State) => state.numStations;
 
+export const numberOfDaysSelector = (state: State) => state.numberOfDays ?? "1";
+
 export const startTimeSelector = (state: State) => state.startTime;
 
 export const eventsSelector = (state: State) => state.events;
@@ -100,6 +102,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     competitorLimit,
     customStages,
     isUsingCustomStages,
+    numberOfDays,
   } = state;
 
   return {
@@ -117,6 +120,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     competitorLimit,
     customStages,
     isUsingCustomStages,
+    numberOfDays,
   };
 };
 

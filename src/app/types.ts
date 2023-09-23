@@ -29,6 +29,7 @@ export type ShareableState = AlwaysImportableAppState & {
   competitorLimit: string | null;
   customStages: Array<CustomStage>;
   isUsingCustomStages: boolean;
+  numberOfDays: string | null;
 };
 
 // When importing a schedule from a sharable URL, we're guaranteed to have all
@@ -87,6 +88,10 @@ export type Action =
   | {
       type: "START_TIME_CHANGED";
       startTime: Date;
+    }
+  | {
+      type: "NUMBER_OF_DAYS_CHANGED";
+      numberOfDays: string;
     }
   | {
       type: "ROUND_UPDATED";
