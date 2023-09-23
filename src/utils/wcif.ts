@@ -11,6 +11,7 @@ import {
   DEFAULT_CUTOFFS,
   DEFAULT_TIME_LIMITS,
   EXTENSIONS_SPEC_URL,
+  OTHER_ACTIVITES,
 } from "../constants";
 import {
   CustomStage,
@@ -162,7 +163,8 @@ export const getDefaultEventsData = ({
 
 export const getDefaultSchedule = (
   events: Events,
-  numberOfDays: number
+  numberOfDays: number,
+  numOtherActivities: Record<OtherActivity, string>
 ): Schedule => {
   const scheduleEvents = EVENT_IDS.flatMap((eventId) =>
     (events[eventId] || []).map((_, roundNum) => ({
@@ -177,10 +179,19 @@ export const getDefaultSchedule = (
     dayIndex,
   }));
 
+  const otherActivities: Array<ScheduleEntry> = [];
+  OTHER_ACTIVITES.forEach((otherActivity) => {
+    const num = parseInt(numOtherActivities[otherActivity]);
+    range(num).forEach((index) => {
+      otherActivities.push({ type: "other", eventId: otherActivity, index });
+    });
+  });
+
   return [
     { type: "day-divider", dayIndex: 0 },
     ...scheduleEvents,
     ...dayDividers,
+    ...otherActivities,
   ];
 };
 
@@ -462,4 +473,39 @@ export const createWcifSchedule = ({
     ],
     numberOfDays,
   };
+};
+
+export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
+  const defaultVenue: Venue | undefined = wcifSchedule.venues?.[0];
+  const defaultRoom: Room | undefined = defaultVenue?.rooms?.[0];
+  const defaultActivities = defaultRoom?.activities;
+
+  const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
+  const allActivities = rooms?.flatMap((room) => room.activities);
+
+  const numOtherActivities = {} as Record<OtherActivity, string>;
+  OTHER_ACTIVITES.forEach((activity) => {
+    numOtherActivities[activity] = "0";
+
+    if (defaultActivities) {
+      const numDefault = defaultActivities.filter(({ activityCode }) =>
+        activityCode.startsWith(`other-${activity}`)
+      ).length;
+
+      if (numDefault > 0) {
+        numOtherActivities[activity] = `${numDefault}`;
+        return;
+      }
+    }
+
+    if (allActivities) {
+      const hasActivity =
+        allActivities.findIndex(({ activityCode }) =>
+          activityCode.startsWith(`other-${activity}`)
+        ) > -1;
+      hasActivity && (numOtherActivities[activity] = "1");
+    }
+  });
+
+  return numOtherActivities;
 };

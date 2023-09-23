@@ -11,6 +11,7 @@ import {
   getDefaultEventsData,
   getDefaultNumStations,
   getDefaultSchedule,
+  getNumberOfActivities,
   getNumStationsFromWcif,
 } from "../utils/wcif";
 import type { State, Action } from "./types";
@@ -91,6 +92,7 @@ const reducer: Reducer = (state, action) => {
       const defaultNumStations =
         getNumStationsFromWcif(wcif) ||
         getDefaultNumStations(defaultCompetitorLimit);
+      const defaultNumOtherActivities = getNumberOfActivities(wcif.schedule);
       const events = getDefaultEventsData({
         wcif,
         numStations: defaultNumStations,
@@ -165,7 +167,12 @@ const reducer: Reducer = (state, action) => {
         numStations: `${defaultNumStations}`,
         numberOfDays: `${wcif.schedule.numberOfDays}`,
         events,
-        schedule: getDefaultSchedule(events, wcif.schedule.numberOfDays),
+        schedule: getDefaultSchedule(
+          events,
+          wcif.schedule.numberOfDays,
+          defaultNumOtherActivities
+        ),
+        numOtherActivities: defaultNumOtherActivities,
         startTimes,
       };
     case "FETCH_WCIF_ERROR":
@@ -214,7 +221,8 @@ const reducer: Reducer = (state, action) => {
         events: newDefaultEvents,
         schedule: getDefaultSchedule(
           newDefaultEvents,
-          parseInt(state.numberOfDays ?? "0")
+          parseInt(state.numberOfDays ?? "0"),
+          state.numOtherActivities
         ),
         isExported: false,
       };
@@ -243,7 +251,8 @@ const reducer: Reducer = (state, action) => {
         events: updatedDefaultEvents,
         schedule: getDefaultSchedule(
           updatedDefaultEvents,
-          parseInt(state.numberOfDays ?? "0")
+          parseInt(state.numberOfDays ?? "0"),
+          state.numOtherActivities
         ),
         isExported: false,
       };

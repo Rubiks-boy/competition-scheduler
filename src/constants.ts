@@ -176,7 +176,7 @@ export const OTHER_ACTIVITES = [
   "tutorial",
   "lunch",
   "awards",
-];
+] as const;
 
 export const EVENT_COLORS = [
   colors.deepPurple,
