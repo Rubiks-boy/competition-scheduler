@@ -10,6 +10,7 @@ import {
   ROUND_FORMAT,
   DEFAULT_CUTOFFS,
   DEFAULT_TIME_LIMITS,
+  EXTENSIONS_SPEC_URL,
 } from "../constants";
 import {
   CustomStage,
@@ -19,6 +20,7 @@ import {
   ManageableCompetition,
   OtherActivity,
   Round,
+  RoundExtension,
   Schedule,
   ScheduleEntryWithTime,
   Wcif,
@@ -236,6 +238,22 @@ const createWcifEvent = (
         ({ id }) => id === `${eventId}-r${index + 1}`
       );
 
+      const extension: RoundExtension = {
+        id: "competitionScheduler.RoundConfig",
+        specUrl: EXTENSIONS_SPEC_URL,
+        data: {
+          expectedRegistrations: parseInt(round.numCompetitors) ?? null,
+          groupCount: parseInt(round.numGroups) ?? null,
+        },
+      };
+
+      const extensions = [
+        ...(originalRound?.extensions ? originalRound?.extensions : []).filter(
+          ({ id }) => id !== "competitionScheduler.RoundConfig"
+        ),
+        extension,
+      ];
+
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
@@ -244,6 +262,7 @@ const createWcifEvent = (
           !originalRound?.scrambleSets && {
             scrambleSetCount: parseInt(round.numGroups || "0") + 1,
           }),
+        extensions,
       };
     }),
   };

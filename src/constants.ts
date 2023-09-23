@@ -314,3 +314,6 @@ export const DEFAULT_TIME_LIMITS = {
   "333mbo": null,
   "333ft": null,
 };
+
+export const EXTENSIONS_SPEC_URL =
+  "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md";

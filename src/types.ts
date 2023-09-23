@@ -83,3 +83,12 @@ export type CustomStage = {
   stage: string;
   color: string; // hex values
 };
+
+export type RoundExtension = {
+  id: "competitionScheduler.RoundConfig";
+  specUrl: "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md";
+  data: {
+    expectedRegistrations?: number | null | undefined;
+    groupCount?: number | null | undefined;
+  };
+};
