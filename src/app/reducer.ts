@@ -536,19 +536,27 @@ const reducer: Reducer = (state, action) => {
       }
 
     case "OTHER_ACTIVITY_ENABLED":
+      const prevNumOfActivity = parseInt(
+        state.numOtherActivities[action.activity]
+      );
+      const enabledNumberOfActivity =
+        prevNumOfActivity > 0 ? prevNumOfActivity : 1;
+
       return {
         ...state,
         isShowingDefaultInfo: false,
         schedule: [
           ...state.schedule,
-          ...range(parseInt(state.numOtherActivities[action.activity])).map(
-            (index) => ({
-              type: "other" as const,
-              eventId: action.activity,
-              index,
-            })
-          ),
+          ...range(enabledNumberOfActivity).map((index) => ({
+            type: "other" as const,
+            eventId: action.activity,
+            index,
+          })),
         ],
+        numOtherActivities: {
+          ...state.numOtherActivities,
+          [action.activity]: `${enabledNumberOfActivity}`,
+        },
         isExported: false,
       };
 
