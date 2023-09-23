@@ -17,6 +17,7 @@ import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
 import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
 import { DraggableEvent } from "./DraggableEvent";
+import { DraggableDayDivider } from "./DraggableDayDivider";
 
 const getColorsForActivities = (schedule: Schedule) => {
   const colors: Partial<Record<EventId | OtherActivity, Color>> = {};
@@ -79,7 +80,12 @@ export const ReorderEvents = () => {
             <List>
               {scheduleWithTimes.map((scheduleEntry, index) => {
                 if (scheduleEntry.type === "day-divider") {
-                  return null;
+                  return (
+                    <DraggableDayDivider
+                      index={index}
+                      startTime={scheduleEntry.startTime}
+                    />
+                  );
                 }
 
                 return (
