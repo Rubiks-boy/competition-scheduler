@@ -29,7 +29,7 @@ const ScheduleView = () => {
   };
   return (
     <div className={classNames({ "schedule--evenlySpaced": evenlySpaced })}>
-      <Grid container spacing={2} sx={{ alignItems: "center" }}>
+      <Grid container spacing={2}>
         <Grid item xs={8}>
           <Typography variant="h6">Rearrange events</Typography>
         </Grid>

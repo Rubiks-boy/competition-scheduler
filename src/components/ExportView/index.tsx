@@ -7,6 +7,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
@@ -144,6 +145,9 @@ const ExportView = () => {
 
   return (
     <div>
+      <Typography sx={{ mb: 3 }} variant="h6">
+        Export
+      </Typography>
       {dialog}
       {successMessage && <Alert severity="success">{successMessage}</Alert>}
       {errorMessage && <Alert severity="error">{errorMessage}</Alert>}

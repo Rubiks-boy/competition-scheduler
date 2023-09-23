@@ -43,7 +43,7 @@ export const DraggableDayDivider = ({
   // Don't allow the user to drag around the first day
   if (index === 0) {
     return (
-      <ListItem sx={{ padding: 0 }}>
+      <ListItem sx={{ p: 0, mt: 3 }}>
         <DayDivider
           startTime={startTime}
           onStartTimeChange={onStartTimeChange}
@@ -57,7 +57,7 @@ export const DraggableDayDivider = ({
       {(provided, snapshot) => {
         return (
           <ListItem
-            sx={{ padding: 0 }}
+            sx={{ p: 0, mt: 8 }}
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}

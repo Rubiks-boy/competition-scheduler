@@ -4,7 +4,6 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import CompetitionView from "./CompetitionView";
 import { useDispatch, useSelector } from "../app/hooks";
 import { SignIn } from "./Header/SignIn";
@@ -95,13 +94,14 @@ export const ScheduleStepper = () => {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>{steps[activeStep]}</Typography>
-          <StepContent activeStep={activeStep} />
+          <Box sx={{ mt: 5 }}>
+            <StepContent activeStep={activeStep} />
+          </Box>
           <Box
             sx={{
               display: "flex",
               flexDirection: "row",
-              pt: 2,
+              mt: 3,
             }}
           >
             <Button
