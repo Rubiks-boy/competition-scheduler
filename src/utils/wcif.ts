@@ -385,6 +385,7 @@ export const createWcifSchedule = ({
   venueName,
   stagesInUse,
   numStations,
+  numberOfDays,
 }: {
   schedule: Schedule;
   startTimes: Array<Date>;
@@ -395,6 +396,7 @@ export const createWcifSchedule = ({
   venueName: string;
   stagesInUse: Array<CustomStage>;
   numStations: number;
+  numberOfDays: number;
 }) => {
   if (originalWcifSchedule.venues.length > 1) {
     // TODO: better erroring
@@ -458,5 +460,6 @@ export const createWcifSchedule = ({
         ),
       },
     ],
+    numberOfDays,
   };
 };
