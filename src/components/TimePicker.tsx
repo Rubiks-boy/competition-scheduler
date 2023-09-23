@@ -1,14 +1,16 @@
-import { TextField } from "@mui/material";
+import { SxProps, TextField } from "@mui/material";
 import { formatTime } from "../utils/formatTime";
 
 export const TimePicker = ({
   label,
   time,
   onChange,
+  sx,
 }: {
   label: string;
   time: Date;
   onChange: (time: Date) => void;
+  sx?: SxProps;
 }) => {
   const timeValue = formatTime(time);
 
@@ -31,6 +33,7 @@ export const TimePicker = ({
       type="time"
       value={timeValue}
       onChange={onInputChange}
+      sx={sx}
     />
   );
 };

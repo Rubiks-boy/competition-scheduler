@@ -1,22 +1,42 @@
-import { Divider, ListItem } from "@mui/material";
-import React from "react";
+import { Divider, Grid, ListItem } from "@mui/material";
 import { Draggable } from "react-beautiful-dnd";
 import { DAYS_OF_WEEK } from "../../constants";
+import { TimePicker } from "../TimePicker";
 
-export const DayDivider = ({ startTime }: { startTime: Date }) => {
+export const DayDivider = ({
+  startTime,
+  onStartTimeChange,
+}: {
+  startTime: Date;
+  onStartTimeChange: (time: Date) => void;
+}) => {
   return (
-    <Divider sx={{ width: "100%" }} textAlign="left">
-      {DAYS_OF_WEEK[startTime.getUTCDay()]}
-    </Divider>
+    <Grid container spacing={2} sx={{ alignItems: "center" }}>
+      <Grid item xs={9}>
+        <Divider sx={{ width: "100%" }} textAlign="left">
+          {DAYS_OF_WEEK[startTime.getUTCDay()]}
+        </Divider>
+      </Grid>
+      <Grid item xs={3}>
+        <TimePicker
+          sx={{ float: "right" }}
+          label="Start time"
+          time={startTime}
+          onChange={onStartTimeChange}
+        />
+      </Grid>
+    </Grid>
   );
 };
 
 export const DraggableDayDivider = ({
   startTime,
   index,
+  onStartTimeChange,
   id,
 }: {
   startTime: Date;
+  onStartTimeChange: (time: Date) => void;
   index: number;
   id: string;
 }) => {
@@ -24,7 +44,10 @@ export const DraggableDayDivider = ({
   if (index === 0) {
     return (
       <ListItem sx={{ padding: 0 }}>
-        <DayDivider startTime={startTime} />
+        <DayDivider
+          startTime={startTime}
+          onStartTimeChange={onStartTimeChange}
+        />
       </ListItem>
     );
   }
@@ -39,7 +62,10 @@ export const DraggableDayDivider = ({
             {...provided.draggableProps}
             {...provided.dragHandleProps}
           >
-            <DayDivider startTime={startTime} />
+            <DayDivider
+              startTime={startTime}
+              onStartTimeChange={onStartTimeChange}
+            />
           </ListItem>
         );
       }}

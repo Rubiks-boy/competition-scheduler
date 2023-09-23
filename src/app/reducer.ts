@@ -288,7 +288,8 @@ const reducer: Reducer = (state, action) => {
         // Change all
         newStartTimes = state.startTimes.map(() => startTime);
       } else {
-        newStartTimes = state.startTimes.splice(dayIndex, 0, startTime);
+        newStartTimes = [...state.startTimes];
+        newStartTimes.splice(dayIndex, 1, startTime);
       }
       return {
         ...state,

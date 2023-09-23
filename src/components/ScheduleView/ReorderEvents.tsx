@@ -9,6 +9,7 @@ import {
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   eventsSelector,
+  numberOfDaysSelector,
   otherActivitiesSelector,
   scheduleSelector,
   startTimesSelector,
@@ -45,6 +46,7 @@ export const ReorderEvents = () => {
   const events = useSelector(eventsSelector);
   const startTimes = useSelector(startTimesSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
+  const numberOfDays = parseInt(useSelector(numberOfDaysSelector));
 
   const colors = useMemo(() => {
     return getColorsForActivities(schedule);
@@ -62,6 +64,14 @@ export const ReorderEvents = () => {
       type: "REORDER_ROUND",
       oldIndex: result.source.index,
       newIndex: result.destination.index,
+    });
+  };
+
+  const onStartTimeChange = (dayIndex: number) => (startTime: Date) => {
+    dispatch({
+      type: "START_TIME_CHANGED",
+      dayIndex,
+      startTime,
     });
   };
 
@@ -83,12 +93,17 @@ export const ReorderEvents = () => {
                   const id = `day-divider-${scheduleEntry.dayIndex}`;
 
                   return (
-                    <DraggableDayDivider
-                      key={id}
-                      id={id}
-                      index={index}
-                      startTime={scheduleEntry.startTime}
-                    />
+                    numberOfDays > 1 && (
+                      <DraggableDayDivider
+                        key={id}
+                        id={id}
+                        index={index}
+                        startTime={scheduleEntry.startTime}
+                        onStartTimeChange={onStartTimeChange(
+                          scheduleEntry.dayIndex
+                        )}
+                      />
+                    )
                   );
                 }
 
