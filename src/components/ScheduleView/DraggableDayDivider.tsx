@@ -14,12 +14,12 @@ export const DayDivider = ({ startTime }: { startTime: Date }) => {
 export const DraggableDayDivider = ({
   startTime,
   index,
+  id,
 }: {
   startTime: Date;
   index: number;
+  id: string;
 }) => {
-  const id = `day-divider-${startTime.getUTCDay()}`;
-
   // Don't allow the user to drag around the first day
   if (index === 0) {
     return (
@@ -30,7 +30,7 @@ export const DraggableDayDivider = ({
   }
 
   return (
-    <Draggable key={id} draggableId={id} index={index}>
+    <Draggable draggableId={id} index={index}>
       {(provided, snapshot) => {
         return (
           <ListItem

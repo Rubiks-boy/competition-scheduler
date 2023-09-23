@@ -80,16 +80,27 @@ export const ReorderEvents = () => {
             <List>
               {scheduleWithTimes.map((scheduleEntry, index) => {
                 if (scheduleEntry.type === "day-divider") {
+                  const id = `day-divider-${scheduleEntry.dayIndex}`;
+
                   return (
                     <DraggableDayDivider
+                      key={id}
+                      id={id}
                       index={index}
                       startTime={scheduleEntry.startTime}
                     />
                   );
                 }
 
+                const id =
+                  scheduleEntry.type === "event"
+                    ? `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`
+                    : `other-${scheduleEntry.eventId}`;
+
                 return (
                   <DraggableEvent
+                    key={id}
+                    id={id}
                     scheduleEntry={scheduleEntry}
                     index={index}
                     colors={colors}

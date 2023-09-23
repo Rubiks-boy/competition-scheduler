@@ -21,11 +21,13 @@ export const DraggableEvent = ({
   index,
   colors,
   scheduleWithTimes,
+  id,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
   index: number;
   colors: Partial<Record<EventId | OtherActivity, Color>>;
   scheduleWithTimes: ScheduleWithTimes;
+  id: string;
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -54,11 +56,6 @@ export const DraggableEvent = ({
           scheduleWithTimes
         )}`
       : "";
-
-  const id =
-    type === "event"
-      ? `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`
-      : `other-${scheduleEntry.eventId}`;
 
   const baseColor = colors[scheduleEntry.eventId] || grey;
 
