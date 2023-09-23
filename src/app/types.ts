@@ -30,6 +30,7 @@ export type ShareableState = AlwaysImportableAppState & {
   customStages: Array<CustomStage>;
   isUsingCustomStages: boolean;
   numberOfDays: string | null;
+  numOtherActivities: Record<OtherActivity, string>;
 };
 
 // When importing a schedule from a sharable URL, we're guaranteed to have all
@@ -132,6 +133,11 @@ export type Action =
   | {
       type: "OTHER_ACTIVITY_DISABLED";
       activity: OtherActivity;
+    }
+  | {
+      type: "OTHER_ACTIVITY_NUMBER_CHANGED";
+      activity: OtherActivity;
+      numberOfActivity: string;
     }
   | {
       type: "VENUE_NAME_CHANGED";

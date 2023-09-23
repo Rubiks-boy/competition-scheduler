@@ -35,6 +35,9 @@ export const scheduleSelector = (state: State) => state.schedule;
 
 export const otherActivitiesSelector = (state: State) => state.otherActivities;
 
+export const numOtherActivitiesSelector = (state: State) =>
+  state.numOtherActivities;
+
 export const enabledOtherActivitiesSelector = (state: State) =>
   OTHER_ACTIVITES.filter(
     (activity) =>
@@ -96,6 +99,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     events,
     schedule,
     otherActivities,
+    numOtherActivities,
     venueName,
     stages,
     isNumStationsTouched,
@@ -114,6 +118,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     events,
     schedule,
     otherActivities,
+    numOtherActivities,
     venueName,
     stages,
     isNumStationsTouched,

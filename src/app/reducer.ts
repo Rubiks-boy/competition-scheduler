@@ -37,6 +37,13 @@ export const initialState: State = {
     lunch: "60",
     awards: "15",
   },
+  numOtherActivities: {
+    registration: "1",
+    checkin: "1",
+    tutorial: "1",
+    lunch: "1",
+    awards: "1",
+  },
   venueName: "",
   stages: ["Red", "Blue"],
   isUsingCustomStages: false,
@@ -457,41 +464,73 @@ const reducer: Reducer = (state, action) => {
       };
 
     case "OTHER_ACTIVITY_TIME_SET":
-      const { activity, time } = action;
-
       return {
         ...state,
         isShowingDefaultInfo: false,
         otherActivities: {
           ...state.otherActivities,
-          [activity]: time,
+          [action.activity]: action.time,
         },
         isExported: false,
       };
 
-    case "OTHER_ACTIVITY_ENABLED":
-      if (action.activity === "lunch") {
+    case "OTHER_ACTIVITY_NUMBER_CHANGED":
+      const currentNumberOfActivity = parseInt(
+        state.numOtherActivities[action.activity]
+      );
+      const newNumberOfActivity = parseInt(action.numberOfActivity);
+
+      if (currentNumberOfActivity >= newNumberOfActivity) {
         return {
           ...state,
           isShowingDefaultInfo: false,
-          schedule: [
-            ...state.schedule,
-            ...range(parseInt(state.numberOfDays ?? "1")).map((index) => ({
-              type: "other" as const,
-              eventId: action.activity,
-              index,
-            })),
-          ],
+          numOtherActivities: {
+            ...state.numOtherActivities,
+            [action.activity]: action.numberOfActivity,
+          },
           isExported: false,
+          schedule: state.schedule.filter(
+            (scheduleEntry) =>
+              scheduleEntry.type !== "other" ||
+              scheduleEntry.eventId !== action.activity ||
+              scheduleEntry.index < newNumberOfActivity
+          ),
+        };
+      } else {
+        const newOtherActivity = range(
+          currentNumberOfActivity,
+          newNumberOfActivity
+        ).map((index) => ({
+          type: "other" as const,
+          eventId: action.activity,
+          index,
+        }));
+
+        return {
+          ...state,
+          isShowingDefaultInfo: false,
+          numOtherActivities: {
+            ...state.numOtherActivities,
+            [action.activity]: action.numberOfActivity,
+          },
+          isExported: false,
+          schedule: [...state.schedule, ...newOtherActivity],
         };
       }
 
+    case "OTHER_ACTIVITY_ENABLED":
       return {
         ...state,
         isShowingDefaultInfo: false,
         schedule: [
           ...state.schedule,
-          { type: "other", eventId: action.activity },
+          ...range(parseInt(state.numOtherActivities[action.activity])).map(
+            (index) => ({
+              type: "other" as const,
+              eventId: action.activity,
+              index,
+            })
+          ),
         ],
         isExported: false,
       };
@@ -601,6 +640,8 @@ const reducer: Reducer = (state, action) => {
         isUsingCustomStages:
           appState.isUsingCustomStages ?? state.isUsingCustomStages,
         numberOfDays: appState.numberOfDays ?? state.numberOfDays,
+        numOtherActivities:
+          appState.numOtherActivities ?? state.numOtherActivities,
 
         // Remaining state
         accessToken: state.accessToken,
