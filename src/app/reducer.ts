@@ -33,8 +33,8 @@ export const initialState: State = {
   otherActivities: {
     registration: "30",
     checkin: "30",
-    tutorial: "15",
-    lunch: "45",
+    tutorial: "20",
+    lunch: "60",
     awards: "15",
   },
   venueName: "",
