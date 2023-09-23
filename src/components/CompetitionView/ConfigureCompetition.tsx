@@ -81,6 +81,7 @@ export const ConfigureCompetition = () => {
         <TextField
           fullWidth
           label="Number of days"
+          helperText="To edit, change the end date on the WCA site, come back to this page, and refresh."
           type="number"
           value={numberOfDays}
           onChange={onNumberOfDaysChange}
