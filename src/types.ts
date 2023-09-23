@@ -58,13 +58,18 @@ export type ScheduleEntry =
       eventId: OtherActivity;
     };
 
+export type DayDivider = {
+  type: "day-divider";
+  dayIndex: number;
+};
+
 export type ScheduleEntryWithTime = ScheduleEntry & {
   startTime: Date;
   endTime: Date;
   scheduledTimeMs: number;
 };
 
-export type Schedule = Array<ScheduleEntry>;
+export type Schedule = Array<ScheduleEntry | DayDivider>;
 
 // Re-export the WCA types with Wcif prefix,
 // to denote project-specific types from the WCA's types

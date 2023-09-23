@@ -4,6 +4,15 @@ import { Events, EVENT_IDS, ScheduleEntry } from "../types";
 export const pick = (obj: { [key: string]: any }, keys: Array<string>) =>
   keys.reduce((newObj, key) => ({ ...newObj, [key]: obj[key] }), {});
 
+// Similar to python's range() function. examples:
+// range(3) => [0, 1, 2]
+// range(1, 4) => [1, 2, 3]
+export const range = (arg0: number, arg1?: number): ReadonlyArray<number> => {
+  const size = arg1 ? arg1 - arg0 : arg0;
+  const startAt = arg1 ? arg0 : 0;
+  return [...Array(size).keys()].map((i) => i + startAt);
+};
+
 export const makeDefaultEvents = () =>
   EVENT_IDS.reduce(
     (events, eventId) => ({ ...events, [eventId]: null }),

@@ -317,3 +317,15 @@ export const DEFAULT_TIME_LIMITS = {
 
 export const EXTENSIONS_SPEC_URL =
   "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md";
+
+export const DAYS_OF_WEEK = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+export const ONE_DAY_MS = 24 * 60 * 60 * 1000;
