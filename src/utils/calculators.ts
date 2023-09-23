@@ -1,6 +1,7 @@
 import {
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
+  ONE_DAY_MS,
   TIME_PER_GROUP,
 } from "../constants";
 import {
@@ -102,6 +103,11 @@ export const calcScheduleTimes = (
   let currStartMs = startTime.getTime();
 
   schedule.forEach((scheduleEntry) => {
+    if (scheduleEntry.type === "day-divider") {
+      currStartMs = startTime.getTime() + ONE_DAY_MS * scheduleEntry.dayIndex;
+      return;
+    }
+
     const scheduledTime =
       scheduleEntry.type === "event"
         ? events[scheduleEntry.eventId]?.[scheduleEntry.roundNum].scheduledTime
