@@ -52,6 +52,7 @@ export const initialState: State = {
   activeStep: 0,
   isExported: false,
   numberOfDays: null,
+  isDebugging: localStorage.getItem("ScheduleGenerator.debug") === "true",
 };
 
 type Reducer = (state: State, action: Action) => State;
@@ -180,6 +181,7 @@ const reducer: Reducer = (state, action) => {
         ...state,
         selectedCompId: newId,
         isExported: false,
+        importSource: null,
       };
 
     case "COMPETITOR_LIMIT_CHANGED":
@@ -615,7 +617,9 @@ const reducer: Reducer = (state, action) => {
     case "IMPORT_APP_STATE": {
       const { source, appState } = action;
 
-      console.log("Imported app state", source, appState);
+      if (state.isDebugging) {
+        console.log("Imported app state", source, appState);
+      }
 
       const stateAfterImport: State = {
         importSource: source,
@@ -651,6 +655,7 @@ const reducer: Reducer = (state, action) => {
         wcif: state.wcif,
         activeStep: state.activeStep,
         isExported: false,
+        isDebugging: state.isDebugging,
       };
 
       return stateAfterImport;
@@ -677,6 +682,10 @@ const withAutoScheduleReordering =
   (reducer: Reducer): Reducer =>
   (state, action) => {
     const newState = reducer(state, action);
+
+    if (state.isDebugging) {
+      console.log("State update", action, newState);
+    }
 
     if (newState.hasReorderedEvents) {
       return newState;

@@ -47,6 +47,7 @@ export type State = ShareableState & {
   importSource: "url" | "local_storage" | null;
   activeStep: number;
   isExported: boolean;
+  isDebugging: boolean;
 };
 
 export type Action =
