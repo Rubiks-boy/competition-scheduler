@@ -59,16 +59,25 @@ const wcifRoundsToEventRounds = (
   numStations: number
 ): Array<Round> => {
   return wcifRounds
-    .map(({ id }) => {
+    .map(({ id, extensions }) => {
       // ex. '333-r2' -> 2
       const roundNum = parseInt(id[id.indexOf("-r") + 2], 10);
 
-      const numCompetitors =
+      const defaultNumCompetitors =
         roundNum === 1
           ? calcExpectedNumCompetitors(eventId, competitorLimit)
           : getAdvancementLevelForRound(wcifRounds, roundNum - 1);
 
-      const numGroups = calcNumGroups({ eventId, numCompetitors, numStations });
+      const extension = extensions.find(
+        ({ id }) => id === "competitionScheduler.RoundConfig"
+      ) as RoundExtension | undefined;
+
+      const numCompetitors =
+        extension?.data.expectedRegistrations ?? defaultNumCompetitors;
+
+      const numGroups =
+        extension?.data.groupCount ??
+        calcNumGroups({ eventId, numCompetitors, numStations });
 
       const scheduledTime = calcTimeForRound(eventId, numGroups);
 
