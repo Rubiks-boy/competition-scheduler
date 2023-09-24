@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Buffer } from "buffer";
 import {
   Alert,
@@ -11,26 +11,12 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
-  eventsSelector,
-  wcifSelector,
-  wcifEventsSelector,
-  accessTokenSelector,
-  scheduleSelector,
-  startTimesSelector,
-  wcifScheduleSelector,
-  otherActivitiesSelector,
   competitionSelector,
-  venueNameSelector,
   shareableAppStateSelector,
-  competitorLimitSelector,
-  numStationsSelector,
-  stagesInUseSelector,
-  numberOfDaysSelector,
 } from "../../app/selectors";
-import { saveWcifChanges } from "../../utils/wcaApi";
-import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
 import type { ShareableState } from "../../app/types";
 import { ContentCopy } from "@mui/icons-material";
+import { useSaveToWcif } from "./useSaveToWcif";
 
 const getShareableUrl = (state: ShareableState) => {
   const stateStr = JSON.stringify(state);
@@ -46,20 +32,8 @@ const getShareableUrl = (state: ShareableState) => {
 const ExportView = () => {
   const dispatch = useDispatch();
   const shareableState = useSelector(shareableAppStateSelector);
-  const competitorLimit = useSelector(competitorLimitSelector);
-  const events = useSelector(eventsSelector);
-  const schedule = useSelector(scheduleSelector);
-  const otherActivities = useSelector(otherActivitiesSelector);
-  const startTimes = useSelector(startTimesSelector);
-  const originalWcifEvents = useSelector(wcifEventsSelector);
-  const originalWcifSchedule = useSelector(wcifScheduleSelector);
-  const originalWcif = useSelector(wcifSelector);
-  const wcaAccessToken = useSelector(accessTokenSelector);
   const competition = useSelector(competitionSelector);
-  const venueName = useSelector(venueNameSelector);
-  const stagesInUse = useSelector(stagesInUseSelector);
-  const numStations = useSelector(numStationsSelector);
-  const numberOfDays = useSelector(numberOfDaysSelector);
+  const saveToWcif = useSaveToWcif();
 
   const shareableUrl = getShareableUrl(shareableState);
 
@@ -76,55 +50,18 @@ const ExportView = () => {
 
   const handleSaveClick = async () => {
     closeDialog();
-
-    if (
-      !originalWcif ||
-      !originalWcifSchedule ||
-      !wcaAccessToken ||
-      !competition
-    ) {
-      setErrorMessage(
-        "Unexpected error: Missing original WCIF schedule, comp info, or access token. Please refresh the page and try again."
-      );
-      return;
-    }
-
     setIsSavePending(true);
 
-    const newWcifEvents = createWcifEvents(events, originalWcifEvents);
-    const newWcifSchedule = createWcifSchedule({
-      schedule,
-      startTimes,
-      originalWcifSchedule,
-      events,
-      otherActivities,
-      originalCompetition: competition,
-      venueName,
-      stagesInUse,
-      numStations,
-      numberOfDays,
-    });
-
-    const newWcif = {
-      ...originalWcif,
-      competitorLimit: parseInt(competitorLimit),
-      events: newWcifEvents,
-      schedule: newWcifSchedule,
-    };
-
-    const resp = await saveWcifChanges(originalWcif, newWcif, wcaAccessToken);
+    const { error } = await saveToWcif();
 
     setIsSavePending(false);
 
-    if (resp.error) {
-      setErrorMessage(
-        `Error while saving the WCIF to the WCA website: ${resp.error}`
-      );
-      return;
+    if (error) {
+      setErrorMessage(error);
+    } else {
+      setSuccessMessage("Successfully saved your updated events and schedule");
+      dispatch({ type: "EXPORTED" });
     }
-
-    dispatch({ type: "EXPORTED" });
-    setSuccessMessage("Successfully saved your updated events and schedule");
   };
 
   const handleCopyClick = () => {
