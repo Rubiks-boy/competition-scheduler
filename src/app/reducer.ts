@@ -1,12 +1,11 @@
 import { ONE_DAY_MS, STAGE_NAMES_AND_COLORS } from "../constants";
-import { Round } from "../types";
 import { autoReorder } from "../utils/autoReorder";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
   calcTimeForRound,
 } from "../utils/calculators";
-import { makeDefaultEvents, range } from "../utils/utils";
+import { range } from "../utils/utils";
 import {
   getDefaultEventsData,
   getDefaultNumStations,
@@ -17,49 +16,9 @@ import {
   getWcifStartTime,
   reorderFromWcif,
 } from "../utils/wcif";
-import type { State, Action } from "./types";
-
-export const initialState: State = {
-  accessToken: null,
-  manageableCompsPending: false,
-  manageableComps: [],
-  selectedCompId: null,
-  competitorLimit: null,
-  isNumStationsTouched: false,
-  numStations: "8",
-  startTimes: [new Date(0)],
-  wcifPending: false,
-  wcif: null,
-  isShowingDefaultInfo: true,
-  hasReorderedEvents: false,
-  events: makeDefaultEvents(),
-  schedule: [],
-  otherActivities: {
-    registration: "30",
-    checkin: "30",
-    tutorial: "20",
-    lunch: "60",
-    awards: "15",
-  },
-  numOtherActivities: {
-    registration: "1",
-    checkin: "1",
-    tutorial: "1",
-    lunch: "1",
-    awards: "1",
-  },
-  venueName: "",
-  stages: ["Red", "Blue"],
-  isUsingCustomStages: false,
-  customStages: [{ stage: "Stage 1", color: STAGE_NAMES_AND_COLORS[1].color }],
-  importSource: null,
-  activeStep: 0,
-  isExported: false,
-  numberOfDays: null,
-  isDebugging: localStorage.getItem("ScheduleGenerator.debug") === "true",
-};
-
-type Reducer = (state: State, action: Action) => State;
+import type { Round } from "../types";
+import type { Reducer, State } from "./types";
+import { numberOfDaysSelector } from "./selectors";
 
 const reducer: Reducer = (state, action) => {
   switch (action.type) {
@@ -116,14 +75,14 @@ const reducer: Reducer = (state, action) => {
         );
 
         const numDaysDiff =
-          wcif.schedule.numberOfDays - parseInt(state.numberOfDays || "1");
+          wcif.schedule.numberOfDays - numberOfDaysSelector(state);
         let schedule = state.schedule;
         if (numDaysDiff > 0) {
           // Add day dividers
           schedule = [
             ...state.schedule,
             ...range(
-              parseInt(state.numberOfDays || "1"),
+              numberOfDaysSelector(state),
               wcif.schedule.numberOfDays
             ).map((i) => ({ type: "day-divider" as const, dayIndex: i })),
           ];
@@ -227,7 +186,7 @@ const reducer: Reducer = (state, action) => {
         events: newDefaultEvents,
         schedule: getDefaultSchedule(
           newDefaultEvents,
-          parseInt(state.numberOfDays ?? "0"),
+          numberOfDaysSelector(state),
           state.numOtherActivities
         ),
         isExported: false,
@@ -257,7 +216,7 @@ const reducer: Reducer = (state, action) => {
         events: updatedDefaultEvents,
         schedule: getDefaultSchedule(
           updatedDefaultEvents,
-          parseInt(state.numberOfDays ?? "0"),
+          numberOfDaysSelector(state),
           state.numOtherActivities
         ),
         isExported: false,
@@ -266,7 +225,7 @@ const reducer: Reducer = (state, action) => {
     case "NUMBER_OF_DAYS_CHANGED":
       const { numberOfDays } = action;
 
-      const currentNumberOfDays = parseInt(state.numberOfDays || "1");
+      const currentNumberOfDays = numberOfDaysSelector(state);
       const newNumberOfDays = parseInt(numberOfDays || "1");
 
       if (currentNumberOfDays >= newNumberOfDays) {

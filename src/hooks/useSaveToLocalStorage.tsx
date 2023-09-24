@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { usePrevious, useSelector } from "../app/hooks";
+import { useSelector } from "../app/hooks";
+import { usePrevious } from "../utils/hooks";
 import {
   activeStepSelector,
-  importSourceSelector,
+  isImportedFromUrlSelector,
   isExportedSelector,
   shareableAppStateSelector,
 } from "../app/selectors";
@@ -10,7 +11,7 @@ import { Buffer } from "buffer";
 
 export const useSaveToLocalStorage = () => {
   const shareableState = useSelector(shareableAppStateSelector);
-  const importSource = useSelector(importSourceSelector);
+  const isImportedFromUrl = useSelector(isImportedFromUrlSelector);
   const activeStep = useSelector(activeStepSelector);
   const isExported = useSelector(isExportedSelector);
   const wasExported = usePrevious(isExported);
@@ -26,14 +27,14 @@ export const useSaveToLocalStorage = () => {
 
     // Keep app state in local storage when someone is making a schedule from scratch
     // If viewing someone else's schedule, don't overwrite it
-    if (importSource !== "url") {
+    if (!isImportedFromUrl) {
       localStorage.setItem("ScheduleGenerator.savedAppState", encodedState);
     }
-  }, [shareableState, importSource, activeStep]);
+  }, [shareableState, isImportedFromUrl, activeStep]);
 
   useEffect(() => {
-    if (isExported && !wasExported && importSource !== "url") {
+    if (isExported && !wasExported && !isImportedFromUrl) {
       localStorage.removeItem("ScheduleGenerator.savedAppState");
     }
-  }, [isExported, wasExported, importSource]);
+  }, [isExported, wasExported, isImportedFromUrl]);
 };

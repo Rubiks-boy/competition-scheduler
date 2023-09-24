@@ -1,4 +1,4 @@
-import {
+import type {
   Wcif,
   ManageableCompetition,
   EventId,
@@ -177,3 +177,5 @@ export type Action =
   | {
       type: "EXPORTED";
     };
+
+export type Reducer = (state: State, action: Action) => State;

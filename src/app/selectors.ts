@@ -1,4 +1,5 @@
 import { getColorForStage, OTHER_ACTIVITES } from "../constants";
+import { EVENT_IDS } from "../types";
 import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
@@ -23,13 +24,24 @@ export const competitionSelector = (state: State) =>
 export const competitorLimitSelector = (state: State) =>
   state.competitorLimit || "120";
 
-export const numStationsSelector = (state: State) => state.numStations;
+export const numStationsRawSelector = (state: State) =>
+  state.numStations ?? "0";
+export const numStationsSelector = (state: State) =>
+  parseInt(numStationsRawSelector(state));
 
-export const numberOfDaysSelector = (state: State) => state.numberOfDays ?? "1";
+export const numberOfDaysRawSelector = (state: State) =>
+  state.numberOfDays ?? "1";
+export const numberOfDaysSelector = (state: State) =>
+  parseInt(numberOfDaysRawSelector(state));
 
 export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
+
+export const addableEventIdsSelector = (state: State) => {
+  const events = eventsSelector(state);
+  return EVENT_IDS.filter((eventId) => events[eventId] === null);
+};
 
 export const scheduleSelector = (state: State) => state.schedule;
 
@@ -130,6 +142,10 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
 };
 
 export const importSourceSelector = (state: State) => state.importSource;
+export const isImportedFromUrlSelector = (state: State) =>
+  state.importSource === "url";
+export const isImportedFromLocalStorageSelector = (state: State) =>
+  state.importSource === "local_storage";
 
 export const activeStepSelector = (state: State) => state.activeStep;
 

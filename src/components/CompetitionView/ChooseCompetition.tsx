@@ -1,4 +1,3 @@
-import React from "react";
 import {
   FormControl,
   InputLabel,
@@ -9,7 +8,7 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
-  importSourceSelector,
+  isImportedFromUrlSelector,
   manageableCompsSelector,
   selectedCompIdSelector,
   selectedCompSelector,
@@ -21,7 +20,7 @@ export const ChooseCompetition = () => {
   const selectedComp = useSelector(selectedCompSelector);
   const dispatch = useDispatch();
 
-  const importedFromUrl = useSelector(importSourceSelector) === "url";
+  const importedFromUrl = useSelector(isImportedFromUrlSelector);
 
   if (!selectedCompId) {
     return null;
@@ -49,18 +48,18 @@ export const ChooseCompetition = () => {
             onChange={handleChooseComp}
             disabled={importedFromUrl}
           >
-            {importedFromUrl && (
+            {importedFromUrl ? (
               <MenuItem value={selectedCompId}>
                 {/* TODO: Fetch the comp's name when importing someone else's schedule */}
                 {selectedComp?.name ?? selectedCompId}
               </MenuItem>
-            )}
-            {!importedFromUrl &&
+            ) : (
               manageableComps.map(({ id, name }) => (
                 <MenuItem value={id} key={id}>
                   {name}
                 </MenuItem>
-              ))}
+              ))
+            )}
           </Select>
         </FormControl>
       </Grid>

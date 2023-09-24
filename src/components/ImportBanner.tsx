@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Alert, Box, Link } from "@mui/material";
 import { useSelector } from "../app/hooks";
-import { activeStepSelector, importSourceSelector } from "../app/selectors";
+import {
+  activeStepSelector,
+  isImportedFromUrlSelector,
+  isImportedFromLocalStorageSelector,
+} from "../app/selectors";
 
 export const LocalStorageBanner = () => {
-  const importSource = useSelector(importSourceSelector);
+  const isFromLocalStorage = useSelector(isImportedFromLocalStorageSelector);
   const activeStep = useSelector(activeStepSelector);
 
   const [showBanner, setShowBanner] = useState(true);
-
-  const isFromLocalStorage = importSource === "local_storage";
 
   const hideBanner = () => setShowBanner(false);
 
@@ -44,11 +46,9 @@ export const LocalStorageBanner = () => {
 };
 
 export const UrlImportBanner = () => {
-  const importSource = useSelector(importSourceSelector);
+  const isFromUrl = useSelector(isImportedFromUrlSelector);
 
   const [showBanner, setShowBanner] = useState(true);
-
-  const isFromUrl = importSource === "url";
 
   const hideBanner = () => setShowBanner(false);
 

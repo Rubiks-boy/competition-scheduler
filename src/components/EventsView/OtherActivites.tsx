@@ -84,7 +84,7 @@ export const OtherActivities = () => {
   const otherActivities = useSelector(otherActivitiesSelector);
   const numOtherActivities = useSelector(numOtherActivitiesSelector);
   const enabledOtherActivities = useSelector(enabledOtherActivitiesSelector);
-  const numberOfDays = parseInt(useSelector(numberOfDaysSelector));
+  const numberOfDays = useSelector(numberOfDaysSelector);
 
   return (
     <Paper elevation={3} sx={{ mb: 3 }}>

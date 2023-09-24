@@ -1,6 +1,9 @@
-import React from "react";
 import { useDispatch, useSelector } from "../../app/hooks";
-import { eventsSelector, numStationsSelector } from "../../app/selectors";
+import {
+  addableEventIdsSelector,
+  eventsSelector,
+  numStationsSelector,
+} from "../../app/selectors";
 import { Event } from "./Event";
 import { EventId, EVENT_IDS } from "../../types";
 
@@ -13,7 +16,8 @@ const EventsView = () => {
   const dispatch = useDispatch();
 
   const events = useSelector(eventsSelector);
-  const numStations = parseInt(useSelector(numStationsSelector) || "0");
+  const addableEventIds = useSelector(addableEventIdsSelector);
+  const numStations = useSelector(numStationsSelector);
 
   const makeOnUpdateRound = (eventId: EventId, roundNum: number) => {
     return (
@@ -31,9 +35,6 @@ const EventsView = () => {
     };
   };
 
-  const addableEventIds = EVENT_IDS.filter(
-    (eventId) => events[eventId] === null
-  );
   const addEvents = (eventIds: Array<EventId>) => {
     dispatch({
       type: "ADD_EVENTS",

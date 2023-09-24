@@ -58,8 +58,8 @@ const ExportView = () => {
   const competition = useSelector(competitionSelector);
   const venueName = useSelector(venueNameSelector);
   const stagesInUse = useSelector(stagesInUseSelector);
-  const numStations = parseInt(useSelector(numStationsSelector));
-  const numberOfDays = parseInt(useSelector(numberOfDaysSelector));
+  const numStations = useSelector(numStationsSelector);
+  const numberOfDays = useSelector(numberOfDaysSelector);
 
   const shareableUrl = getShareableUrl(shareableState);
 

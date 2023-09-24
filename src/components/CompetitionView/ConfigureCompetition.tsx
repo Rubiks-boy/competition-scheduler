@@ -2,18 +2,18 @@ import { Grid, TextField } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitorLimitSelector,
-  numStationsSelector,
+  numberOfDaysRawSelector,
+  numStationsRawSelector,
   startTimesSelector,
-  numberOfDaysSelector,
 } from "../../app/selectors";
 import { TimePicker } from "../TimePicker";
 
 export const ConfigureCompetition = () => {
   const dispatch = useDispatch();
   const competitorLimit = useSelector(competitorLimitSelector);
-  const numStations = useSelector(numStationsSelector);
+  const numStations = useSelector(numStationsRawSelector);
+  const numberOfDays = useSelector(numberOfDaysRawSelector);
   const startTimes = useSelector(startTimesSelector);
-  const numberOfDays = useSelector(numberOfDaysSelector);
 
   const onCompetitorLimitChanged = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

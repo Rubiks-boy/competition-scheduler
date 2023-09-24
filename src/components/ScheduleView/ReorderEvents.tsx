@@ -46,7 +46,7 @@ export const ReorderEvents = () => {
   const events = useSelector(eventsSelector);
   const startTimes = useSelector(startTimesSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
-  const numberOfDays = parseInt(useSelector(numberOfDaysSelector));
+  const numberOfDays = useSelector(numberOfDaysSelector);
 
   const colors = useMemo(() => {
     return getColorsForActivities(schedule);

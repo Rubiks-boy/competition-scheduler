@@ -17,7 +17,7 @@ import "./index.css";
 const ScheduleView = () => {
   const dispatch = useDispatch();
   const startTimes = useSelector(startTimesSelector);
-  const numberOfDays = parseInt(useSelector(numberOfDaysSelector));
+  const numberOfDays = useSelector(numberOfDaysSelector);
   const [evenlySpaced, setEvenlySpaced] = useState(true);
 
   const onStartTimeChange = (startTime: Date) => {
