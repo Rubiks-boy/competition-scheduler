@@ -71,7 +71,7 @@ export const AddEvent = ({
           </TableContainer>
           <Box sx={{ pt: 2, pb: 2, float: "right" }}>
             <Button disabled={!eventsToAdd.length} onClick={onSave}>
-              Save
+              Add events
             </Button>
           </Box>
         </AccordionDetails>

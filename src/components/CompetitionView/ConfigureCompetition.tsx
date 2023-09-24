@@ -1,4 +1,5 @@
-import { Grid, TextField } from "@mui/material";
+import { Info } from "@mui/icons-material";
+import { Grid, InputAdornment, TextField, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitorLimitRawSelector,
@@ -81,7 +82,15 @@ export const ConfigureCompetition = () => {
         <TextField
           fullWidth
           label="Number of days"
-          helperText="To edit, change the end date on the WCA site, come back to this page, and refresh."
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Tooltip title="To edit, change the end date on the WCA site, come back to this page, and refresh.">
+                  <Info color="disabled" fontSize="small" />
+                </Tooltip>
+              </InputAdornment>
+            ),
+          }}
           type="number"
           value={numberOfDays}
           onChange={onNumberOfDaysChange}

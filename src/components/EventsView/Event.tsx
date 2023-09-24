@@ -9,6 +9,7 @@ import {
   IconButton,
   Toolbar,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { AddCircle, Close } from "@mui/icons-material";
 import { EVENT_NAMES } from "../../constants";
@@ -64,16 +65,20 @@ export const Event = ({
         <Typography variant="h6">{eventName}</Typography>
         <div className="event-add-remove-btns">
           <IconButton onClick={onAddRound} disabled={rounds.length >= 4}>
-            <AddCircle
-              color={rounds.length < 4 ? "primary" : "disabled"}
-              fontSize="medium"
-            />
+            <Tooltip title="Add round">
+              <AddCircle
+                color={rounds.length < 4 ? "primary" : "disabled"}
+                fontSize="medium"
+              />
+            </Tooltip>
           </IconButton>
           <IconButton onClick={onRemoveRound} disabled={!rounds.length}>
-            <Close
-              color={rounds.length ? "error" : "disabled"}
-              fontSize="small"
-            />
+            <Tooltip title="Remove round">
+              <Close
+                color={rounds.length ? "error" : "disabled"}
+                fontSize="small"
+              />
+            </Tooltip>
           </IconButton>
         </div>
       </Toolbar>

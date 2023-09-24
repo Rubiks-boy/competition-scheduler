@@ -3,6 +3,7 @@ import {
   Grid,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { UnfoldMore, UnfoldLess } from "@mui/icons-material";
@@ -18,7 +19,7 @@ const ScheduleView = () => {
   const dispatch = useDispatch();
   const startTimes = useSelector(startTimesSelector);
   const numberOfDays = useSelector(numberOfDaysSelector);
-  const [evenlySpaced, setEvenlySpaced] = useState(true);
+  const [evenlySpaced, setEvenlySpaced] = useState(false);
 
   const onStartTimeChange = (startTime: Date) => {
     dispatch({
@@ -48,7 +49,15 @@ const ScheduleView = () => {
             onChange={() => setEvenlySpaced(!evenlySpaced)}
           >
             <ToggleButton value="expand">
-              {evenlySpaced ? <UnfoldMore /> : <UnfoldLess />}
+              {evenlySpaced ? (
+                <Tooltip title="Switch to expanded view">
+                  <UnfoldMore />
+                </Tooltip>
+              ) : (
+                <Tooltip title="Make events evenly spaced">
+                  <UnfoldLess />
+                </Tooltip>
+              )}
             </ToggleButton>
           </ToggleButtonGroup>
         </Grid>

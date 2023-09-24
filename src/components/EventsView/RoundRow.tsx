@@ -115,7 +115,9 @@ export const RoundRow = ({
           <div className="events-scheduledTime">
             <Typography>{scheduledTime}</Typography>
             <IconButton onClick={() => setIsEditingTime(true)}>
-              <Edit color={"action"} fontSize="small" />
+              <Tooltip title="Edit scheduled time">
+                <Edit color={"action"} fontSize="small" />
+              </Tooltip>
             </IconButton>
           </div>
         )}
