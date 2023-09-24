@@ -1,19 +1,13 @@
 import React from "react";
 import {
-  Container,
   createTheme,
   CssBaseline,
   ThemeProvider,
   useMediaQuery,
 } from "@mui/material";
 import { Header } from "./components/Header";
-import { ScheduleStepper } from "./components/ScheduleStepper";
-import { ImportBanner } from "./components/ImportBanner";
-import { useLookupAccessToken } from "./hooks/useLookupAccessToken";
-import { useFetchCompetitions } from "./hooks/useFetchCompetitions";
-import { useFetchWcif } from "./hooks/useFetchWcif";
-import { useImportAppState } from "./hooks/useImportAppState";
-import { useSaveToLocalStorage } from "./hooks/useSaveToLocalStorage";
+import { StateProvider } from "./app/StateProvider";
+import { MainContent } from "./MainContent";
 
 import "./App.css";
 
@@ -30,21 +24,14 @@ function App() {
     [prefersDarkMode]
   );
 
-  useLookupAccessToken();
-  useFetchCompetitions();
-  useFetchWcif();
-  useImportAppState();
-  useSaveToLocalStorage();
-
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Header />
-        <Container maxWidth={"md"}>
-          <ImportBanner />
-          <ScheduleStepper />
-        </Container>
+        <StateProvider>
+          <MainContent />
+        </StateProvider>
       </ThemeProvider>
     </div>
   );

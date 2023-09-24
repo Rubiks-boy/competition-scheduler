@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { Alert, Box, Link } from "@mui/material";
-import { useSelector } from "../app/hooks";
+import { useSelector } from "../../app/hooks";
 import {
   activeStepSelector,
-  isImportedFromUrlSelector,
   isImportedFromLocalStorageSelector,
-} from "../app/selectors";
+} from "../../app/selectors";
 
-export const LocalStorageBanner = () => {
+export const LocalStorageImportBanner = () => {
   const isFromLocalStorage = useSelector(isImportedFromLocalStorageSelector);
   const activeStep = useSelector(activeStepSelector);
 
@@ -42,44 +41,5 @@ export const LocalStorageBanner = () => {
         </Link>
       </Alert>
     </Box>
-  );
-};
-
-export const UrlImportBanner = () => {
-  const isFromUrl = useSelector(isImportedFromUrlSelector);
-
-  const [showBanner, setShowBanner] = useState(true);
-
-  const hideBanner = () => setShowBanner(false);
-
-  if (!isFromUrl || !showBanner) {
-    return null;
-  }
-
-  const resetState = () => {
-    localStorage.removeItem("ScheduleGenerator.savedAppState");
-    // Refresh without query params
-    window.location.replace(window.location.pathname);
-  };
-
-  return (
-    <Box sx={{ mb: 3 }}>
-      <Alert severity={"success"} onClose={hideBanner}>
-        You are viewing someone else's saved schedule.
-        <br />
-        Want to start from scratch instead?{" "}
-        <Link href="#" variant="body2" onClick={resetState}>
-          Create a new schedule.
-        </Link>
-      </Alert>
-    </Box>
-  );
-};
-export const ImportBanner = () => {
-  return (
-    <>
-      <LocalStorageBanner />
-      <UrlImportBanner />
-    </>
   );
 };

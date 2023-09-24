@@ -63,7 +63,7 @@ export const useSaveToWcif = () => {
 
     const newWcif = {
       ...originalWcif,
-      competitorLimit: parseInt(competitorLimit),
+      competitorLimit: competitorLimit,
       events: newWcifEvents,
       schedule: newWcifSchedule,
     };

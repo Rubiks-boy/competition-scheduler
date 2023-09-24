@@ -9,19 +9,11 @@ export const Stages = () => {
   const dispatch = useDispatch();
   const stages = useSelector(stagesSelector);
 
-  const onStageChecked = (stage: Stage) => {
+  const onStageChecked = (stage: Stage, isChecked: boolean) => {
     dispatch({
       type: "STAGE_CHECKED",
       stage,
-      checked: true,
-    });
-  };
-
-  const onStageUnchecked = (stage: Stage) => {
-    dispatch({
-      type: "STAGE_CHECKED",
-      stage,
-      checked: false,
+      checked: isChecked,
     });
   };
 
@@ -34,9 +26,7 @@ export const Stages = () => {
               <Checkbox
                 checked={stages.includes(stage)}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  e.target.checked
-                    ? onStageChecked(stage)
-                    : onStageUnchecked(stage)
+                  onStageChecked(stage, e.target.checked)
                 }
                 sx={{
                   color,

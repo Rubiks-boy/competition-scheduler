@@ -70,7 +70,7 @@ export const DraggableEvent = ({
 
   return (
     <Draggable key={id} draggableId={id} index={index}>
-      {(provided, snapshot) => (
+      {(provided) => (
         <ListItem
           sx={{
             backgroundColor,

@@ -3,7 +3,7 @@ import { Draggable } from "react-beautiful-dnd";
 import { DAYS_OF_WEEK } from "../../constants";
 import { TimePicker } from "../TimePicker";
 
-export const DayDivider = ({
+const DayDivider = ({
   startTime,
   onStartTimeChange,
 }: {

@@ -666,7 +666,8 @@ const withAutoScheduleReordering =
     const newState = reducer(state, action);
 
     if (state.isDebugging) {
-      console.log("State update", action, newState);
+      const { type, ...restAction } = action;
+      console.log("State", type, restAction, newState);
     }
 
     if (newState.hasReorderedEvents) {

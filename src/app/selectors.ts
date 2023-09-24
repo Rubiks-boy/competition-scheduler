@@ -21,8 +21,10 @@ export const manageableCompsPendingSelector = (state: State) =>
 export const competitionSelector = (state: State) =>
   state.manageableComps.find((comp) => comp.id === state.selectedCompId);
 
+export const competitorLimitRawSelector = (state: State) =>
+  state.competitorLimit ?? "120";
 export const competitorLimitSelector = (state: State) =>
-  state.competitorLimit || "120";
+  parseInt(competitorLimitRawSelector(state));
 
 export const numStationsRawSelector = (state: State) =>
   state.numStations ?? "0";

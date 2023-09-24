@@ -1,7 +1,7 @@
 import { Grid, TextField } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
-  competitorLimitSelector,
+  competitorLimitRawSelector,
   numberOfDaysRawSelector,
   numStationsRawSelector,
   startTimesSelector,
@@ -10,7 +10,7 @@ import { TimePicker } from "../TimePicker";
 
 export const ConfigureCompetition = () => {
   const dispatch = useDispatch();
-  const competitorLimit = useSelector(competitorLimitSelector);
+  const competitorLimit = useSelector(competitorLimitRawSelector);
   const numStations = useSelector(numStationsRawSelector);
   const numberOfDays = useSelector(numberOfDaysRawSelector);
   const startTimes = useSelector(startTimesSelector);

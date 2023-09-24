@@ -25,21 +25,17 @@ const steps = [
   "Export",
 ];
 
+const stepComponents = [
+  CompetitionView,
+  EventsView,
+  ScheduleView,
+  VenueView,
+  ExportView,
+];
+
 const StepContent = ({ activeStep }: { activeStep: number }) => {
-  switch (activeStep) {
-    case 0:
-      return <CompetitionView />;
-    case 1:
-      return <EventsView />;
-    case 2:
-      return <ScheduleView />;
-    case 3:
-      return <VenueView />;
-    case 4:
-      return <ExportView />;
-    default:
-      return <div>tbd</div>;
-  }
+  const Component = stepComponents[activeStep] ?? <div>tbd</div>;
+  return <Component />;
 };
 
 export const ScheduleStepper = () => {
