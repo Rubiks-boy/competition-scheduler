@@ -24,6 +24,7 @@ import {
   numberOfDaysSelector,
   numOtherActivitiesSelector,
   numStationsSelector,
+  startTimesSelector,
 } from "./selectors";
 
 const reducer: Reducer = (state, action) => {
@@ -133,14 +134,15 @@ const reducer: Reducer = (state, action) => {
         numStations: `${defaultNumStations}`,
         numberOfDays: `${wcif.schedule.numberOfDays}`,
         events,
-        schedule: reorderFromWcif(
-          getDefaultSchedule(
+        schedule: reorderFromWcif({
+          schedule: getDefaultSchedule(
             events,
             wcif.schedule.numberOfDays,
             defaultNumOtherActivities
           ),
-          wcif.schedule
-        ),
+          wcifSchedule: wcif.schedule,
+          firstStartTime: startTimes[0],
+        }),
         otherActivities: getOtherActivityLengths(
           state.otherActivities,
           wcif.schedule
