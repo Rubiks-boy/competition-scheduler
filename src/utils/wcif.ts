@@ -16,6 +16,7 @@ import {
 } from "../constants";
 import {
   CustomStage,
+  DayDivider,
   EventId,
   Events,
   EVENT_IDS,
@@ -205,6 +206,29 @@ export const findMatchingWcifActivity = (
   );
 };
 
+const getStartTimeForEntry = (
+  scheduleEntry: ScheduleEntry | DayDivider,
+  wcifSchedule: WcifSchedule,
+  firstStartTime: Date
+) => {
+  const startDate = new Date(firstStartTime);
+  startDate.setHours(0, 0, 0, 0);
+
+  if (scheduleEntry.type === "day-divider") {
+    return scheduleEntry.dayIndex * ONE_DAY_MS + startDate.getTime();
+  }
+
+  const { type, eventId } = scheduleEntry;
+
+  const activity = findMatchingWcifActivity(
+    wcifSchedule,
+    type,
+    eventId,
+    type === "event" ? scheduleEntry.roundNum + 1 : undefined
+  );
+  return new Date(activity?.startTime ?? 0).getTime();
+};
+
 export const reorderFromWcif = ({
   schedule,
   wcifSchedule,
@@ -214,42 +238,11 @@ export const reorderFromWcif = ({
   wcifSchedule: WcifSchedule;
   firstStartTime: Date;
 }): Schedule => {
-  const startDate = new Date(firstStartTime);
-  startDate.setHours(0, 0, 0, 0);
-
   const sortedSchedule = [...schedule];
 
   sortedSchedule.sort((a, b) => {
-    let aStartTime = null;
-    if (a.type === "day-divider") {
-      aStartTime = a.dayIndex * ONE_DAY_MS + startDate.getTime();
-      console.log(
-        "day dividers",
-        a.dayIndex,
-        new Date(a.dayIndex * ONE_DAY_MS + startDate.getTime())
-      );
-    } else {
-      const activityA = findMatchingWcifActivity(
-        wcifSchedule,
-        a.type,
-        a.eventId,
-        a.type === "event" ? a.roundNum + 1 : undefined
-      );
-      aStartTime = new Date(activityA?.startTime ?? 0).getTime();
-    }
-
-    let bStartTime = null;
-    if (b.type === "day-divider") {
-      bStartTime = b.dayIndex * ONE_DAY_MS + startDate.getTime();
-    } else {
-      const activityB = findMatchingWcifActivity(
-        wcifSchedule,
-        b.type,
-        b.eventId,
-        b.type === "event" ? b.roundNum + 1 : undefined
-      );
-      bStartTime = new Date(activityB?.startTime ?? 0).getTime();
-    }
+    const aStartTime = getStartTimeForEntry(a, wcifSchedule, firstStartTime);
+    const bStartTime = getStartTimeForEntry(b, wcifSchedule, firstStartTime);
 
     return aStartTime - bStartTime;
   });

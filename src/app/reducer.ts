@@ -24,7 +24,6 @@ import {
   numberOfDaysSelector,
   numOtherActivitiesSelector,
   numStationsSelector,
-  startTimesSelector,
 } from "./selectors";
 
 const reducer: Reducer = (state, action) => {
