@@ -122,7 +122,9 @@ const reducer: Reducer = (state, action) => {
 
       return {
         ...state,
-        isShowingDefaultInfo: true,
+        // Use the number of venues as a proxy for whether there's a schedule
+        // (i.e. we've most likely exported a schedule before)
+        isShowingDefaultInfo: wcif.schedule.venues.length === 0,
         hasReorderedEvents: wcif.schedule.venues.length > 0,
         wcifPending: false,
         wcif,
