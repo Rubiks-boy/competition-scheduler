@@ -329,3 +329,9 @@ export const DAYS_OF_WEEK = [
 ];
 
 export const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+// Warn if we'll likely have >6 groups of an event
+export const MAX_LIMIT_STATIONS_RATIO =
+  IDEAL_COMPETITORS_PER_STATION[333] * 6.5;
+// Warn if the number of stations means more than ~30% people are competing at a given time
+export const MIN_LIMIT_STATIONS_RATIO = 2.5 * (10 / 3);

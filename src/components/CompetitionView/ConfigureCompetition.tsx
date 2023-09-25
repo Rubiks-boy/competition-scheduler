@@ -8,6 +8,7 @@ import {
   startTimesSelector,
 } from "../../app/selectors";
 import { TimePicker } from "../TimePicker";
+import { NumStationsTooltip } from "./NumStationsTooltip";
 
 export const ConfigureCompetition = () => {
   const dispatch = useDispatch();
@@ -15,6 +16,8 @@ export const ConfigureCompetition = () => {
   const numStations = useSelector(numStationsRawSelector);
   const numberOfDays = useSelector(numberOfDaysRawSelector);
   const startTimes = useSelector(startTimesSelector);
+  const competitorsPerStation =
+    parseInt(competitorLimit) / parseInt(numStations);
 
   const onCompetitorLimitChanged = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -69,6 +72,13 @@ export const ConfigureCompetition = () => {
           type="number"
           value={numStations}
           onChange={onNumStationsChange}
+          InputProps={{
+            endAdornment: (
+              <NumStationsTooltip
+                competitorsPerStation={competitorsPerStation}
+              />
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={12} sm={4} md={3}>
