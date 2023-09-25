@@ -176,6 +176,12 @@ export type Action =
     }
   | {
       type: "EXPORTED";
+    }
+  | {
+      type: "RESET_ROUNDS";
+    }
+  | {
+      type: "RESET_ESTIMATES_TO_WCIF";
     };
 
 export type Reducer = (state: State, action: Action) => State;

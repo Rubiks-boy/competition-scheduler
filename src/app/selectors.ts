@@ -1,5 +1,8 @@
 import { getColorForStage, OTHER_ACTIVITES } from "../constants";
-import { EVENT_IDS } from "../types";
+import { EventId, EVENT_IDS } from "../types";
+import { calcNumGroups, calcTimeForRound } from "../utils/calculators";
+import { deepEquals } from "../utils/utils";
+import { getDefaultEventsData } from "../utils/wcif";
 import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
@@ -152,3 +155,54 @@ export const isImportedFromLocalStorageSelector = (state: State) =>
 export const activeStepSelector = (state: State) => state.activeStep;
 
 export const isExportedSelector = (state: State) => state.isExported;
+
+// TODO: Should store this in state
+export const isUsingDefaultRoundsSelector = (state: State) => {
+  const events = eventsSelector(state);
+  const numStations = numStationsSelector(state);
+
+  let isDefault = true;
+
+  Object.entries(events).forEach(([eventId, rounds]) => {
+    rounds?.forEach((round) => {
+      const { numCompetitors, numGroups, scheduledTime } = round;
+
+      const defaultNumGroups = calcNumGroups({
+        eventId: eventId as EventId,
+        numCompetitors: parseInt(numCompetitors),
+        numStations,
+      });
+      const defaultScheduledTime = calcTimeForRound(
+        eventId as EventId,
+        defaultNumGroups
+      );
+
+      if (
+        parseInt(numGroups) !== defaultNumGroups ||
+        parseInt(scheduledTime) !== defaultScheduledTime
+      ) {
+        isDefault = false;
+      }
+    });
+  });
+
+  return isDefault;
+};
+
+export const isEventsSameAsWcifSelector = (state: State) => {
+  const wcif = wcifSelector(state);
+
+  if (!wcif) {
+    return true;
+  }
+
+  const defaultWcifEvents = getDefaultEventsData({
+    wcif,
+    numStations: numStationsSelector(state),
+    competitorLimit: competitorLimitSelector(state),
+  });
+
+  const events = eventsSelector(state);
+
+  return deepEquals(events, defaultWcifEvents);
+};

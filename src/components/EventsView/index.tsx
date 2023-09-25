@@ -11,6 +11,8 @@ import "./index.css";
 import { OtherActivities } from "./OtherActivites";
 import { AddEvent } from "./AddEvent";
 import { Typography } from "@mui/material";
+import { ResetEventsButton } from "./ResetEventsButton";
+import { Box } from "@mui/system";
 
 const EventsView = () => {
   const dispatch = useDispatch();
@@ -44,9 +46,18 @@ const EventsView = () => {
 
   return (
     <>
-      <Typography sx={{ mb: 3 }} variant="h6">
-        Events
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography sx={{ mb: 3 }} variant="h6">
+          Events
+        </Typography>
+        <ResetEventsButton />
+      </Box>
       {EVENT_IDS.map((eventId) => {
         const rounds = events[eventId];
 

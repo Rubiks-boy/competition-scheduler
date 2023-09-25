@@ -16,9 +16,15 @@ import {
   getWcifStartTime,
   reorderFromWcif,
 } from "../utils/wcif";
-import type { Round } from "../types";
+import type { EventId, Events, Round } from "../types";
 import type { Reducer, State } from "./types";
-import { numberOfDaysSelector } from "./selectors";
+import {
+  competitorLimitSelector,
+  eventsSelector,
+  numberOfDaysSelector,
+  numOtherActivitiesSelector,
+  numStationsSelector,
+} from "./selectors";
 
 const reducer: Reducer = (state, action) => {
   switch (action.type) {
@@ -187,7 +193,61 @@ const reducer: Reducer = (state, action) => {
         schedule: getDefaultSchedule(
           newDefaultEvents,
           numberOfDaysSelector(state),
-          state.numOtherActivities
+          numOtherActivitiesSelector(state)
+        ),
+        isExported: false,
+      };
+
+    case "RESET_ROUNDS":
+      const eventsWithResetRounds = {} as Events;
+      Object.entries(eventsSelector(state)).forEach(([e, rounds]) => {
+        const eventId = e as EventId;
+
+        const resetRounds = rounds?.map((round) => {
+          const { numCompetitors } = round;
+          const defaultNumGroups = calcNumGroups({
+            eventId,
+            numCompetitors: parseInt(numCompetitors),
+            numStations: numStationsSelector(state),
+          });
+          const defaultScheduledTime = calcTimeForRound(
+            eventId,
+            defaultNumGroups
+          );
+          return {
+            eventId,
+            numCompetitors,
+            numGroups: `${defaultNumGroups}`,
+            scheduledTime: `${defaultScheduledTime}`,
+          };
+        });
+
+        eventsWithResetRounds[eventId as EventId] = resetRounds ?? null;
+      });
+
+      return {
+        ...state,
+        events: eventsWithResetRounds,
+      };
+
+    case "RESET_ESTIMATES_TO_WCIF":
+      if (!state.wcif) {
+        return { ...state };
+      }
+
+      const resetEvents = getDefaultEventsData({
+        wcif: state.wcif,
+        numStations: numStationsSelector(state),
+        competitorLimit: competitorLimitSelector(state),
+      });
+
+      return {
+        ...state,
+        events: resetEvents,
+        schedule: getDefaultSchedule(
+          resetEvents,
+          numberOfDaysSelector(state),
+          numOtherActivitiesSelector(state)
         ),
         isExported: false,
       };

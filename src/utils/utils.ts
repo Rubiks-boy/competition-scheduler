@@ -30,3 +30,30 @@ export const constructActivityString = (scheduleEntry: ScheduleEntry) => {
     scheduleEntry.eventId.slice(1)
   );
 };
+
+export const deepEquals = (a: unknown, b: unknown) => {
+  // null or undefined
+  if (a == null || b == null) {
+    return a === b;
+  }
+
+  // not objects -> direct comparison
+  if (!(typeof a === "object") || !(typeof b === "object")) {
+    return a === b;
+  }
+
+  // they're objects -> check num keys match
+  if (Object.keys(a).length !== Object.keys(b).length) {
+    return false;
+  }
+
+  // check that each value for each key matches
+  for (const key in a) {
+    const a_value = (a as Record<string, unknown>)[key];
+    const b_value = (b as Record<string, unknown>)[key];
+    if (!deepEquals(a_value, b_value)) {
+      return false;
+    }
+  }
+  return true;
+};
