@@ -1,0 +1,5 @@
+@media (prefers-color-scheme: dark) {
+  input[type="time"] {
+    color-scheme: dark;
+  }
+}

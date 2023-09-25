@@ -1,6 +1,8 @@
 import { SxProps, TextField } from "@mui/material";
 import { formatTime } from "../utils/formatTime";
 
+import "./TimePicker.css";
+
 export const TimePicker = ({
   label,
   time,
