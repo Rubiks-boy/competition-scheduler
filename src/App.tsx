@@ -28,8 +28,8 @@ function App() {
     <div className="App">
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Header />
         <StateProvider>
+          <Header />
           <MainContent />
         </StateProvider>
       </ThemeProvider>
