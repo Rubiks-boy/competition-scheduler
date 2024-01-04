@@ -13,8 +13,10 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Tooltip,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
+import { Error } from "@mui/icons-material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   enabledOtherActivitiesSelector,
@@ -23,6 +25,7 @@ import {
   numberOfDaysSelector,
 } from "../../app/selectors";
 import { ACTIVITIES, ACTIVITY_NAMES } from "../../constants";
+import classNames from "classnames";
 
 type Activity = (typeof ACTIVITIES)[number];
 
@@ -54,7 +57,7 @@ const ActivityRow = ({
         {ACTIVITY_NAMES[activity]}
       </TableCell>
       {shouldDisplayOccurrenes && (
-        <TableCell align="right">
+        <TableCell sx={{ width: "30%" }}>
           <TextField
             hiddenLabel
             size="small"
@@ -65,15 +68,27 @@ const ActivityRow = ({
           />
         </TableCell>
       )}
-      <TableCell align="right">
-        <TextField
-          hiddenLabel
-          size="small"
-          type="number"
-          disabled={!enabled}
-          value={enabled ? time : ""}
-          onChange={(e) => onTimeChange(e.target.value)}
-        />
+      <TableCell sx={{ width: "30%" }}>
+        <div
+          className={classNames("events-editScheduledTime", {
+            "events-editScheduledTime--showTooltip":
+              enabled && parseInt(time) % 5,
+          })}
+        >
+          <TextField
+            hiddenLabel
+            size="small"
+            type="number"
+            disabled={!enabled}
+            value={enabled ? time : ""}
+            onChange={(e) => onTimeChange(e.target.value)}
+            inputProps={{ autoFocus: true, step: "5" }}
+            fullWidth
+          />
+          <Tooltip title="Must be in increments of 5 minutes">
+            <Error color="error" fontSize="small" />
+          </Tooltip>
+        </div>
       </TableCell>
     </TableRow>
   );
@@ -99,10 +114,8 @@ export const OtherActivities = () => {
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell>Activity</TableCell>
-                  {numberOfDays > 1 && (
-                    <TableCell align="right">Occurrences</TableCell>
-                  )}
-                  <TableCell align="right">Time</TableCell>
+                  {numberOfDays > 1 && <TableCell>Occurrences</TableCell>}
+                  <TableCell>Time</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

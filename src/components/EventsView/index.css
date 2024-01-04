@@ -26,7 +26,7 @@
     visibility 0s ease var(--transition-duration);
 }
 
-.events-editScheduledTime--timeDiffers > svg {
+.events-editScheduledTime--showTooltip > svg {
   opacity: 1;
   visibility: visible;
   transition: opacity var(--transition-duration) ease;
