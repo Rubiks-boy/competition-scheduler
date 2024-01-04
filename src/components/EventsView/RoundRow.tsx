@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Edit, Info, Warning } from "@mui/icons-material";
+import { Edit, Info, Warning, Error } from "@mui/icons-material";
 import type { Round } from "../../types";
 import { EVENT_NAMES } from "../../constants";
 import {
@@ -23,6 +23,14 @@ const TimeDiffTooltip = ({
   timeDiff: number;
   calculatedTime: number;
 }) => {
+  if (timeDiff % 5) {
+    return (
+      <Tooltip title="Must be in increments of 5 minutes">
+        <Error color="error" fontSize="small" />
+      </Tooltip>
+    );
+  }
+
   return (
     <Tooltip title={`Recommended time: ${calculatedTime}`}>
       {timeDiff >= 20 ? (
@@ -93,8 +101,8 @@ export const RoundRow = ({
         {isEditingTime ? (
           <div
             className={classNames("events-editScheduledTime", {
-              "events-editScheduledTime--timeDiffers":
-                scheduledTime && timeDiff >= 5,
+              "events-editScheduledTime--showTooltip":
+                scheduledTime && timeDiff >= 1,
             })}
           >
             <TextField
