@@ -105,6 +105,7 @@ export const RoundRow = ({
               onChange={(e) =>
                 onUpdateRound("scheduledTime", e.target.value, isEditingTime)
               }
+              InputProps={{ autoFocus: true }}
             />
             <TimeDiffTooltip
               calculatedTime={calculatedTime}
