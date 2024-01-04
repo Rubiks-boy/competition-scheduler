@@ -92,10 +92,29 @@ export const stagesInUseSelector = (state: State) => {
   }));
 };
 
-export const canAdvanceToNext = (state: State, activeStep: number) => {
-  if (activeStep !== 3) {
-    return true;
-  }
+export const isEventsPageValidSelector = (state: State) => {
+  // Check that all the durations of each round are increments of 5 min
+  const scheduledRoundTimes = Object.values(state.events).flatMap((rounds) => {
+    if (!rounds) {
+      return [];
+    }
+
+    return rounds.map((round) => round.scheduledTime);
+  });
+  const scheduledOtherTimes = Object.values(state.otherActivities);
+  const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
+
+  let allIn5MinIncrements = true;
+  scheduledTimes.forEach((time) => {
+    if (parseInt(time) % 5) {
+      allIn5MinIncrements = false;
+    }
+  });
+
+  return allIn5MinIncrements;
+};
+
+const isVenuePageValid = (state: State) => {
   const hasVenueName =
     !!wcifScheduleSelector(state)?.venues.length || state.venueName;
 
@@ -104,6 +123,16 @@ export const canAdvanceToNext = (state: State, activeStep: number) => {
   const hasRooms = numRooms > 0 || stagesSelector(state).length > 0;
 
   return hasVenueName && hasRooms;
+};
+
+export const canAdvanceToNext = (state: State, activeStep: number) => {
+  if (activeStep === 1) {
+    return isEventsPageValidSelector(state);
+  } else if (activeStep === 3) {
+    return isVenuePageValid(state);
+  } else {
+    return true;
+  }
 };
 
 export const shareableAppStateSelector = (state: State): ShareableState => {
