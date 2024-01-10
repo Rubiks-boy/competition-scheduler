@@ -65,21 +65,45 @@ export const ScheduleStepper = () => {
     return <SignIn />;
   }
 
+  const backButton = (
+    <Button
+      color="inherit"
+      disabled={activeStep === 0}
+      onClick={handleBack}
+      sx={{ mr: 1 }}
+    >
+      Back
+    </Button>
+  );
+
+  const nextButton =
+    activeStep === steps.length - 1 ? (
+      <Button onClick={handleReset}>Reset</Button>
+    ) : (
+      <Button onClick={handleNext} disabled={isNextDisabled}>
+        Next
+      </Button>
+    );
+
   return (
     <Box sx={{ width: "100%", marginBottom: "1em" }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label) => {
-          const stepProps: { completed?: boolean } = {};
-          const labelProps: {
-            optional?: React.ReactNode;
-          } = {};
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
+      <Box sx={{ display: "flex" }}>
+        {backButton}
+        <Stepper activeStep={activeStep} sx={{ flex: "1 1 auto" }}>
+          {steps.map((label) => {
+            const stepProps: { completed?: boolean } = {};
+            const labelProps: {
+              optional?: React.ReactNode;
+            } = {};
+            return (
+              <Step key={label} {...stepProps}>
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
+        {nextButton}
+      </Box>
       {activeStep === steps.length ? (
         <React.Fragment>
           <ExportView />
@@ -90,7 +114,7 @@ export const ScheduleStepper = () => {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Box sx={{ mt: 5 }}>
+          <Box sx={{ mt: 4 }}>
             <StepContent activeStep={activeStep} />
           </Box>
           <Box
@@ -100,22 +124,9 @@ export const ScheduleStepper = () => {
               mt: 3,
             }}
           >
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
+            {backButton}
             <Box sx={{ flex: "1 1 auto" }} />
-            {activeStep === steps.length - 1 ? (
-              <Button onClick={handleReset}>Reset</Button>
-            ) : (
-              <Button onClick={handleNext} disabled={isNextDisabled}>
-                Next
-              </Button>
-            )}
+            {nextButton}
           </Box>
         </React.Fragment>
       )}
