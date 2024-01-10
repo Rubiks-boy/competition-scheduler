@@ -4,13 +4,23 @@ export const WCA_OAUTH_CLIENT_ID =
   "Vii5HFv_trp2PszV6AWn5kTD-iRCdLfH8NP3xw1Y7wc";
 
 export const signIn = () => {
+  sessionStorage.setItem(
+    localStorageKey("redirectUrl"),
+    window.location.href.split("#")[0]
+  );
   const params = new URLSearchParams({
     client_id: WCA_OAUTH_CLIENT_ID,
     response_type: "token",
-    redirect_uri: window.location.href.split("#")[0],
+    redirect_uri: `${window.location.origin}/?redirect`,
     scope: "manage_competitions",
   });
   window.location.href = `${WCA_ORIGIN}/oauth/authorize?${params.toString()}`;
+};
+
+export const getAndDeleteRedirectUrl = () => {
+  const redirectUrl = sessionStorage.getItem(localStorageKey("redirectUrl"));
+  sessionStorage.removeItem(localStorageKey("redirectUrl"));
+  return redirectUrl;
 };
 
 const localStorageKey = (key: string) =>

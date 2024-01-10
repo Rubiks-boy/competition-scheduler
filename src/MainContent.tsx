@@ -4,6 +4,7 @@ import { useFetchCompetitions } from "./hooks/useFetchCompetitions";
 import { useFetchWcif } from "./hooks/useFetchWcif";
 import { useImportAppState } from "./hooks/useImportAppState";
 import { useSaveToLocalStorage } from "./hooks/useSaveToLocalStorage";
+import { useRedirectURL } from "./hooks/useRedirectURL";
 import { Container } from "@mui/material";
 import {
   UrlImportBanner,
@@ -16,6 +17,7 @@ export const MainContent = () => {
   useFetchWcif();
   useImportAppState();
   useSaveToLocalStorage();
+  useRedirectURL();
 
   return (
     <Container maxWidth={"md"}>
