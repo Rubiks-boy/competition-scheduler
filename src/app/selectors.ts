@@ -103,15 +103,7 @@ export const isEventsPageValidSelector = (state: State) => {
   });
   const scheduledOtherTimes = Object.values(state.otherActivities);
   const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
-
-  let allIn5MinIncrements = true;
-  scheduledTimes.forEach((time) => {
-    if (parseInt(time) % 5) {
-      allIn5MinIncrements = false;
-    }
-  });
-
-  return allIn5MinIncrements;
+  return scheduledTimes.every((time) => parseInt(time) % 5 === 0);
 };
 
 const isVenuePageValid = (state: State) => {
