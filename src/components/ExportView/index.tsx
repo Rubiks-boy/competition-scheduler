@@ -12,6 +12,8 @@ import {
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitionSelector,
+  manageableCompsSelector,
+  selectedCompIdSelector,
   shareableAppStateSelector,
 } from "../../app/selectors";
 import type { ShareableState } from "../../app/types";
@@ -41,6 +43,11 @@ const ExportView = () => {
   const [successMessage, setSuccessMessage] = useState<String | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isSavePending, setIsSavePending] = useState<boolean>(false);
+  const manageableComps = useSelector(manageableCompsSelector);
+  const selectedCompId = useSelector(selectedCompIdSelector);
+  const canManageCurrentComp =
+    selectedCompId && manageableComps.map((c) => c.id).includes(selectedCompId);
+
   const openDialog = () => {
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -91,7 +98,10 @@ const ExportView = () => {
       {dialog}
       {successMessage && <Alert severity="success">{successMessage}</Alert>}
       {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-      <Button onClick={openDialog} disabled={isDialogOpen || isSavePending}>
+      <Button
+        onClick={openDialog}
+        disabled={isDialogOpen || isSavePending || !canManageCurrentComp}
+      >
         Export to competition website
       </Button>
       <br />
