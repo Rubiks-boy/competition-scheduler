@@ -227,3 +227,20 @@ export const isEventsSameAsWcifSelector = (state: State) => {
 
   return deepEquals(events, defaultWcifEvents);
 };
+
+export const numCompetitorsRegisteredSelector = (state: State) => {
+  const { wcif } = state;
+  if (!wcif) {
+    return 0;
+  }
+
+  const acceptedRegistrations = wcif.persons.filter(
+    ({ registration }) =>
+      registration &&
+      registration.status === "accepted" &&
+      // @ts-expect-error trust me bro
+      registration.isCompeting
+  );
+
+  return acceptedRegistrations.length;
+};

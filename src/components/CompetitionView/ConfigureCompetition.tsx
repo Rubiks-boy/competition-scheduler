@@ -6,6 +6,7 @@ import {
   numberOfDaysRawSelector,
   numStationsRawSelector,
   startTimesSelector,
+  numCompetitorsRegisteredSelector,
 } from "../../app/selectors";
 import { TimePicker } from "../TimePicker";
 import { NumStationsTooltip } from "./NumStationsTooltip";
@@ -18,6 +19,7 @@ export const ConfigureCompetition = () => {
   const startTimes = useSelector(startTimesSelector);
   const competitorsPerStation =
     parseInt(competitorLimit) / parseInt(numStations);
+  const numRegistered = useSelector(numCompetitorsRegisteredSelector);
 
   const onCompetitorLimitChanged = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -63,6 +65,17 @@ export const ConfigureCompetition = () => {
           type="number"
           value={competitorLimit}
           onChange={onCompetitorLimitChanged}
+          InputProps={{
+            endAdornment: numRegistered > 0 && (
+              <InputAdornment position="end">
+                <Tooltip
+                  title={`Number of competitors registered: ${numRegistered}`}
+                >
+                  <Info color="info" fontSize="small" />
+                </Tooltip>
+              </InputAdornment>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6} sm={4} md={2}>
