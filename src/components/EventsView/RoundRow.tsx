@@ -24,22 +24,36 @@ const TimeDiffTooltip = ({
   timeDiff: number;
   calculatedTime: number;
 }) => {
+  if (timeDiff === 0) {
+    // show a dummy hidden icon
+    // this makes sure the up/down arrows on the text field don't jump around.
+    return (
+      <InputAdornment position="end" sx={{ visibility: "hidden" }}>
+        <Info color="info" fontSize="small" />
+      </InputAdornment>
+    );
+  }
+
   if (timeDiff % 5) {
     return (
-      <Tooltip title="Must be in increments of 5 minutes">
-        <Error color="error" fontSize="small" />
-      </Tooltip>
+      <InputAdornment position="end">
+        <Tooltip title="Must be in increments of 5 minutes">
+          <Error color="error" fontSize="small" />
+        </Tooltip>
+      </InputAdornment>
     );
   }
 
   return (
-    <Tooltip title={`Recommended time: ${calculatedTime}`}>
-      {timeDiff >= 20 ? (
-        <Warning color="warning" fontSize="small" />
-      ) : (
-        <Info color="info" fontSize="small" />
-      )}
-    </Tooltip>
+    <InputAdornment position="end">
+      <Tooltip title={`Recommended time: ${calculatedTime}`}>
+        {timeDiff >= 20 ? (
+          <Warning color="warning" fontSize="small" />
+        ) : (
+          <Info color="info" fontSize="small" />
+        )}
+      </Tooltip>
+    </InputAdornment>
   );
 };
 
@@ -147,27 +161,24 @@ export const RoundRow = ({
       </TableCell>
       <TableCell sx={{ minWidth: "10em", width: "20%" }}>
         {isEditingTime ? (
-          <div
-            className={classNames("events-editScheduledTime", {
-              "events-editScheduledTime--showTooltip":
-                scheduledTime && timeDiff >= 1,
-            })}
-          >
-            <TextField
-              hiddenLabel
-              size="small"
-              type="number"
-              value={scheduledTime}
-              onChange={(e) =>
-                onUpdateRound("scheduledTime", e.target.value, isEditingTime)
-              }
-              inputProps={{ autoFocus: true, step: "5" }}
-            />
-            <TimeDiffTooltip
-              calculatedTime={calculatedTime}
-              timeDiff={timeDiff}
-            />
-          </div>
+          <TextField
+            hiddenLabel
+            size="small"
+            type="number"
+            value={scheduledTime}
+            onChange={(e) =>
+              onUpdateRound("scheduledTime", e.target.value, isEditingTime)
+            }
+            inputProps={{ autoFocus: true, step: "5" }}
+            InputProps={{
+              endAdornment: scheduledTime && (
+                <TimeDiffTooltip
+                  calculatedTime={calculatedTime}
+                  timeDiff={timeDiff}
+                />
+              ),
+            }}
+          />
         ) : (
           <div className="events-scheduledTime">
             <Typography>{scheduledTime}</Typography>
