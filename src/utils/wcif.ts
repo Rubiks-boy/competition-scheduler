@@ -43,6 +43,7 @@ import {
 import {
   calcNumCompetitorsPerRound,
   constructActivityString,
+  findNthOccurrence,
   makeDefaultEvents,
   range,
 } from "./utils";
@@ -119,12 +120,12 @@ const wcifRoundsToEventRounds = (
       roundNum,
     };
 
-    const wcifActivity = findMatchingWcifActivity(
+    const wcifActivity = findMatchingWcifActivity({
       wcifSchedule,
-      "event",
+      type: "event",
       eventId,
-      roundNum
-    );
+      roundNum,
+    });
     if (wcifActivity) {
       const wcifScheduledTime =
         new Date(wcifActivity.endTime).getTime() -
@@ -219,12 +220,19 @@ export const getAllActivities = (wcifSchedule: WcifSchedule) => {
   return rooms?.flatMap((room) => room.activities);
 };
 
-export const findMatchingWcifActivity = (
-  wcifSchedule: WcifSchedule,
-  type: "event" | "other",
-  eventId?: string,
-  roundNum?: number
-) => {
+export const findMatchingWcifActivity = ({
+  wcifSchedule,
+  type,
+  eventId,
+  roundNum,
+  nthOccurrence = 1,
+}: {
+  wcifSchedule: WcifSchedule;
+  type: "event" | "other";
+  eventId?: string;
+  roundNum?: number;
+  nthOccurrence?: number;
+}) => {
   const allActivities = getAllActivities(wcifSchedule);
 
   const activityCode =
@@ -232,15 +240,18 @@ export const findMatchingWcifActivity = (
       ? `${eventId}-r${roundNum}`
       : `other-${eventId}`;
 
-  return allActivities.find(
-    (activity) => activity.activityCode === activityCode
+  return findNthOccurrence(
+    allActivities,
+    (activity) => activity.activityCode === activityCode,
+    nthOccurrence
   );
 };
 
 const getStartTimeForEntry = (
   scheduleEntry: ScheduleEntry | DayDivider,
   wcifSchedule: WcifSchedule,
-  firstStartTime: Date
+  firstStartTime: Date,
+  nthOccurrence: number = 1
 ) => {
   const startDate = new Date(firstStartTime);
   startDate.setHours(0, 0, 0, 0);
@@ -251,12 +262,13 @@ const getStartTimeForEntry = (
 
   const { type, eventId } = scheduleEntry;
 
-  const activity = findMatchingWcifActivity(
+  const activity = findMatchingWcifActivity({
     wcifSchedule,
     type,
     eventId,
-    type === "event" ? scheduleEntry.roundNum + 1 : undefined
-  );
+    roundNum: type === "event" ? scheduleEntry.roundNum + 1 : undefined,
+    nthOccurrence,
+  });
   return new Date(activity?.startTime ?? 0).getTime();
 };
 
@@ -269,11 +281,32 @@ export const reorderFromWcif = ({
   wcifSchedule: WcifSchedule;
   firstStartTime: Date;
 }): Schedule => {
-  const sortedSchedule = [...schedule];
+  const otherActivityOccurrences: Record<string, number> = {};
+  const sortedSchedule = schedule.map((s) => {
+    if (s.type !== "other") {
+      return { ...s, nthOccurrence: 1 };
+    }
+
+    if (!(s.eventId in otherActivityOccurrences)) {
+      otherActivityOccurrences[s.eventId] = 0;
+    }
+    const nthOccurrence = ++otherActivityOccurrences[s.eventId];
+    return { ...s, nthOccurrence };
+  });
 
   sortedSchedule.sort((a, b) => {
-    const aStartTime = getStartTimeForEntry(a, wcifSchedule, firstStartTime);
-    const bStartTime = getStartTimeForEntry(b, wcifSchedule, firstStartTime);
+    const aStartTime = getStartTimeForEntry(
+      a,
+      wcifSchedule,
+      firstStartTime,
+      a.nthOccurrence
+    );
+    const bStartTime = getStartTimeForEntry(
+      b,
+      wcifSchedule,
+      firstStartTime,
+      b.nthOccurrence
+    );
 
     return aStartTime - bStartTime;
   });
@@ -639,11 +672,11 @@ export const getOtherActivityLengths = (
   const otherActivities = { ...stateOtherActivities };
 
   OTHER_ACTIVITES.forEach((otherActivity) => {
-    const wcifActivity = findMatchingWcifActivity(
+    const wcifActivity = findMatchingWcifActivity({
       wcifSchedule,
-      "other",
-      otherActivity
-    );
+      type: "other",
+      eventId: otherActivity,
+    });
 
     if (wcifActivity) {
       const wcifScheduledTime =

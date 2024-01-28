@@ -4,6 +4,26 @@ import { Events, EVENT_IDS, Round, ScheduleEntry } from "../types";
 export const pick = (obj: { [key: string]: any }, keys: Array<string>) =>
   keys.reduce((newObj, key) => ({ ...newObj, [key]: obj[key] }), {});
 
+export const findNthOccurrence = <T>(
+  arr: Array<T>,
+  predicate: (item: T) => boolean,
+  n: number
+): T | undefined => {
+  let remainingHits = n;
+
+  for (let i = 0; i < arr.length; i++) {
+    if (!predicate(arr[i])) {
+      continue;
+    }
+
+    if (!--remainingHits) {
+      return arr[i];
+    }
+  }
+
+  return undefined;
+};
+
 // Similar to python's range() function. examples:
 // range(3) => [0, 1, 2]
 // range(1, 4) => [1, 2, 3]
