@@ -5,7 +5,7 @@ import {
   calcNumGroups,
   calcTimeForRound,
 } from "../utils/calculators";
-import { numPersonsRegisteredForEvent, range } from "../utils/utils";
+import { range } from "../utils/utils";
 import {
   getDefaultEventsData,
   getDefaultNumStations,
