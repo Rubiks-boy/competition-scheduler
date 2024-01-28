@@ -76,11 +76,13 @@ export const RoundRow = ({
         <TextField
           hiddenLabel
           size="small"
-          type="number"
           value={numCompetitors}
-          onChange={(e) =>
-            onUpdateRound("numCompetitors", e.target.value, isEditingTime)
-          }
+          onChange={(e) => {
+            const isPercent = roundNum > 0 && e.target.value.endsWith("%");
+            const numCompetitors = `${parseInt(e.target.value) || ""}`;
+            const value = `${numCompetitors}${isPercent ? "%" : ""}`;
+            onUpdateRound("numCompetitors", value, isEditingTime);
+          }}
         />
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%" }}>
