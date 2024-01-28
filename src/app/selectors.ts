@@ -70,6 +70,9 @@ export const enabledOtherActivitiesSelector = (state: State) =>
 
 export const wcifSelector = (state: State) => state.wcif;
 
+export const competitionNameSelector = (state: State) =>
+  wcifSelector(state)?.name;
+
 export const wcifEventsSelector = (state: State) =>
   wcifSelector(state)?.events || [];
 
