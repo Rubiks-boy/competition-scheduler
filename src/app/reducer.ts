@@ -416,14 +416,17 @@ const reducer: Reducer = (state, action) => {
         });
 
         return {
-          [eventId]: [
-            {
-              eventId,
-              numCompetitors: numCompetitors.toString(),
-              numGroups: numGroups.toString(),
-              scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
-            },
-          ],
+          [eventId]: {
+            rounds: [
+              {
+                eventId,
+                numCompetitors: numCompetitors.toString(),
+                numGroups: numGroups.toString(),
+                scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
+              },
+            ],
+            numRegistered: 0,
+          },
         };
       });
 
