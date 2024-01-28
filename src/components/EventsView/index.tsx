@@ -3,6 +3,7 @@ import {
   addableEventIdsSelector,
   eventsSelector,
   numStationsSelector,
+  numRegisteredByEventSelector,
 } from "../../app/selectors";
 import { Event } from "./Event";
 import { EventId, EVENT_IDS } from "../../types";
@@ -20,6 +21,7 @@ const EventsView = () => {
   const events = useSelector(eventsSelector);
   const addableEventIds = useSelector(addableEventIdsSelector);
   const numStations = useSelector(numStationsSelector);
+  const numRegisteredByEvent = useSelector(numRegisteredByEventSelector);
 
   const makeOnUpdateRound = (eventId: EventId, roundNum: number) => {
     return (
@@ -59,9 +61,9 @@ const EventsView = () => {
         <ResetEventsButton />
       </Box>
       {EVENT_IDS.map((eventId) => {
-        const event = events[eventId];
+        const rounds = events[eventId];
 
-        if (event == null) {
+        if (!rounds) {
           return null;
         }
 
@@ -81,8 +83,8 @@ const EventsView = () => {
           <Event
             key={eventId}
             eventId={eventId}
-            numRegistered={event.numRegistered}
-            rounds={event.rounds}
+            numRegistered={numRegisteredByEvent[eventId]}
+            rounds={rounds}
             numStations={numStations}
             makeOnUpdateRound={makeOnUpdateRound}
             onAddRound={onAddRound}
