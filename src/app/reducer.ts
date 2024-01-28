@@ -390,7 +390,10 @@ const reducer: Reducer = (state, action) => {
         isShowingDefaultInfo: false,
         events: {
           ...state.events,
-          [action.eventId]: withoutRemovedRound,
+          [action.eventId]: {
+            rounds: withoutRemovedRound,
+            numRegistered: state.events[action.eventId]?.numRegistered || 0,
+          },
         },
         schedule: [
           ...state.schedule.filter(
@@ -477,7 +480,10 @@ const reducer: Reducer = (state, action) => {
         isShowingDefaultInfo: false,
         events: {
           ...state.events,
-          [action.eventId]: withAddedRound,
+          [action.eventId]: {
+            rounds: withAddedRound,
+            numRegistered: state.events[action.eventId]?.numRegistered || 0,
+          },
         },
         schedule: [
           ...state.schedule,
