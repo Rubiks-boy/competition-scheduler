@@ -61,7 +61,7 @@ const EventsView = () => {
       {EVENT_IDS.map((eventId) => {
         const event = events[eventId];
 
-        if (event === null) {
+        if (event == null) {
           return null;
         }
 

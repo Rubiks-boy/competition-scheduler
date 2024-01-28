@@ -192,7 +192,7 @@ const reducer: Reducer = (state, action) => {
       Object.entries(eventsSelector(state)).forEach(([e, event]) => {
         const eventId = e as EventId;
 
-        if (event === null) {
+        if (event == null) {
           return null;
         }
 
@@ -343,7 +343,7 @@ const reducer: Reducer = (state, action) => {
     case "ROUND_UPDATED":
       const oldEvent = state.events[action.eventId];
 
-      if (oldEvent === null) {
+      if (oldEvent == null) {
         return state;
       }
 

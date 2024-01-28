@@ -95,7 +95,7 @@ export const stagesInUseSelector = (state: State) => {
 export const isEventsPageValidSelector = (state: State) => {
   // Check that all the durations of each round are increments of 5 min
   const scheduledRoundTimes = Object.values(state.events).flatMap((event) => {
-    if (event === null) {
+    if (event == null) {
       return [];
     }
 
