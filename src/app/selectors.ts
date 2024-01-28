@@ -98,12 +98,12 @@ export const stagesInUseSelector = (state: State) => {
 
 export const isEventsPageValidSelector = (state: State) => {
   // Check that all the durations of each round are increments of 5 min
-  const scheduledRoundTimes = Object.values(state.events).flatMap((event) => {
-    if (event == null) {
+  const scheduledRoundTimes = Object.values(state.events).flatMap((rounds) => {
+    if (!rounds) {
       return [];
     }
 
-    return event.rounds.map((round) => round.scheduledTime);
+    return rounds.map((round) => round.scheduledTime);
   });
   const scheduledOtherTimes = Object.values(state.otherActivities);
   const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
@@ -188,8 +188,8 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
 
   let isDefault = true;
 
-  Object.entries(events).forEach(([eventId, event]) => {
-    event?.rounds.forEach((round) => {
+  Object.entries(events).forEach(([eventId, rounds]) => {
+    rounds?.forEach((round) => {
       const { numCompetitors, numGroups, scheduledTime } = round;
 
       const defaultNumGroups = calcNumGroups({
@@ -254,8 +254,8 @@ export const isNumRoundsPerEventSameAsWcifSelector = (state: State) => {
   const events = eventsSelector(state);
 
   return EVENT_IDS.every((eventId) => {
-    const numWcifRounds = defaultWcifEvents[eventId]?.rounds.length || 0;
-    const numRounds = events[eventId]?.rounds.length || 0;
+    const numWcifRounds = defaultWcifEvents[eventId]?.length ?? 0;
+    const numRounds = events[eventId]?.length ?? 0;
     return numWcifRounds === numRounds;
   });
 };
@@ -290,19 +290,35 @@ export const isScheduleSameAsWcifSelector = (state: State) => {
   return deepEquals(schedule, defaultWcifSchedule);
 };
 
-export const numCompetitorsRegisteredSelector = (state: State) => {
+const acceptedRegistrationsSelector = (state: State) => {
   const { wcif } = state;
   if (!wcif) {
-    return 0;
+    return [];
   }
 
-  const acceptedRegistrations = wcif.persons.filter(
+  return wcif.persons.filter(
     ({ registration }) =>
       registration &&
       registration.status === "accepted" &&
       // @ts-expect-error trust me bro
       registration.isCompeting
   );
+};
+
+export const numCompetitorsRegisteredSelector = (state: State) => {
+  const acceptedRegistrations = acceptedRegistrationsSelector(state);
 
   return acceptedRegistrations.length;
+};
+
+export const numRegisteredByEventSelector = (state: State) => {
+  const acceptedRegistrations = acceptedRegistrationsSelector(state);
+
+  const numRegisteredByEvent = {} as Record<EventId, number>;
+  EVENT_IDS.forEach((eventId) => {
+    numRegisteredByEvent[eventId] = acceptedRegistrations.filter((person) =>
+      person.registration?.eventIds.includes(eventId)
+    ).length;
+  });
+  return numRegisteredByEvent;
 };

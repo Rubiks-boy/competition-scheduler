@@ -189,14 +189,14 @@ const reducer: Reducer = (state, action) => {
 
     case "RESET_ROUNDS":
       const eventsWithResetRounds = {} as Events;
-      Object.entries(eventsSelector(state)).forEach(([e, event]) => {
+      Object.entries(eventsSelector(state)).forEach(([e, rounds]) => {
         const eventId = e as EventId;
 
-        if (event == null) {
+        if (!rounds) {
           return null;
         }
 
-        const resetRounds = event.rounds.map((round) => {
+        const resetRounds = rounds.map((round) => {
           const { numCompetitors } = round;
           const defaultNumGroups = calcNumGroups({
             eventId,
@@ -215,13 +215,7 @@ const reducer: Reducer = (state, action) => {
           };
         });
 
-        eventsWithResetRounds[eventId as EventId] = {
-          rounds: resetRounds,
-          numRegistered: numPersonsRegisteredForEvent(
-            eventId,
-            state.wcif?.persons ?? []
-          ),
-        };
+        eventsWithResetRounds[eventId as EventId] = resetRounds;
       });
 
       return {
@@ -362,13 +356,13 @@ const reducer: Reducer = (state, action) => {
       };
 
     case "ROUND_UPDATED":
-      const oldEvent = state.events[action.eventId];
+      const oldRounds = state.events[action.eventId];
 
-      if (oldEvent == null) {
+      if (!oldRounds) {
         return state;
       }
 
-      const oldRound = oldEvent.rounds[action.roundNum];
+      const oldRound = oldRounds[action.roundNum];
 
       const updatedRound = {
         ...oldRound,
@@ -384,7 +378,7 @@ const reducer: Reducer = (state, action) => {
         ).toString();
       }
 
-      const updatedRounds = [...(oldEvent.rounds ?? [])];
+      const updatedRounds = [...(oldRounds ?? [])];
       updatedRounds[action.roundNum] = updatedRound;
 
       return {
@@ -392,18 +386,13 @@ const reducer: Reducer = (state, action) => {
         isShowingDefaultInfo: false,
         events: {
           ...state.events,
-          [action.eventId]: {
-            rounds: updatedRounds,
-            numRegistered: oldEvent.numRegistered,
-          },
+          [action.eventId]: updatedRounds,
         },
         isExported: false,
       };
 
     case "REMOVE_ROUND":
-      const withoutRemovedRound = [
-        ...(state.events[action.eventId]?.rounds ?? []),
-      ];
+      const withoutRemovedRound = [...(state.events[action.eventId] ?? [])];
       withoutRemovedRound.pop();
 
       return {
@@ -411,10 +400,7 @@ const reducer: Reducer = (state, action) => {
         isShowingDefaultInfo: false,
         events: {
           ...state.events,
-          [action.eventId]: {
-            rounds: withoutRemovedRound,
-            numRegistered: state.events[action.eventId]?.numRegistered || 0,
-          },
+          [action.eventId]: withoutRemovedRound,
         },
         schedule: [
           ...state.schedule.filter(
@@ -440,17 +426,14 @@ const reducer: Reducer = (state, action) => {
         });
 
         return {
-          [eventId]: {
-            rounds: [
-              {
-                eventId,
-                numCompetitors: numCompetitors.toString(),
-                numGroups: numGroups.toString(),
-                scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
-              },
-            ],
-            numRegistered: 0,
-          },
+          [eventId]: [
+            {
+              eventId,
+              numCompetitors: numCompetitors.toString(),
+              numGroups: numGroups.toString(),
+              scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
+            },
+          ],
         };
       });
 
@@ -472,7 +455,7 @@ const reducer: Reducer = (state, action) => {
       };
 
     case "ADD_ROUND":
-      const withAddedRound = [...(state.events[action.eventId]?.rounds ?? [])];
+      const withAddedRound = [...(state.events[action.eventId] ?? [])];
 
       const numCompetitors = !withAddedRound.length
         ? calcExpectedNumCompetitors(
@@ -501,10 +484,7 @@ const reducer: Reducer = (state, action) => {
         isShowingDefaultInfo: false,
         events: {
           ...state.events,
-          [action.eventId]: {
-            rounds: withAddedRound,
-            numRegistered: state.events[action.eventId]?.numRegistered || 0,
-          },
+          [action.eventId]: withAddedRound,
         },
         schedule: [
           ...state.schedule,
