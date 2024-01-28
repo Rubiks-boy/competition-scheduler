@@ -251,6 +251,27 @@ const reducer: Reducer = (state, action) => {
         isExported: false,
       };
 
+    case "RESET_SCHEDULE":
+      return {
+        ...state,
+        // Trigger withAutoScheduleReordering() to do its magic
+        hasReorderedEvents: false,
+      };
+
+    case "REIMPORT_SCHEDULE_FROM_WCIF":
+      if (!state.wcif) {
+        return state;
+      }
+      return {
+        ...state,
+        hasReorderedEvents: true,
+        schedule: reorderFromWcif({
+          schedule: state.schedule,
+          wcifSchedule: state.wcif.schedule,
+          firstStartTime: state.startTimes[0],
+        }),
+      };
+
     case "NUM_STATIONS_CHANGED":
       const { numStations } = action;
 
