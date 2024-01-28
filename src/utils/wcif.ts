@@ -692,7 +692,8 @@ export const getOtherActivityLengths = (
   return otherActivities;
 };
 
-export const getWcifStartTime = (wcif: Wcif) => {
+export const getWcifStartTimes = (wcif: Wcif) => {
+  const { numberOfDays } = wcif.schedule;
   const startTimes = getAllActivities(wcif.schedule).map(
     (a) => new Date(a.startTime)
   );
@@ -700,7 +701,13 @@ export const getWcifStartTime = (wcif: Wcif) => {
   const firstStartTime = startTimes?.[0];
 
   if (firstStartTime) {
-    return firstStartTime;
+    return range(numberOfDays).map(
+      (dayIndex) =>
+        startTimes.find((startTime) => {
+          const daysDiff = startTime.getDay() - firstStartTime.getDay();
+          return (daysDiff < 0 ? daysDiff + 7 : daysDiff) === dayIndex;
+        }) ?? firstStartTime
+    );
   }
 
   const wcifStartTime = new Date(wcif.schedule.startDate);
@@ -710,5 +717,7 @@ export const getWcifStartTime = (wcif: Wcif) => {
   } else {
     wcifStartTime.setHours(32, 0, 0, 0); // next 8:00am
   }
-  return wcifStartTime;
+  return range(numberOfDays).map(
+    (i) => new Date(wcifStartTime.getTime() + ONE_DAY_MS * i)
+  );
 };

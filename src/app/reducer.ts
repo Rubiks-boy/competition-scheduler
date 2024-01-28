@@ -13,7 +13,7 @@ import {
   getNumberOfActivities,
   getNumStationsFromWcif,
   getOtherActivityLengths,
-  getWcifStartTime,
+  getWcifStartTimes,
   reorderFromWcif,
 } from "../utils/wcif";
 import type { EventId, Events, Round } from "../types";
@@ -67,19 +67,9 @@ const reducer: Reducer = (state, action) => {
         competitorLimit: defaultCompetitorLimit,
       });
 
-      const wcifStartTime = getWcifStartTime(wcif);
+      const startTimes = getWcifStartTimes(wcif);
 
       if (state.importSource) {
-        const startTimeWithWcifDate = new Date(wcifStartTime);
-        startTimeWithWcifDate.setHours(
-          state.startTimes[0].getHours(),
-          state.startTimes[0].getMinutes()
-        );
-
-        const startTimes = range(wcif.schedule.numberOfDays).map(
-          (i) => new Date(startTimeWithWcifDate.getTime() + ONE_DAY_MS * i)
-        );
-
         const numDaysDiff =
           wcif.schedule.numberOfDays - numberOfDaysSelector(state);
         let schedule = state.schedule;
@@ -115,10 +105,6 @@ const reducer: Reducer = (state, action) => {
             state.hasReorderedEvents || wcif.schedule.venues.length > 0,
         };
       }
-
-      const startTimes = range(wcif.schedule.numberOfDays).map(
-        (_, i) => new Date(wcifStartTime.getTime() + ONE_DAY_MS * i)
-      );
 
       return {
         ...state,
