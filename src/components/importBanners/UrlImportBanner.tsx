@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Alert, Box, Link } from "@mui/material";
 import { useSelector } from "../../app/hooks";
-import { isImportedFromUrlSelector } from "../../app/selectors";
+import {
+  isImportedFromUrlSelector,
+  competitionNameSelector,
+} from "../../app/selectors";
 
 export const UrlImportBanner = () => {
   const isFromUrl = useSelector(isImportedFromUrlSelector);
+  const competitionName = useSelector(competitionNameSelector);
 
   const [showBanner, setShowBanner] = useState(true);
 
@@ -23,7 +27,9 @@ export const UrlImportBanner = () => {
   return (
     <Box sx={{ mb: 3 }}>
       <Alert severity={"success"} onClose={hideBanner}>
-        You are viewing someone else's saved schedule.
+        {competitionName
+          ? `You are viewing someone else's schedule draft for ${competitionName}.`
+          : "You are viewing someone else's schedule draft."}
         <br />
         Want to start from scratch instead?{" "}
         <Link href="#" variant="body2" onClick={resetState}>
