@@ -43,6 +43,18 @@ export const Event = ({
 }: EventProps) => {
   const eventName = EVENT_NAMES[eventId];
 
+  const numCompetitorsPerRound: Array<number> = [];
+  rounds.forEach((round, roundNum) => {
+    const isPercent = round.numCompetitors.endsWith("%");
+    const advancement = parseInt(round.numCompetitors);
+
+    const numCopetitorsInt = isPercent
+      ? Math.floor((numCompetitorsPerRound[roundNum - 1] * advancement) / 100)
+      : advancement;
+
+    numCompetitorsPerRound.push(numCopetitorsInt);
+  });
+
   const roundRows = rounds.map((round, roundNum) => (
     <RoundRow
       key={`${round.eventId}-${roundNum}`}
@@ -51,6 +63,7 @@ export const Event = ({
       isFinal={roundNum === rounds.length - 1}
       numStations={numStations}
       onUpdateRound={makeOnUpdateRound(round.eventId, roundNum)}
+      numCompetitorsInt={numCompetitorsPerRound[roundNum]}
     />
   ));
 

@@ -48,6 +48,7 @@ export const RoundRow = ({
   isFinal,
   numStations,
   onUpdateRound,
+  numCompetitorsInt,
 }: {
   round: Round;
   roundNum: number;
@@ -58,6 +59,7 @@ export const RoundRow = ({
     value: string,
     isEditingTime: boolean
   ) => void;
+  numCompetitorsInt: number;
 }) => {
   const { eventId, numCompetitors, numGroups, scheduledTime } = round;
   const calculatedTime = calcTimeForRound(eventId, parseInt(numGroups || "0"));
@@ -97,7 +99,11 @@ export const RoundRow = ({
         />
       </TableCell>
       <TableCell sx={{ minWidth: "6em", width: "10%" }}>
-        {compPerStationsRatio(round, numStations)}
+        {compPerStationsRatio({
+          numCompetitors: numCompetitorsInt,
+          numGroups: parseInt(numGroups || "0"),
+          numStations,
+        })}
       </TableCell>
       <TableCell sx={{ minWidth: "10em", width: "20%" }}>
         {isEditingTime ? (
