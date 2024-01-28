@@ -1,5 +1,12 @@
 import { LONG_EVENT_NAMES } from "../constants";
-import { Events, EVENT_IDS, Round, ScheduleEntry } from "../types";
+import {
+  EventId,
+  Events,
+  EVENT_IDS,
+  Round,
+  ScheduleEntry,
+  WcifPerson,
+} from "../types";
 
 export const pick = (obj: { [key: string]: any }, keys: Array<string>) =>
   keys.reduce((newObj, key) => ({ ...newObj, [key]: obj[key] }), {});
@@ -93,3 +100,14 @@ export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
 
   return numCompetitorsPerRound;
 };
+
+export const numPersonsRegisteredForEvent = (
+  eventId: EventId,
+  wcifPersons: Array<WcifPerson>
+) =>
+  wcifPersons.filter(
+    ({ registration }) =>
+      registration &&
+      registration.status === "accepted" &&
+      registration.eventIds.includes(eventId)
+  ).length;

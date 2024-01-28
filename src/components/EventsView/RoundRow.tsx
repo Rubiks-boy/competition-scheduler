@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   IconButton,
+  InputAdornment,
   TableCell,
   TableRow,
   TextField,
@@ -42,6 +43,26 @@ const TimeDiffTooltip = ({
   );
 };
 
+const RegDiffTooltip = ({
+  numRegistered,
+  regDiffPercent,
+}: {
+  numRegistered: number;
+  regDiffPercent: number;
+}) => {
+  return (
+    <InputAdornment position="end">
+      <Tooltip title={`Number of competitors registered: ${numRegistered}`}>
+        {regDiffPercent > 0.2 ? (
+          <Warning color="warning" fontSize="small" />
+        ) : (
+          <Info color="info" fontSize="small" />
+        )}
+      </Tooltip>
+    </InputAdornment>
+  );
+};
+
 export const RoundRow = ({
   round,
   roundNum,
@@ -49,6 +70,7 @@ export const RoundRow = ({
   numStations,
   onUpdateRound,
   numCompetitorsInt,
+  numRegistered,
 }: {
   round: Round;
   roundNum: number;
@@ -60,10 +82,14 @@ export const RoundRow = ({
     isEditingTime: boolean
   ) => void;
   numCompetitorsInt: number;
+  numRegistered: number;
 }) => {
   const { eventId, numCompetitors, numGroups, scheduledTime } = round;
   const calculatedTime = calcTimeForRound(eventId, parseInt(numGroups || "0"));
   const timeDiff = Math.abs(calculatedTime - parseInt(scheduledTime));
+  const regDiffPercent = Math.abs(
+    (numRegistered - numCompetitorsInt) / numRegistered
+  );
 
   const [isEditingTime, setIsEditingTime] = useState(
     calculatedTime !== parseInt(scheduledTime)
@@ -75,17 +101,31 @@ export const RoundRow = ({
         {EVENT_NAMES[eventId]} {isFinal ? "Final" : `Round ${roundNum + 1}`}
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%" }}>
-        <TextField
-          hiddenLabel
-          size="small"
-          value={numCompetitors}
-          onChange={(e) => {
-            const isPercent = roundNum > 0 && e.target.value.endsWith("%");
-            const numCompetitors = `${parseInt(e.target.value) || ""}`;
-            const value = `${numCompetitors}${isPercent ? "%" : ""}`;
-            onUpdateRound("numCompetitors", value, isEditingTime);
-          }}
-        />
+        <div
+          className={classNames("events-fieldWithTooltip", {
+            "events-fieldWithTooltip--showTooltip": numRegistered > 0,
+          })}
+        >
+          <TextField
+            hiddenLabel
+            size="small"
+            value={numCompetitors}
+            onChange={(e) => {
+              const isPercent = roundNum > 0 && e.target.value.endsWith("%");
+              const numCompetitors = `${parseInt(e.target.value) || ""}`;
+              const value = `${numCompetitors}${isPercent ? "%" : ""}`;
+              onUpdateRound("numCompetitors", value, isEditingTime);
+            }}
+            InputProps={{
+              endAdornment: roundNum === 0 && numRegistered > 0 && (
+                <RegDiffTooltip
+                  regDiffPercent={regDiffPercent}
+                  numRegistered={numRegistered}
+                />
+              ),
+            }}
+          />
+        </div>
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%" }}>
         <TextField

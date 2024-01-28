@@ -34,7 +34,7 @@ export type ManageableCompetition = {
 };
 
 export type Events = {
-  [E in EventId]: Array<Round> | null;
+  [E in EventId]: { rounds: Array<Round>; numRegistered: number } | null;
 };
 
 export type Round = {
@@ -82,6 +82,7 @@ export type {
   Event as WcifEvent,
   Schedule as WcifSchedule,
   Room as WcifRoom,
+  Person as WcifPerson,
 } from "@wca/helpers";
 
 export type Stage = "Red" | "Blue" | "Green " | "Orange" | "Purple";
