@@ -1,5 +1,5 @@
 import { LONG_EVENT_NAMES } from "../constants";
-import { Events, EVENT_IDS, ScheduleEntry } from "../types";
+import { Events, EVENT_IDS, Round, ScheduleEntry } from "../types";
 
 export const pick = (obj: { [key: string]: any }, keys: Array<string>) =>
   keys.reduce((newObj, key) => ({ ...newObj, [key]: obj[key] }), {});
@@ -56,4 +56,20 @@ export const deepEquals = (a: unknown, b: unknown) => {
     }
   }
   return true;
+};
+
+export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
+  const numCompetitorsPerRound: Array<number> = [];
+  rounds.forEach((round, roundNum) => {
+    const isPercent = round.numCompetitors.endsWith("%");
+    const advancement = parseInt(round.numCompetitors);
+
+    const numCopetitorsInt = isPercent
+      ? Math.floor((numCompetitorsPerRound[roundNum - 1] * advancement) / 100)
+      : advancement;
+
+    numCompetitorsPerRound.push(numCopetitorsInt);
+  });
+
+  return numCompetitorsPerRound;
 };
