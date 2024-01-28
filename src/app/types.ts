@@ -182,6 +182,12 @@ export type Action =
     }
   | {
       type: "RESET_ESTIMATES_TO_WCIF";
+    }
+  | {
+      type: "RESET_SCHEDULE";
+    }
+  | {
+      type: "REIMPORT_SCHEDULE_FROM_WCIF";
     };
 
 export type Reducer = (state: State, action: Action) => State;

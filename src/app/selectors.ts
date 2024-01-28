@@ -2,7 +2,11 @@ import { getColorForStage, OTHER_ACTIVITES } from "../constants";
 import { EventId, EVENT_IDS } from "../types";
 import { calcNumGroups, calcTimeForRound } from "../utils/calculators";
 import { deepEquals } from "../utils/utils";
-import { getDefaultEventsData } from "../utils/wcif";
+import {
+  getDefaultEventsData,
+  getDefaultSchedule,
+  reorderFromWcif,
+} from "../utils/wcif";
 import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
@@ -210,6 +214,11 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
   return isDefault;
 };
 
+export const hasReorderedEventsSelector = (state: State) => {
+  return state.hasReorderedEvents;
+};
+
+// Are events, including number of groups and scheduled time, same as WCIF
 export const isEventsSameAsWcifSelector = (state: State) => {
   const wcif = wcifSelector(state);
 
@@ -226,6 +235,59 @@ export const isEventsSameAsWcifSelector = (state: State) => {
   const events = eventsSelector(state);
 
   return deepEquals(events, defaultWcifEvents);
+};
+
+// Just checks whether rounds were entirely added/removed, compared to the WCIF
+export const isNumRoundsPerEventSameAsWcifSelector = (state: State) => {
+  const wcif = wcifSelector(state);
+
+  if (!wcif) {
+    return true;
+  }
+
+  const defaultWcifEvents = getDefaultEventsData({
+    wcif,
+    numStations: numStationsSelector(state),
+    competitorLimit: competitorLimitSelector(state),
+  });
+
+  const events = eventsSelector(state);
+
+  return EVENT_IDS.every((eventId) => {
+    const numWcifRounds = defaultWcifEvents[eventId]?.rounds.length || 0;
+    const numRounds = events[eventId]?.rounds.length || 0;
+    return numWcifRounds === numRounds;
+  });
+};
+
+export const isScheduleSameAsWcifSelector = (state: State) => {
+  const wcif = wcifSelector(state);
+
+  if (!wcif) {
+    return true;
+  }
+
+  const defaultWcifEvents = getDefaultEventsData({
+    wcif,
+    numStations: numStationsSelector(state),
+    competitorLimit: competitorLimitSelector(state),
+  });
+
+  const startTimes = startTimesSelector(state);
+
+  const defaultWcifSchedule = reorderFromWcif({
+    schedule: getDefaultSchedule(
+      defaultWcifEvents,
+      numberOfDaysSelector(state),
+      numOtherActivitiesSelector(state)
+    ),
+    wcifSchedule: wcif.schedule,
+    firstStartTime: startTimes[0],
+  });
+
+  const schedule = scheduleSelector(state);
+
+  return deepEquals(schedule, defaultWcifSchedule);
 };
 
 export const numCompetitorsRegisteredSelector = (state: State) => {

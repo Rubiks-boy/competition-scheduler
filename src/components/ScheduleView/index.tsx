@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Button,
   Grid,
   ToggleButton,
   ToggleButtonGroup,
@@ -14,6 +15,7 @@ import { TimePicker } from "../TimePicker";
 import classNames from "classnames";
 
 import "./index.css";
+import { ResetScheduleButtons } from "../EventsView/ResetScheduleButtons";
 
 const ScheduleView = () => {
   const dispatch = useDispatch();
@@ -30,20 +32,28 @@ const ScheduleView = () => {
   };
   return (
     <div className={classNames({ "schedule--evenlySpaced": evenlySpaced })}>
-      <Grid container spacing={2}>
-        <Grid item xs={8}>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Grid item>
           <Typography variant="h6">Rearrange events</Typography>
         </Grid>
-        {numberOfDays === 1 && (
-          <Grid item xs={3}>
+        <Grid item sx={{ display: "flex", gap: "1em" }}>
+          <ResetScheduleButtons />
+          {numberOfDays === 1 && (
             <TimePicker
+              sx={{ width: "auto" }}
               label="Start time"
               time={startTimes[0]}
               onChange={onStartTimeChange}
             />
-          </Grid>
-        )}
-        <Grid item xs={1} sx={{ marginLeft: "auto" }}>
+          )}
           <ToggleButtonGroup
             value={evenlySpaced ? [] : ["expand"]}
             onChange={() => setEvenlySpaced(!evenlySpaced)}
