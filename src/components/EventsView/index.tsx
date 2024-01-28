@@ -81,6 +81,7 @@ const EventsView = () => {
           <Event
             key={eventId}
             eventId={eventId}
+            numRegistered={event.numRegistered}
             rounds={event.rounds}
             numStations={numStations}
             makeOnUpdateRound={makeOnUpdateRound}

@@ -22,6 +22,7 @@ type EventProps = {
   eventId: EventId;
   rounds: Array<Round>;
   numStations: number;
+  numRegistered: number;
   makeOnUpdateRound: (
     eventId: EventId,
     roundIndex: number
@@ -38,6 +39,7 @@ export const Event = ({
   eventId,
   rounds,
   numStations,
+  numRegistered,
   makeOnUpdateRound,
   onAddRound,
   onRemoveRound,
@@ -53,6 +55,7 @@ export const Event = ({
       numStations={numStations}
       onUpdateRound={makeOnUpdateRound(round.eventId, roundNum)}
       numCompetitorsInt={numCompetitorsPerRound[roundNum]}
+      numRegistered={numRegistered}
     />
   ));
 
