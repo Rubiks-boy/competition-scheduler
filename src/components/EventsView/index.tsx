@@ -59,9 +59,9 @@ const EventsView = () => {
         <ResetEventsButton />
       </Box>
       {EVENT_IDS.map((eventId) => {
-        const rounds = events[eventId];
+        const event = events[eventId];
 
-        if (rounds === null) {
+        if (event === null) {
           return null;
         }
 
@@ -81,7 +81,7 @@ const EventsView = () => {
           <Event
             key={eventId}
             eventId={eventId}
-            rounds={rounds}
+            rounds={event.rounds}
             numStations={numStations}
             makeOnUpdateRound={makeOnUpdateRound}
             onAddRound={onAddRound}

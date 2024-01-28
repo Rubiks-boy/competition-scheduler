@@ -32,6 +32,7 @@ import {
   WcifRoom,
   WcifRound,
   WcifSchedule,
+  WcifPerson,
   WithTime,
 } from "../types";
 import {
@@ -45,6 +46,7 @@ import {
   constructActivityString,
   findNthOccurrence,
   makeDefaultEvents,
+  numPersonsRegisteredForEvent,
   range,
 } from "./utils";
 
@@ -75,7 +77,8 @@ const wcifRoundsToEventRounds = (
   eventId: EventId,
   competitorLimit: number,
   numStations: number,
-  wcifSchedule: WcifSchedule
+  wcifSchedule: WcifSchedule,
+  wcifPersons: Array<WcifPerson>
 ): Array<Round> => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
@@ -111,6 +114,8 @@ const wcifRoundsToEventRounds = (
 
     const scheduledTime = calcTimeForRound(eventId, numGroups);
 
+    const numRegistered = numPersonsRegisteredForEvent(eventId, wcifPersons);
+
     const scheduleEntry = {
       eventId,
       numCompetitors:
@@ -118,6 +123,7 @@ const wcifRoundsToEventRounds = (
       numGroups: numGroups.toString(),
       scheduledTime: scheduledTime.toString(),
       roundNum,
+      numRegistered,
     };
 
     const wcifActivity = findMatchingWcifActivity({
@@ -203,13 +209,17 @@ export const getDefaultEventsData = ({
         parseInt(a.id[a.id.indexOf("-r") + 2]) -
         parseInt(b.id[b.id.indexOf("-r") + 2])
     );
-    events[id] = wcifRoundsToEventRounds(
-      sortedRounds,
-      id,
-      competitorLimit || 0,
-      numStations,
-      wcif.schedule
-    );
+    events[id] = {
+      rounds: wcifRoundsToEventRounds(
+        sortedRounds,
+        id,
+        competitorLimit || 0,
+        numStations,
+        wcif.schedule,
+        wcif.persons
+      ),
+      numRegistered: numPersonsRegisteredForEvent(id, wcif.persons),
+    };
   });
 
   return events;
@@ -320,7 +330,7 @@ export const getDefaultSchedule = (
   numOtherActivities: Record<OtherActivity, string>
 ): Schedule => {
   const scheduleEvents = EVENT_IDS.flatMap((eventId) =>
-    (events[eventId] || []).map((_, roundNum) => ({
+    (events[eventId] || { rounds: [] }).rounds.map((_, roundNum) => ({
       type: "event" as const,
       eventId,
       roundNum,
@@ -464,15 +474,15 @@ export const createWcifEvents = (
   originalWcifEvents: Array<WcifEvent>
 ): Array<WcifEvent> =>
   Object.entries(events)
-    .filter(([_, rounds]) => rounds?.length)
-    .map(([eventId, rounds]) => {
+    .filter(([_, event]) => event?.rounds.length)
+    .map(([eventId, event]) => {
       const originalWcifEvent = originalWcifEvents.find(
         ({ id }) => id === eventId
       );
 
       return createWcifEvent(
         eventId as EventId,
-        rounds ?? [],
+        event?.rounds ?? [],
         originalWcifEvent
       );
     });

@@ -94,12 +94,12 @@ export const stagesInUseSelector = (state: State) => {
 
 export const isEventsPageValidSelector = (state: State) => {
   // Check that all the durations of each round are increments of 5 min
-  const scheduledRoundTimes = Object.values(state.events).flatMap((rounds) => {
-    if (!rounds) {
+  const scheduledRoundTimes = Object.values(state.events).flatMap((event) => {
+    if (event === null) {
       return [];
     }
 
-    return rounds.map((round) => round.scheduledTime);
+    return event.rounds.map((round) => round.scheduledTime);
   });
   const scheduledOtherTimes = Object.values(state.otherActivities);
   const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
@@ -184,8 +184,8 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
 
   let isDefault = true;
 
-  Object.entries(events).forEach(([eventId, rounds]) => {
-    rounds?.forEach((round) => {
+  Object.entries(events).forEach(([eventId, event]) => {
+    event?.rounds.forEach((round) => {
       const { numCompetitors, numGroups, scheduledTime } = round;
 
       const defaultNumGroups = calcNumGroups({
