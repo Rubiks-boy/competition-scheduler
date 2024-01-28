@@ -12,10 +12,15 @@ import {
   ScheduleWithTimes,
 } from "../types";
 
-export const compPerStationsRatio = (round: Round, numStations: number) => {
-  const numCompetitors = parseInt(round.numCompetitors || "0");
-  const numGroups = parseInt(round.numGroups || "0");
-
+export const compPerStationsRatio = ({
+  numCompetitors,
+  numGroups,
+  numStations,
+}: {
+  numCompetitors: number;
+  numGroups: number;
+  numStations: number;
+}) => {
   if (!numCompetitors || !numGroups) {
     return "";
   }

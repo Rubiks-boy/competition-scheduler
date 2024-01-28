@@ -40,21 +40,33 @@ import {
   calcScheduleTimes,
   calcTimeForRound,
 } from "./calculators";
-import { constructActivityString, makeDefaultEvents, range } from "./utils";
+import {
+  calcNumCompetitorsPerRound,
+  constructActivityString,
+  makeDefaultEvents,
+  range,
+} from "./utils";
 
-const getAdvancementLevelForRound = (
+const getAdvancementForRound = (
   wcifRounds: Array<WcifRound>,
   roundNum: number
 ) => {
   // ex. if roundNum is 2, will find the event with 'eventId-r2'
   const round = wcifRounds.find(({ id }) => id.includes(`-r${roundNum}`));
 
-  // TODO: other types currently not supported
-  if (round?.advancementCondition?.type !== "ranking") {
-    return 0;
+  if (
+    !round?.advancementCondition?.type ||
+    round.advancementCondition.type === "attemptResult"
+  ) {
+    // Attempt results-based advancements are currently not supported.
+    // Return a dummy value
+    return { level: 0, type: "ranking" };
   }
 
-  return round?.advancementCondition?.level;
+  return {
+    level: round.advancementCondition.level,
+    type: round.advancementCondition.type,
+  };
 };
 
 const wcifRoundsToEventRounds = (
@@ -64,56 +76,69 @@ const wcifRoundsToEventRounds = (
   numStations: number,
   wcifSchedule: WcifSchedule
 ): Array<Round> => {
-  return wcifRounds
-    .map(({ id, extensions }) => {
-      // ex. '333-r2' -> 2
-      const roundNum = parseInt(id[id.indexOf("-r") + 2], 10);
+  const rounds: Array<Round> = [];
+  const numCompetitorsPerRound: Array<number> = [];
+  wcifRounds.forEach(({ extensions }, roundIndex) => {
+    const roundNum = roundIndex + 1;
 
-      const defaultNumCompetitors =
-        roundNum === 1
-          ? calcExpectedNumCompetitors(eventId, competitorLimit)
-          : getAdvancementLevelForRound(wcifRounds, roundNum - 1);
+    const extension = extensions.find(
+      ({ id }) => id === "competitionScheduler.RoundConfig"
+    ) as RoundExtension | undefined;
 
-      const extension = extensions.find(
-        ({ id }) => id === "competitionScheduler.RoundConfig"
-      ) as RoundExtension | undefined;
+    const { level, type } = getAdvancementForRound(wcifRounds, roundNum - 1);
 
-      const numCompetitors =
-        extension?.data.expectedRegistrations ?? defaultNumCompetitors;
-
-      const numGroups =
-        extension?.data.groupCount ??
-        calcNumGroups({ eventId, numCompetitors, numStations });
-
-      const scheduledTime = calcTimeForRound(eventId, numGroups);
-
-      const scheduleEntry = {
-        eventId,
-        numCompetitors: numCompetitors.toString(),
-        numGroups: numGroups.toString(),
-        scheduledTime: scheduledTime.toString(),
-        roundNum,
-      };
-
-      const wcifActivity = findMatchingWcifActivity(
-        wcifSchedule,
-        "event",
-        eventId,
-        roundNum
+    let numCompetitors: number;
+    if (type === "percent") {
+      numCompetitors = Math.floor(
+        (numCompetitorsPerRound[roundNum - 1] * level) / 100
       );
-      if (wcifActivity) {
-        const wcifScheduledTime =
-          new Date(wcifActivity.endTime).getTime() -
-          new Date(wcifActivity.startTime).getTime();
+    } else if (extension?.data.expectedRegistrations) {
+      numCompetitors = extension?.data.expectedRegistrations;
+    } else if (roundNum === 1) {
+      numCompetitors = calcExpectedNumCompetitors(eventId, competitorLimit);
+    } else {
+      numCompetitors = level;
+    }
 
-        scheduleEntry.scheduledTime = `${Math.floor(
-          wcifScheduledTime / 1000 / 60
-        )}`;
-      }
+    const numGroups =
+      extension?.data.groupCount ??
+      calcNumGroups({
+        eventId,
+        numCompetitors,
+        numStations,
+      });
 
-      return scheduleEntry;
-    })
-    .sort((a, b) => a.roundNum - b.roundNum);
+    const scheduledTime = calcTimeForRound(eventId, numGroups);
+
+    const scheduleEntry = {
+      eventId,
+      numCompetitors:
+        type === "percent" ? `${level}%` : numCompetitors.toString(),
+      numGroups: numGroups.toString(),
+      scheduledTime: scheduledTime.toString(),
+      roundNum,
+    };
+
+    const wcifActivity = findMatchingWcifActivity(
+      wcifSchedule,
+      "event",
+      eventId,
+      roundNum
+    );
+    if (wcifActivity) {
+      const wcifScheduledTime =
+        new Date(wcifActivity.endTime).getTime() -
+        new Date(wcifActivity.startTime).getTime();
+
+      scheduleEntry.scheduledTime = `${Math.floor(
+        wcifScheduledTime / 1000 / 60
+      )}`;
+    }
+
+    numCompetitorsPerRound.push(numCompetitors);
+    rounds.push(scheduleEntry);
+  });
+  return rounds;
 };
 
 export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
@@ -171,8 +196,14 @@ export const getDefaultEventsData = ({
   const events = makeDefaultEvents();
 
   wcifEvents.forEach(({ id, rounds }) => {
+    // Sort based on round number
+    const sortedRounds = [...rounds].sort(
+      (a, b) =>
+        parseInt(a.id[a.id.indexOf("-r") + 2]) -
+        parseInt(b.id[b.id.indexOf("-r") + 2])
+    );
     events[id] = wcifRoundsToEventRounds(
-      rounds,
+      sortedRounds,
       id,
       competitorLimit || 0,
       numStations,
@@ -343,21 +374,23 @@ const createWcifEvent = (
   rounds: Array<Round>,
   originalWcifEvent: WcifEvent | undefined
 ): WcifEvent => {
+  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
+
   return {
     ...getDefaultWcifEvent(eventId),
     ...originalWcifEvent,
     rounds: rounds.map((round, index) => {
-      const numAdvancingCompetitors = parseInt(
+      const advancementLevel = parseInt(
         rounds[index + 1]?.numCompetitors || "0"
       );
-      const advancementCondition: AdvancementCondition | null =
-        numAdvancingCompetitors
-          ? // TODO support other types of advancement conditions
-            {
-              type: "ranking",
-              level: numAdvancingCompetitors,
-            }
-          : null;
+      const isPercent = rounds[index + 1]?.numCompetitors.endsWith("%");
+
+      const advancementCondition: AdvancementCondition | null = advancementLevel
+        ? {
+            type: isPercent ? "percent" : "ranking",
+            level: advancementLevel,
+          }
+        : null;
 
       const originalRound = originalWcifEvent?.rounds.find(
         ({ id }) => id === `${eventId}-r${index + 1}`
@@ -367,7 +400,7 @@ const createWcifEvent = (
         id: "competitionScheduler.RoundConfig",
         specUrl: EXTENSIONS_SPEC_URL,
         data: {
-          expectedRegistrations: parseInt(round.numCompetitors) ?? null,
+          expectedRegistrations: numCompetitorsPerRound[index] ?? null,
           groupCount: parseInt(round.numGroups) ?? null,
         },
       };

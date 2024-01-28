@@ -16,6 +16,7 @@ import { EVENT_NAMES } from "../../constants";
 import { EventId } from "@wca/helpers";
 import { Round } from "../../types";
 import { RoundRow } from "./RoundRow";
+import { calcNumCompetitorsPerRound } from "../../utils/utils";
 
 type EventProps = {
   eventId: EventId;
@@ -42,7 +43,7 @@ export const Event = ({
   onRemoveRound,
 }: EventProps) => {
   const eventName = EVENT_NAMES[eventId];
-
+  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
   const roundRows = rounds.map((round, roundNum) => (
     <RoundRow
       key={`${round.eventId}-${roundNum}`}
@@ -51,6 +52,7 @@ export const Event = ({
       isFinal={roundNum === rounds.length - 1}
       numStations={numStations}
       onUpdateRound={makeOnUpdateRound(round.eventId, roundNum)}
+      numCompetitorsInt={numCompetitorsPerRound[roundNum]}
     />
   ));
 
