@@ -14,6 +14,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Tooltip,
+  InputAdornment,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import { Error } from "@mui/icons-material";
@@ -69,26 +70,31 @@ const ActivityRow = ({
         </TableCell>
       )}
       <TableCell sx={{ width: "30%" }}>
-        <div
-          className={classNames("events-editScheduledTime", {
-            "events-editScheduledTime--showTooltip":
-              enabled && parseInt(time) % 5,
-          })}
-        >
-          <TextField
-            hiddenLabel
-            size="small"
-            type="number"
-            disabled={!enabled}
-            value={enabled ? time : ""}
-            onChange={(e) => onTimeChange(e.target.value)}
-            inputProps={{ autoFocus: true, step: "5" }}
-            fullWidth
-          />
-          <Tooltip title="Must be in increments of 5 minutes">
-            <Error color="error" fontSize="small" />
-          </Tooltip>
-        </div>
+        <TextField
+          hiddenLabel
+          size="small"
+          type="number"
+          disabled={!enabled}
+          value={enabled ? time : ""}
+          onChange={(e) => onTimeChange(e.target.value)}
+          inputProps={{ autoFocus: true, step: "5" }}
+          fullWidth
+          InputProps={{
+            endAdornment: (
+              <InputAdornment
+                position="end"
+                sx={{
+                  visibility:
+                    enabled && parseInt(time) % 5 ? "visible" : "hidden",
+                }}
+              >
+                <Tooltip title="Must be in increments of 5 minutes">
+                  <Error color="error" fontSize="small" />
+                </Tooltip>
+              </InputAdornment>
+            ),
+          }}
+        />
       </TableCell>
     </TableRow>
   );
