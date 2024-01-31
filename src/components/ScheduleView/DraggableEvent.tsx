@@ -24,12 +24,14 @@ export const DraggableEvent = ({
   colors,
   scheduleWithTimes,
   id,
+  isBeingCombinedWith,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
   index: number;
   colors: Partial<Record<EventId | OtherActivity, Color>>;
   scheduleWithTimes: ScheduleWithTimes;
   id: string;
+  isBeingCombinedWith: boolean;
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const round = useSelector(
@@ -117,6 +119,7 @@ export const DraggableEvent = ({
                   </div>
                 );
               })}
+            {isBeingCombinedWith && "Simultaneous"}
           </Box>
         </ListItem>
       )}

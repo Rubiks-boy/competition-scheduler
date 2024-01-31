@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { List, Color } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import {
   DragDropContext,
   Droppable,
   OnDragEndResponder,
+  OnDragUpdateResponder,
 } from "react-beautiful-dnd";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
@@ -48,6 +49,10 @@ export const ReorderEvents = () => {
   const otherActivities = useSelector(otherActivitiesSelector);
   const numberOfDays = useSelector(numberOfDaysSelector);
 
+  const [idBeingCombinedWith, setIdBeingCombinedWith] = useState<string | null>(
+    null
+  );
+
   const colors = useMemo(() => {
     return getColorsForActivities(schedule);
     // Purposely excluding schedule from the dep array so that
@@ -55,16 +60,97 @@ export const ReorderEvents = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDragEnd: OnDragEndResponder = (result) => {
-    // dropped outside the list
-    if (!result.destination) {
-      return;
+  const scheduleWithTimes = calcScheduleTimes(
+    startTimes,
+    schedule,
+    events,
+    otherActivities
+  );
+
+  const draggableIds = scheduleWithTimes.map((scheduleEntry) => {
+    if (scheduleEntry.type === "day-divider") {
+      return `day-divider-${scheduleEntry.dayIndex}`;
+    } else if (scheduleEntry.type === "event") {
+      return `${scheduleEntry.eventId}-${scheduleEntry.roundNum}`;
+    } else {
+      return `other-${scheduleEntry.eventId}-${
+        "index" in scheduleEntry ? scheduleEntry.index : "0"
+      }`;
     }
-    dispatch({
-      type: "REORDER_ROUND",
-      oldIndex: result.source.index,
-      newIndex: result.destination.index,
-    });
+  });
+
+  const onDragUpdate: OnDragUpdateResponder = (update) => {
+    const combinedWithId = update.combine?.draggableId ?? null;
+
+    const canSetId = (): boolean => {
+      const sourceIndex = update.source.index;
+      const destDraggableId = update.combine?.draggableId;
+      if (!destDraggableId) {
+        return false;
+      }
+      const destIndex = draggableIds.indexOf(destDraggableId);
+
+      const sourceScheduleEntry = schedule[sourceIndex];
+      const destScheduleEntry = schedule[destIndex];
+
+      if (
+        sourceScheduleEntry.type !== "event" ||
+        destScheduleEntry.type !== "event"
+      ) {
+        return false;
+      }
+
+      const hasMatchingSimul = (
+        entry1: ScheduleEntry & { type: "event" },
+        entry2: ScheduleEntry & { type: "event" }
+      ) => {
+        const round = events[entry1.eventId]?.[entry1.roundNum];
+        return (
+          round &&
+          round.simulGroups.some(
+            ({ mainRound }) =>
+              mainRound.eventId === entry2.eventId &&
+              mainRound.roundNum === entry2.roundNum
+          )
+        );
+      };
+
+      const isSimulRoundsOfSameEvent =
+        sourceScheduleEntry.eventId === destScheduleEntry.eventId;
+
+      const hasMatchingSimulEvent =
+        hasMatchingSimul(sourceScheduleEntry, destScheduleEntry) ||
+        hasMatchingSimul(destScheduleEntry, sourceScheduleEntry);
+
+      // Can't make an already-simul event simul.
+      return !isSimulRoundsOfSameEvent && !hasMatchingSimulEvent;
+    };
+
+    setIdBeingCombinedWith(canSetId() ? combinedWithId : null);
+  };
+
+  const onDragEnd: OnDragEndResponder = (result) => {
+    if (result.destination) {
+      dispatch({
+        type: "REORDER_ROUND",
+        oldIndex: result.source.index,
+        newIndex: result.destination.index,
+      });
+    } else if (result.combine) {
+      const { draggableId } = result.combine;
+      const combinedWithIndex = draggableIds.indexOf(draggableId);
+
+      if (draggableId.startsWith("day-divider") || !combinedWithIndex) {
+        return;
+      }
+
+      dispatch({
+        type: "CREATE_SIMUL_ROUND",
+        sourceIndex: result.source.index,
+        destinationIndex: draggableIds.indexOf(result.combine.draggableId),
+      });
+      setIdBeingCombinedWith(null);
+    }
   };
 
   const onStartTimeChange = (dayIndex: number) => (startTime: Date) => {
@@ -75,17 +161,10 @@ export const ReorderEvents = () => {
     });
   };
 
-  const scheduleWithTimes = calcScheduleTimes(
-    startTimes,
-    schedule,
-    events,
-    otherActivities
-  );
-
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable">
-        {(provided, snapshot) => (
+    <DragDropContext onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
+      <Droppable droppableId="droppable" isCombineEnabled>
+        {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             <List>
               {scheduleWithTimes.map((scheduleEntry, index) => {
@@ -122,6 +201,7 @@ export const ReorderEvents = () => {
                     index={index}
                     colors={colors}
                     scheduleWithTimes={scheduleWithTimes}
+                    isBeingCombinedWith={id === idBeingCombinedWith}
                   />
                 );
               })}
