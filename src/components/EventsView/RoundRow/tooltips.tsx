@@ -49,14 +49,12 @@ export const RegDiffTooltip = ({
   regDiffPercent: number;
 }) => {
   return (
-    <InputAdornment position="end">
-      <Tooltip title={`Number of competitors registered: ${numRegistered}`}>
-        {regDiffPercent > 0.2 ? (
-          <Warning color="warning" fontSize="small" />
-        ) : (
-          <Info color="info" fontSize="small" />
-        )}
-      </Tooltip>
-    </InputAdornment>
+    <Tooltip title={`Number of competitors registered: ${numRegistered}`}>
+      {regDiffPercent > 0.2 ? (
+        <Warning color="warning" fontSize="small" />
+      ) : (
+        <Info color="info" fontSize="small" />
+      )}
+    </Tooltip>
   );
 };

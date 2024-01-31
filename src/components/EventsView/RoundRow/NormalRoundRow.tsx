@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   IconButton,
+  InputAdornment,
   TableCell,
   TableRow,
   TextField,
@@ -8,7 +9,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Edit } from "@mui/icons-material";
-import { EVENT_NAMES } from "../../../constants";
 import {
   calcTimeForRound,
   compPerStationsRatio,
@@ -16,6 +16,7 @@ import {
 import classNames from "classnames";
 import { RegDiffTooltip, TimeDiffTooltip } from "./tooltips";
 import type { RoundRowProps } from "./types";
+import { getRoundName } from "./helpers";
 
 export const NormalRoundRow = ({
   round,
@@ -40,7 +41,7 @@ export const NormalRoundRow = ({
   return (
     <TableRow key={`${eventId}-${roundNum}`}>
       <TableCell component="th" scope="row" sx={{ minWidth: "10em" }}>
-        {EVENT_NAMES[eventId]} {isFinal ? "Final" : `Round ${roundNum + 1}`}
+        {getRoundName(eventId, roundNum, isFinal)}
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%" }}>
         <div
@@ -60,10 +61,12 @@ export const NormalRoundRow = ({
             }}
             InputProps={{
               endAdornment: roundNum === 0 && numRegistered > 0 && (
-                <RegDiffTooltip
-                  regDiffPercent={regDiffPercent}
-                  numRegistered={numRegistered}
-                />
+                <InputAdornment position="end">
+                  <RegDiffTooltip
+                    regDiffPercent={regDiffPercent}
+                    numRegistered={numRegistered}
+                  />
+                </InputAdornment>
               ),
             }}
           />
