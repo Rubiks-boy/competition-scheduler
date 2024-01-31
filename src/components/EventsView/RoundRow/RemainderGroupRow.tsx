@@ -1,20 +1,19 @@
 import { TableCell, TableRow, TextField, Typography } from "@mui/material";
 import type { EventId, Round } from "../../../types";
 import { compPerStationsRatio } from "../../../utils/calculators";
+import { ScheduledTimeInput } from "./ScheduledTimeInput";
 
 export const RemainderGroupRow = ({
   round,
   eventId,
   roundNum,
-  simulGroup,
   onUpdate,
   numStations,
 }: {
   round: Round;
   eventId: EventId;
   roundNum: number;
-  simulGroup: SimulGroup;
-  onUpdate: (field: "numGroups", value: string) => void;
+  onUpdate: (field: "numGroups" | "scheduledTime", value: string) => void;
   numStations: number;
 }) => {
   const totalSimulCompetitors = round.simulGroups.reduce(
@@ -49,7 +48,12 @@ export const RemainderGroupRow = ({
         })}
       </TableCell>
       <TableCell sx={{ minWidth: "10em", width: "20%" }}>
-        <Typography>{simulGroup.mainRound.scheduledTime}</Typography>
+        <ScheduledTimeInput
+          isEditingTime={true}
+          setEditingTime={() => {}}
+          round={round}
+          onChange={(value) => onUpdate("scheduledTime", value)}
+        />
       </TableCell>
     </TableRow>
   );

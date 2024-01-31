@@ -39,7 +39,6 @@ export const SimulRoundRow = ({
         round={round}
         eventId={round.eventId}
         roundNum={roundNum}
-        simulGroup={round.simulGroups[0]}
         onUpdate={(field, value) => onUpdateRound(field, value, true)}
         numStations={numStations}
       />

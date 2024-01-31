@@ -1,21 +1,13 @@
 import { useState } from "react";
-import {
-  IconButton,
-  TableCell,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { Edit } from "@mui/icons-material";
+import { TableCell, TableRow, TextField } from "@mui/material";
 import {
   calcTimeForRound,
   compPerStationsRatio,
 } from "../../../utils/calculators";
-import { TimeDiffTooltip } from "./tooltips";
 import type { RoundRowProps } from "./types";
 import { getRoundName } from "./helpers";
 import { NumCompetitorsInput } from "./NumCompetitorsInput";
+import { ScheduledTimeInput } from "./ScheduledTimeInput";
 
 export const NormalRoundRow = ({
   round,
@@ -77,35 +69,14 @@ export const NormalRoundRow = ({
         })}
       </TableCell>
       <TableCell sx={{ minWidth: "10em", width: "20%" }}>
-        {isEditingTime ? (
-          <TextField
-            hiddenLabel
-            size="small"
-            type="number"
-            value={scheduledTime}
-            onChange={(e) =>
-              onUpdateRound("scheduledTime", e.target.value, isEditingTime)
-            }
-            inputProps={{ autoFocus: true, step: "5" }}
-            InputProps={{
-              endAdornment: scheduledTime && (
-                <TimeDiffTooltip
-                  calculatedTime={calculatedTime}
-                  timeDiff={timeDiff}
-                />
-              ),
-            }}
-          />
-        ) : (
-          <div className="events-scheduledTime">
-            <Typography>{scheduledTime}</Typography>
-            <IconButton onClick={() => setIsEditingTime(true)}>
-              <Tooltip title="Edit scheduled time">
-                <Edit color={"action"} fontSize="small" />
-              </Tooltip>
-            </IconButton>
-          </div>
-        )}
+        <ScheduledTimeInput
+          isEditingTime={isEditingTime}
+          setEditingTime={() => setIsEditingTime(true)}
+          round={round}
+          onChange={(value) =>
+            onUpdateRound("scheduledTime", value, isEditingTime)
+          }
+        />
       </TableCell>
     </TableRow>
   );
