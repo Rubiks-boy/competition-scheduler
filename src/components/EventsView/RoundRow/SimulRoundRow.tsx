@@ -62,11 +62,11 @@ export const SimulRoundRow = ({
         return (
           <SimulGroupRow
             eventId={inverseSimulGroup.eventId}
-            roundNum={inverseSimulGroup.roundNum}
+            roundNum={inverseSimulGroup.roundNum - 1}
             simulGroup={simulGroup}
             onUpdate={makeOnUpdateSimulRound(
               inverseSimulGroup.eventId,
-              inverseSimulGroup.roundNum,
+              inverseSimulGroup.roundNum - 1,
               simulGroup.mainRound
             )}
             numStations={numStations}

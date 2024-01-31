@@ -1,4 +1,6 @@
 import {
+  ACTIVITY_NAMES,
+  EVENT_NAMES,
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
   TIME_PER_GROUP,
@@ -80,6 +82,9 @@ export const calcRoundNum = (roundIndex: number, rounds: Array<Round>) => {
 
   return numPrecedingRounds + 1;
 };
+
+export const getEventName = (eventId: EventId | OtherActivity) =>
+  ({ ...EVENT_NAMES, ...ACTIVITY_NAMES }[eventId]);
 
 export const getRoundNumStr = (
   eventId: EventId,

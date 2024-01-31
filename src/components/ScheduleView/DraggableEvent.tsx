@@ -3,7 +3,7 @@ import { grey } from "@mui/material/colors";
 import { Draggable } from "react-beautiful-dnd";
 import { formatTime } from "../../utils/formatTime";
 import { ACTIVITY_NAMES, EVENT_NAMES } from "../../constants";
-import { getRoundNumStr } from "../../utils/calculators";
+import { getEventName, getRoundNumStr } from "../../utils/calculators";
 import type {
   EventId,
   OtherActivity,
@@ -11,6 +11,8 @@ import type {
   ScheduleEntry,
   ScheduleWithTimes,
 } from "../../types";
+import { useSelector } from "../../app/hooks";
+import { roundSelector } from "../../app/selectors";
 
 // in ems
 const MIN_HEIGHT = 3;
@@ -30,6 +32,11 @@ export const DraggableEvent = ({
   id: string;
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const round = useSelector(
+    scheduleEntry.type === "event"
+      ? roundSelector(scheduleEntry.eventId, scheduleEntry.roundNum)
+      : () => null
+  );
 
   const { startTime, endTime, type } = scheduleEntry;
 
@@ -42,11 +49,6 @@ export const DraggableEvent = ({
       Math.max(scheduledTimeMs, 15 * 60000)
     )
   );
-
-  const eventName =
-    type === "event"
-      ? EVENT_NAMES[scheduleEntry.eventId]
-      : ACTIVITY_NAMES[scheduleEntry.eventId];
 
   const roundNumStr =
     type === "event"
@@ -87,11 +89,34 @@ export const DraggableEvent = ({
         >
           <Box>
             <Typography variant="body1">
-              {`${eventName}${roundNumStr}`}
+              {`${getEventName(scheduleEntry.eventId)}${roundNumStr}`}
             </Typography>
             <Typography variant="body2">
               {`${formatTime(startTime)}-${formatTime(endTime)}`}
             </Typography>
+            {round &&
+              round.simulGroups.map((simulGroup) => {
+                const numSimulGroups = parseInt(simulGroup.mainRound.numGroups);
+                const groupString =
+                  numSimulGroups > 1
+                    ? `Groups ${simulGroup.groupOffset + 1}–${
+                        simulGroup.groupOffset + numSimulGroups
+                      }`
+                    : `Group ${simulGroup.groupOffset + 1}`;
+                return (
+                  <div
+                    key={`${simulGroup.mainRound.eventId}-${simulGroup.mainRound.roundNum}`}
+                  >
+                    {getEventName(simulGroup.mainRound.eventId)}{" "}
+                    {getRoundNumStr(
+                      simulGroup.mainRound.eventId,
+                      simulGroup.mainRound.roundNum,
+                      scheduleWithTimes
+                    )}{" "}
+                    {groupString}
+                  </div>
+                );
+              })}
           </Box>
         </ListItem>
       )}

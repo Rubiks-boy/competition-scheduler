@@ -47,6 +47,13 @@ export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
 
+export const roundSelector =
+  (eventId: EventId, roundNum: number) =>
+  (state: State): Round | null => {
+    const events = eventsSelector(state);
+    return events[eventId]?.[roundNum] ?? null;
+  };
+
 export const addableEventIdsSelector = (state: State) => {
   const events = eventsSelector(state);
   return EVENT_IDS.filter((eventId) => events[eventId] === null);
