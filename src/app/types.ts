@@ -101,7 +101,7 @@ export type Action =
       eventId: EventId;
       roundNum: number;
       isEditingTime: boolean;
-      numCompetitors?: string;
+      totalNumCompetitors?: string;
       numGroups?: string;
       scheduledTime?: string;
     }

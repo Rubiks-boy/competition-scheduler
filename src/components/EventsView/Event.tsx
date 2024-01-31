@@ -27,7 +27,7 @@ type EventProps = {
     eventId: EventId,
     roundIndex: number
   ) => (
-    field: "numCompetitors" | "numGroups" | "scheduledTime",
+    field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
     value: string,
     isEditingTime: boolean
   ) => void;

@@ -15,6 +15,7 @@ export const SimulRoundRow = ({
         roundNum={roundNum}
         isFinal={isFinal}
         numRegistered={numRegistered}
+        onUpdate={() => {}}
       />
       {round.simulGroups.map((simulGroup) => (
         <SimulGroupRow

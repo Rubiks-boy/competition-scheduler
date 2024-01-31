@@ -51,7 +51,7 @@ export type SimulGroup = {
 
 export type Round = {
   eventId: EventId;
-  numCompetitors: string;
+  totalNumCompetitors: string;
   numGroups: string;
   scheduledTime: string;
   simulGroups: Array<SimulGroup>;

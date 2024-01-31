@@ -198,10 +198,10 @@ const reducer: Reducer = (state, action) => {
         }
 
         const resetRounds = rounds.map((round) => {
-          const { numCompetitors } = round;
+          const { totalNumCompetitors } = round;
           const defaultNumGroups = calcNumGroups({
             eventId,
-            numCompetitors: parseInt(numCompetitors),
+            numCompetitors: parseInt(totalNumCompetitors),
             numStations: numStationsSelector(state),
           });
           const defaultScheduledTime = calcTimeForRound(
@@ -210,7 +210,7 @@ const reducer: Reducer = (state, action) => {
           );
           return {
             eventId,
-            numCompetitors,
+            totalNumCompetitors,
             numGroups: `${defaultNumGroups}`,
             scheduledTime: `${defaultScheduledTime}`,
             simulGroups: [],
@@ -368,7 +368,8 @@ const reducer: Reducer = (state, action) => {
 
       const updatedRound = {
         ...oldRound,
-        numCompetitors: action.numCompetitors ?? oldRound.numCompetitors,
+        totalNumCompetitors:
+          action.totalNumCompetitors ?? oldRound.totalNumCompetitors,
         numGroups: action.numGroups ?? oldRound.numGroups,
         scheduledTime: action.scheduledTime ?? oldRound.scheduledTime,
       };
@@ -431,7 +432,7 @@ const reducer: Reducer = (state, action) => {
           [eventId]: [
             {
               eventId,
-              numCompetitors: numCompetitors.toString(),
+              totalNumCompetitors: numCompetitors.toString(),
               numGroups: numGroups.toString(),
               scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
             },
@@ -474,7 +475,7 @@ const reducer: Reducer = (state, action) => {
 
       const roundToAdd: Round = {
         eventId: action.eventId,
-        numCompetitors: numCompetitors.toString(),
+        totalNumCompetitors: numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: calcTimeForRound(action.eventId, numGroups).toString(),
         simulGroups: [],

@@ -6,7 +6,7 @@ export type RoundRowProps = {
   isFinal: boolean;
   numStations: number;
   onUpdateRound: (
-    field: "numCompetitors" | "numGroups" | "scheduledTime",
+    field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
     value: string,
     isEditingTime: boolean
   ) => void;

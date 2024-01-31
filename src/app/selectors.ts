@@ -193,7 +193,11 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
 
   Object.entries(events).forEach(([eventId, rounds]) => {
     rounds?.forEach((round) => {
-      const { numCompetitors, numGroups, scheduledTime } = round;
+      const {
+        totalNumCompetitors: numCompetitors,
+        numGroups,
+        scheduledTime,
+      } = round;
 
       const defaultNumGroups = calcNumGroups({
         eventId: eventId as EventId,

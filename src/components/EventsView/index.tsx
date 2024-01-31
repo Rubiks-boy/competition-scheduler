@@ -25,7 +25,7 @@ const EventsView = () => {
 
   const makeOnUpdateRound = (eventId: EventId, roundNum: number) => {
     return (
-      field: "numCompetitors" | "numGroups" | "scheduledTime",
+      field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
       value: string,
       isEditingTime: boolean
     ) => {

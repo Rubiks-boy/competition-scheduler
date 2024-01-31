@@ -118,7 +118,7 @@ const wcifRoundsToEventRounds = (
 
     const scheduleEntry = {
       eventId,
-      numCompetitors:
+      totalNumCompetitors:
         type === "percent" ? `${level}%` : numCompetitors.toString(),
       numGroups: numGroups.toString(),
       scheduledTime: scheduledTime.toString(),
@@ -422,9 +422,9 @@ const createWcifEvent = (
     ...originalWcifEvent,
     rounds: rounds.map((round, index) => {
       const advancementLevel = parseInt(
-        rounds[index + 1]?.numCompetitors || "0"
+        rounds[index + 1]?.totalNumCompetitors || "0"
       );
-      const isPercent = rounds[index + 1]?.numCompetitors.endsWith("%");
+      const isPercent = rounds[index + 1]?.totalNumCompetitors.endsWith("%");
 
       const advancementCondition: AdvancementCondition | null = advancementLevel
         ? {

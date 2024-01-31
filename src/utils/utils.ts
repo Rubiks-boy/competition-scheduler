@@ -88,8 +88,8 @@ export const deepEquals = (a: unknown, b: unknown) => {
 export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
   const numCompetitorsPerRound: Array<number> = [];
   rounds.forEach((round, roundNum) => {
-    const isPercent = round.numCompetitors.endsWith("%");
-    const advancement = parseInt(round.numCompetitors);
+    const isPercent = round.totalNumCompetitors.endsWith("%");
+    const advancement = parseInt(round.totalNumCompetitors);
 
     const numCopetitorsInt = isPercent
       ? Math.floor((numCompetitorsPerRound[roundNum - 1] * advancement) / 100)
