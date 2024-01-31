@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { calcTimeForRound } from "../../../utils/calculators";
 import { MainSimulRow } from "./MainSimulRow";
 import { RemainderGroupRow } from "./RemainderGroupRow";
 import { SimulGroupRow } from "./SimulGroupRow";
@@ -12,6 +14,14 @@ export const SimulRoundRow = ({
   makeOnUpdateSimulRound,
   numStations,
 }: RoundRowProps) => {
+  const calculatedTime = calcTimeForRound(
+    round.eventId,
+    parseInt(round.numGroups || "0")
+  );
+  const [isEditingTime, setIsEditingTime] = useState(
+    calculatedTime !== parseInt(round.scheduledTime)
+  );
+
   return (
     <>
       <MainSimulRow
@@ -19,8 +29,7 @@ export const SimulRoundRow = ({
         roundNum={roundNum}
         isFinal={isFinal}
         numRegistered={numRegistered}
-        // TODO: Pipe in isEditing
-        onUpdate={(field, value) => onUpdateRound(field, value, true)}
+        onUpdate={(field, value) => onUpdateRound(field, value, isEditingTime)}
       />
       {round.simulGroups.map((simulGroup) => (
         <SimulGroupRow
@@ -39,8 +48,10 @@ export const SimulRoundRow = ({
         round={round}
         eventId={round.eventId}
         roundNum={roundNum}
-        onUpdate={(field, value) => onUpdateRound(field, value, true)}
+        onUpdate={(field, value) => onUpdateRound(field, value, isEditingTime)}
         numStations={numStations}
+        isEditingTime={isEditingTime}
+        setEditingTime={() => setIsEditingTime(true)}
       />
     </>
   );

@@ -9,12 +9,16 @@ export const RemainderGroupRow = ({
   roundNum,
   onUpdate,
   numStations,
+  isEditingTime,
+  setEditingTime,
 }: {
   round: Round;
   eventId: EventId;
   roundNum: number;
   onUpdate: (field: "numGroups" | "scheduledTime", value: string) => void;
   numStations: number;
+  isEditingTime: boolean;
+  setEditingTime: () => void;
 }) => {
   const totalSimulCompetitors = round.simulGroups.reduce(
     (sum, { numCompetitors }) => sum + parseInt(numCompetitors),
@@ -49,8 +53,8 @@ export const RemainderGroupRow = ({
       </TableCell>
       <TableCell sx={{ minWidth: "10em", width: "20%" }}>
         <ScheduledTimeInput
-          isEditingTime={true}
-          setEditingTime={() => {}}
+          isEditingTime={isEditingTime}
+          setEditingTime={setEditingTime}
           round={round}
           onChange={(value) => onUpdate("scheduledTime", value)}
         />

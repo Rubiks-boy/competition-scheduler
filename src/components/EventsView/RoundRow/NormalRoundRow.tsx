@@ -25,7 +25,6 @@ export const NormalRoundRow = ({
     scheduledTime,
   } = round;
   const calculatedTime = calcTimeForRound(eventId, parseInt(numGroups || "0"));
-  const timeDiff = Math.abs(calculatedTime - parseInt(scheduledTime));
   const regDiffPercent = Math.abs(
     (numRegistered - numCompetitorsInt) / numRegistered
   );
