@@ -1,4 +1,6 @@
 import { useDispatch, useSelector } from "../../app/hooks";
+import { Typography } from "@mui/material";
+import { Box } from "@mui/system";
 import {
   addableEventIdsSelector,
   eventsSelector,
@@ -6,14 +8,17 @@ import {
   numRegisteredByEventSelector,
 } from "../../app/selectors";
 import { Event } from "./Event";
-import { EventId, EVENT_IDS } from "../../types";
-
-import "./index.css";
 import { OtherActivities } from "./OtherActivites";
 import { AddEvent } from "./AddEvent";
-import { Typography } from "@mui/material";
 import { ResetEventsButton } from "./ResetEventsButton";
-import { Box } from "@mui/system";
+import { EVENT_IDS } from "../../types";
+import type { EventId } from "../../types";
+import type {
+  UpdatableRoundField,
+  UpdatableSimulField,
+} from "./RoundRow/types";
+
+import "./index.css";
 
 const EventsView = () => {
   const dispatch = useDispatch();
@@ -25,7 +30,7 @@ const EventsView = () => {
 
   const makeOnUpdateRound = (eventId: EventId, roundNum: number) => {
     return (
-      field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
+      field: UpdatableRoundField,
       value: string,
       isEditingTime: boolean
     ) => {
@@ -44,7 +49,7 @@ const EventsView = () => {
     roundNum: number,
     mainRound: { eventId: EventId; roundNum: number }
   ) => {
-    return (field: "numCompetitors" | "numGroups", value: string) => {
+    return (field: UpdatableSimulField, value: string) => {
       dispatch({
         type: "UPDATE_SIMUL_ROUND",
         eventId,

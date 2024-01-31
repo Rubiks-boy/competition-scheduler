@@ -1,12 +1,23 @@
 import type { EventId, Round } from "../../../types";
 
+export type UpdatableRoundField =
+  | "totalNumCompetitors"
+  | "numGroups"
+  | "scheduledTime";
+
+export type UpdatableSimulField =
+  | "numCompetitors"
+  | "numMainCompetitors"
+  | "numGroups"
+  | "scheduledTime";
+
 export type RoundRowProps = {
   round: Round;
   roundNum: number;
   isFinal: boolean;
   numStations: number;
   onUpdateRound: (
-    field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
+    field: UpdatableRoundField,
     value: string,
     isEditingTime: boolean
   ) => void;
@@ -14,7 +25,7 @@ export type RoundRowProps = {
     eventId: EventId,
     roundNum: number,
     mainRound: { eventId: EventId; roundNum: number }
-  ) => (field: "numCompetitors" | "numGroups", value: string) => void;
+  ) => (field: UpdatableSimulField, value: string) => void;
   numCompetitorsInt: number;
   numRegistered: number;
 };

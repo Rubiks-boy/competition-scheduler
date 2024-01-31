@@ -1,8 +1,8 @@
 import { IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 import { TimeDiffTooltip } from "./tooltips";
-import type { Round } from "../../../types";
 import { calcTimeForRound } from "../../../utils/calculators";
+import type { EventId } from "../../../types";
 
 export const ScheduledTimeInput = ({
   round,
@@ -10,7 +10,11 @@ export const ScheduledTimeInput = ({
   onChange,
   setEditingTime,
 }: {
-  round: Round;
+  round: {
+    eventId: EventId;
+    numGroups: string;
+    scheduledTime: string;
+  };
   isEditingTime: boolean;
   onChange: (value: string) => void;
   setEditingTime: () => void;

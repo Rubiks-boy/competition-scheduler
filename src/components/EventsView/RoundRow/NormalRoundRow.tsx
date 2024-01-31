@@ -4,10 +4,10 @@ import {
   calcTimeForRound,
   compPerStationsRatio,
 } from "../../../utils/calculators";
-import type { RoundRowProps } from "./types";
 import { getRoundName } from "./helpers";
 import { NumCompetitorsInput } from "./NumCompetitorsInput";
 import { ScheduledTimeInput } from "./ScheduledTimeInput";
+import type { RoundRowProps } from "./types";
 
 export const NormalRoundRow = ({
   round,

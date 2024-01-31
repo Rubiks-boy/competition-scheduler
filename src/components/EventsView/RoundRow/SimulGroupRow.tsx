@@ -1,8 +1,14 @@
 import { TableCell, TableRow, TextField, Typography } from "@mui/material";
 import { getRoundName } from "./helpers";
 import type { EventId, SimulGroup } from "../../../types";
-import { compPerStationsRatio } from "../../../utils/calculators";
+import {
+  calcTimeForRound,
+  compPerStationsRatio,
+} from "../../../utils/calculators";
 import { SimulRatioTooltip } from "./tooltips";
+import { useState } from "react";
+import { ScheduledTimeInput } from "./ScheduledTimeInput";
+import type { UpdatableSimulField } from "./types";
 
 export const SimulGroupRow = ({
   eventId,
@@ -14,11 +20,24 @@ export const SimulGroupRow = ({
   eventId: EventId;
   roundNum: number;
   simulGroup: SimulGroup;
-  onUpdate: (field: "numCompetitors" | "numGroups", value: string) => void;
+  onUpdate: (field: UpdatableSimulField, value: string) => void;
   numStations: number;
 }) => {
-  const simulEvent = simulGroup.mainRound.eventId;
-  const simulRoundNum = simulGroup.mainRound.roundNum;
+  const {
+    eventId: simulEvent,
+    numGroups: simulGroups,
+    roundNum: simulRoundNum,
+    scheduledTime,
+  } = simulGroup.mainRound;
+
+  const calculatedTime = calcTimeForRound(
+    simulEvent,
+    parseInt(simulGroups || "0")
+  );
+  const [isEditingTime, setIsEditingTime] = useState(
+    calculatedTime !== parseInt(scheduledTime)
+  );
+
   const simulRoundName = getRoundName(
     simulEvent,
     simulRoundNum,
@@ -76,7 +95,12 @@ export const SimulGroupRow = ({
         />
       </TableCell>
       <TableCell sx={{ minWidth: "10em", width: "20%", borderBottom: "none" }}>
-        <Typography>{simulGroup.mainRound.scheduledTime}</Typography>
+        <ScheduledTimeInput
+          isEditingTime={isEditingTime}
+          setEditingTime={() => setIsEditingTime(true)}
+          round={simulGroup.mainRound}
+          onChange={(value) => onUpdate("scheduledTime", value)}
+        />
       </TableCell>
     </TableRow>
   );
