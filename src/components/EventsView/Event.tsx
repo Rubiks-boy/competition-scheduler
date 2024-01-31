@@ -31,6 +31,11 @@ type EventProps = {
     value: string,
     isEditingTime: boolean
   ) => void;
+  makeOnUpdateSimulRound: (
+    eventId: EventId,
+    roundNum: number,
+    mainRound: { eventId: EventId; roundNum: number }
+  ) => (field: "numCompetitors" | "numGroups", value: string) => void;
   onAddRound: () => void;
   onRemoveRound: () => void;
 };
@@ -41,6 +46,7 @@ export const Event = ({
   numStations,
   numRegistered,
   makeOnUpdateRound,
+  makeOnUpdateSimulRound,
   onAddRound,
   onRemoveRound,
 }: EventProps) => {
@@ -54,6 +60,7 @@ export const Event = ({
       isFinal={roundNum === rounds.length - 1}
       numStations={numStations}
       onUpdateRound={makeOnUpdateRound(round.eventId, roundNum)}
+      makeOnUpdateSimulRound={makeOnUpdateSimulRound}
       numCompetitorsInt={numCompetitorsPerRound[roundNum]}
       numRegistered={numRegistered}
     />

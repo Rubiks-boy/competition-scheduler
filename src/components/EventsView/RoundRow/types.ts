@@ -1,4 +1,4 @@
-import type { Round } from "../../../types";
+import type { EventId, Round } from "../../../types";
 
 export type RoundRowProps = {
   round: Round;
@@ -10,6 +10,11 @@ export type RoundRowProps = {
     value: string,
     isEditingTime: boolean
   ) => void;
+  makeOnUpdateSimulRound: (
+    eventId: EventId,
+    roundNum: number,
+    mainRound: { eventId: EventId; roundNum: number }
+  ) => (field: "numCompetitors" | "numGroups", value: string) => void;
   numCompetitorsInt: number;
   numRegistered: number;
 };

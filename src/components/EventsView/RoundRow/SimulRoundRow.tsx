@@ -7,6 +7,8 @@ export const SimulRoundRow = ({
   roundNum,
   isFinal,
   numRegistered,
+  onUpdateRound,
+  makeOnUpdateSimulRound,
 }: RoundRowProps) => {
   return (
     <>
@@ -15,14 +17,19 @@ export const SimulRoundRow = ({
         roundNum={roundNum}
         isFinal={isFinal}
         numRegistered={numRegistered}
-        onUpdate={() => {}}
+        // TODO: Pipe in isEditing
+        onUpdate={(field, value) => onUpdateRound(field, value, true)}
       />
       {round.simulGroups.map((simulGroup) => (
         <SimulGroupRow
           eventId={round.eventId}
           roundNum={roundNum}
           simulGroup={simulGroup}
-          onUpdate={() => {}}
+          onUpdate={makeOnUpdateSimulRound(
+            round.eventId,
+            roundNum,
+            simulGroup.mainRound
+          )}
         />
       ))}
     </>

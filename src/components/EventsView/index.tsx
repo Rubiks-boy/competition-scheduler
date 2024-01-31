@@ -39,6 +39,22 @@ const EventsView = () => {
     };
   };
 
+  const makeOnUpdateSimulRound = (
+    eventId: EventId,
+    roundNum: number,
+    mainRound: { eventId: EventId; roundNum: number }
+  ) => {
+    return (field: "numCompetitors" | "numGroups", value: string) => {
+      dispatch({
+        type: "UPDATE_SIMUL_ROUND",
+        eventId,
+        roundNum,
+        mainRound,
+        [field]: value,
+      });
+    };
+  };
+
   const addEvents = (eventIds: Array<EventId>) => {
     dispatch({
       type: "ADD_EVENTS",
@@ -87,6 +103,7 @@ const EventsView = () => {
             rounds={rounds}
             numStations={numStations}
             makeOnUpdateRound={makeOnUpdateRound}
+            makeOnUpdateSimulRound={makeOnUpdateSimulRound}
             onAddRound={onAddRound}
             onRemoveRound={onRemoveRound}
           />
