@@ -1,4 +1,5 @@
 import { MainSimulRow } from "./MainSimulRow";
+import { RemainderGroupRow } from "./RemainderGroupRow";
 import { SimulGroupRow } from "./SimulGroupRow";
 import type { RoundRowProps } from "./types";
 
@@ -9,6 +10,7 @@ export const SimulRoundRow = ({
   numRegistered,
   onUpdateRound,
   makeOnUpdateSimulRound,
+  numStations,
 }: RoundRowProps) => {
   return (
     <>
@@ -30,8 +32,17 @@ export const SimulRoundRow = ({
             roundNum,
             simulGroup.mainRound
           )}
+          numStations={numStations}
         />
       ))}
+      <RemainderGroupRow
+        round={round}
+        eventId={round.eventId}
+        roundNum={roundNum}
+        simulGroup={round.simulGroups[0]}
+        onUpdate={(field, value) => onUpdateRound(field, value, true)}
+        numStations={numStations}
+      />
     </>
   );
 };

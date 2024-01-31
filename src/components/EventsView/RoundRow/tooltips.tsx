@@ -58,3 +58,20 @@ export const RegDiffTooltip = ({
     </Tooltip>
   );
 };
+
+export const SimulRatioTooltip = ({
+  roundName,
+  numCompetitors,
+}: {
+  roundName: string;
+  numCompetitors: number;
+}) => {
+  return (
+    <Tooltip
+      title={`Competitors per station, including ${numCompetitors} competitors in ${roundName}.`}
+      sx={{ position: "absolute", left: "4.5ch", opacity: 0.6 }}
+    >
+      <Info fontSize="small" />
+    </Tooltip>
+  );
+};
