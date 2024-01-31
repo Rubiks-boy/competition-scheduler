@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Round } from "../../../types";
 import { calcTimeForRound } from "../../../utils/calculators";
 import { MainSimulRow } from "./MainSimulRow";
 import { RemainderGroupRow } from "./RemainderGroupRow";
@@ -13,7 +14,10 @@ export const SimulRoundRow = ({
   onUpdateRound,
   makeOnUpdateSimulRound,
   numStations,
-}: RoundRowProps) => {
+  inverseSimulGroups,
+}: RoundRowProps & {
+  inverseSimulGroups: Array<Round & { roundNum: number }>;
+}) => {
   const calculatedTime = calcTimeForRound(
     round.eventId,
     parseInt(round.numGroups || "0")
@@ -44,6 +48,32 @@ export const SimulRoundRow = ({
           numStations={numStations}
         />
       ))}
+      {inverseSimulGroups.map((inverseSimulGroup) => {
+        const simulGroup = inverseSimulGroup.simulGroups.find(
+          ({ mainRound }) =>
+            mainRound.eventId === round.eventId &&
+            mainRound.roundNum === roundNum
+        );
+
+        if (!simulGroup) {
+          return null;
+        }
+
+        return (
+          <SimulGroupRow
+            eventId={inverseSimulGroup.eventId}
+            roundNum={inverseSimulGroup.roundNum}
+            simulGroup={simulGroup}
+            onUpdate={makeOnUpdateSimulRound(
+              inverseSimulGroup.eventId,
+              inverseSimulGroup.roundNum,
+              simulGroup.mainRound
+            )}
+            numStations={numStations}
+            isInverseSimulGroup
+          />
+        );
+      })}
       <RemainderGroupRow
         round={round}
         eventId={round.eventId}
@@ -52,6 +82,7 @@ export const SimulRoundRow = ({
         numStations={numStations}
         isEditingTime={isEditingTime}
         setEditingTime={() => setIsEditingTime(true)}
+        inverseSimulGroups={inverseSimulGroups}
       />
     </>
   );

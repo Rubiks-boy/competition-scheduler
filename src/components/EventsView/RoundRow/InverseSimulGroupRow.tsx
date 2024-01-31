@@ -40,22 +40,12 @@ export const SimulGroupRow = ({
     calculatedTime !== parseInt(scheduledTime)
   );
 
-  let simulRoundName: string;
-  if (isInverseSimulGroup) {
-    simulRoundName = getRoundName(
-      eventId,
-      roundNum,
-      // TODO: derive isFinal
-      false
-    );
-  } else {
-    simulRoundName = getRoundName(
-      simulEvent,
-      simulRoundNum,
-      // TODO: derive isFinal
-      false
-    );
-  }
+  const simulRoundName = getRoundName(
+    simulEvent,
+    simulRoundNum,
+    // TODO: derive isFinal
+    false
+  );
   const ratio = compPerStationsRatio({
     numCompetitors:
       parseInt(simulGroup.numCompetitors) +
@@ -79,17 +69,8 @@ export const SimulGroupRow = ({
         <TextField
           hiddenLabel
           size="small"
-          value={
-            isInverseSimulGroup
-              ? simulGroup.mainRound.numCompetitors
-              : simulGroup.numCompetitors
-          }
-          onChange={(e) =>
-            onUpdate(
-              isInverseSimulGroup ? "numMainCompetitors" : "numCompetitors",
-              e.target.value
-            )
-          }
+          value={simulGroup.numCompetitors}
+          onChange={(e) => onUpdate("numCompetitors", e.target.value)}
         />
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%", borderBottom: "none" }}>

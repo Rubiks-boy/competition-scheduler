@@ -11,6 +11,7 @@ export const RemainderGroupRow = ({
   numStations,
   isEditingTime,
   setEditingTime,
+  inverseSimulGroups,
 }: {
   round: Round;
   eventId: EventId;
@@ -19,13 +20,26 @@ export const RemainderGroupRow = ({
   numStations: number;
   isEditingTime: boolean;
   setEditingTime: () => void;
+  inverseSimulGroups: Array<Round & { roundNum: number }>;
 }) => {
+  const totalInverseSimulCompetitors = inverseSimulGroups
+    .map((inverseSimulGroup) =>
+      inverseSimulGroup.simulGroups.find(
+        ({ mainRound }) =>
+          mainRound.eventId === round.eventId && mainRound.roundNum === roundNum
+      )
+    )
+    .reduce(
+      (sum, group) => sum + parseInt(group?.mainRound.numCompetitors || "0"),
+      0
+    );
   const totalSimulCompetitors = round.simulGroups.reduce(
     (sum, { numCompetitors }) => sum + parseInt(numCompetitors),
     0
   );
   const remainingCompetitors =
-    parseInt(round.totalNumCompetitors) - totalSimulCompetitors;
+    parseInt(round.totalNumCompetitors) -
+    (totalSimulCompetitors + totalInverseSimulCompetitors);
 
   return (
     <TableRow key={`${eventId}-${roundNum}-remainder`}>

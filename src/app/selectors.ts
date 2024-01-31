@@ -1,5 +1,5 @@
 import { getColorForStage, OTHER_ACTIVITES } from "../constants";
-import { EventId, EVENT_IDS } from "../types";
+import { EventId, EVENT_IDS, Round } from "../types";
 import { calcNumGroups, calcTimeForRound } from "../utils/calculators";
 import { deepEquals } from "../utils/utils";
 import {
@@ -329,3 +329,24 @@ export const numRegisteredByEventSelector = (state: State) => {
   });
   return numRegisteredByEvent;
 };
+
+export const inverseSimulGroupsSelector =
+  (eventId: EventId, roundNum: number) =>
+  (state: State): Array<Round & { roundNum: number }> => {
+    const events = eventsSelector(state);
+
+    const containsSimulGroup = ({ simulGroups }: Round) =>
+      simulGroups.some(
+        (simulGroup) =>
+          simulGroup.mainRound.eventId === eventId &&
+          simulGroup.mainRound.roundNum === roundNum
+      );
+
+    return Object.values(events).flatMap((rounds) =>
+      rounds
+        ? rounds
+            .map((round, i) => ({ roundNum: i, ...round }))
+            .filter(containsSimulGroup)
+        : []
+    );
+  };
