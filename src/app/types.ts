@@ -188,6 +188,25 @@ export type Action =
     }
   | {
       type: "REIMPORT_SCHEDULE_FROM_WCIF";
+    }
+  | {
+      type: "CREATE_SIMUL_ROUND";
+      sourceIndex: number;
+      destinationIndex: number;
+    }
+  | {
+      type: "UPDATE_SIMUL_ROUND";
+      eventId: EventId;
+      roundNum: number;
+      mainRound: {
+        eventId: EventId;
+        roundNum: number;
+      };
+      numGroups?: string;
+      numMainCompetitors?: string;
+      scheduledTime?: string;
+      groupOffset?: number;
+      numCompetitors?: string;
     };
 
 export type Reducer = (state: State, action: Action) => State;

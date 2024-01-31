@@ -25,6 +25,7 @@ import {
   numOtherActivitiesSelector,
   numStationsSelector,
 } from "./selectors";
+import { createSimulRound, updateSimulRound } from "./helpers";
 
 const reducer: Reducer = (state, action) => {
   switch (action.type) {
@@ -212,6 +213,7 @@ const reducer: Reducer = (state, action) => {
             numCompetitors,
             numGroups: `${defaultNumGroups}`,
             scheduledTime: `${defaultScheduledTime}`,
+            simulGroups: [],
           };
         });
 
@@ -475,6 +477,7 @@ const reducer: Reducer = (state, action) => {
         numCompetitors: numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: calcTimeForRound(action.eventId, numGroups).toString(),
+        simulGroups: [],
       };
 
       withAddedRound.push(roundToAdd);
@@ -730,6 +733,12 @@ const reducer: Reducer = (state, action) => {
         ...state,
         isExported: true,
       };
+
+    case "CREATE_SIMUL_ROUND":
+      return createSimulRound(state, action);
+
+    case "UPDATE_SIMUL_ROUND":
+      return updateSimulRound(state, action);
 
     default:
       return state;

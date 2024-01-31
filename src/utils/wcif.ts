@@ -124,6 +124,7 @@ const wcifRoundsToEventRounds = (
       scheduledTime: scheduledTime.toString(),
       roundNum,
       numRegistered,
+      simulGroups: [],
     };
 
     const wcifActivity = findMatchingWcifActivity({
