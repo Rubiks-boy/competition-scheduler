@@ -21,6 +21,9 @@ import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
 import { DraggableEvent } from "./DraggableEvent";
 import { DraggableDayDivider } from "./DraggableDayDivider";
 
+const isExperimentalEnabled =
+  window.localStorage.getItem("ENABLE_EXPERIMENTAL") === "true";
+
 const getColorsForActivities = (schedule: Schedule) => {
   const colors: Partial<Record<EventId | OtherActivity, Color>> = {};
 
@@ -163,7 +166,10 @@ export const ReorderEvents = () => {
 
   return (
     <DragDropContext onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable" isCombineEnabled>
+      <Droppable
+        droppableId="droppable"
+        isCombineEnabled={isExperimentalEnabled}
+      >
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             <List>
