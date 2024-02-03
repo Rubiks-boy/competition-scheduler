@@ -1,4 +1,4 @@
-import { TableCell, TableRow, TextField, Typography } from "@mui/material";
+import { TableCell, TableRow, TextField } from "@mui/material";
 import { getRoundName } from "./helpers";
 import type { EventId, SimulGroup } from "../../../types";
 import {

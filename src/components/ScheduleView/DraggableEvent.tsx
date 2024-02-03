@@ -2,7 +2,6 @@ import { ListItem, Box, Typography, Color, useMediaQuery } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { Draggable } from "react-beautiful-dnd";
 import { formatTime } from "../../utils/formatTime";
-import { ACTIVITY_NAMES, EVENT_NAMES } from "../../constants";
 import { getEventName, getRoundNumStr } from "../../utils/calculators";
 import type {
   EventId,
