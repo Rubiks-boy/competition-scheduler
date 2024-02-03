@@ -16,12 +16,12 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_ROUND"> = (
     return state;
   }
 
-  const prevRounds = state.events[sourceScheduleEntry.eventId];
+  const prevRounds = state.events[destScheduleEntry.eventId];
   if (!prevRounds) {
     return state;
   }
 
-  const prevRound = prevRounds[sourceScheduleEntry.roundNum];
+  const prevRound = prevRounds[destScheduleEntry.roundNum];
 
   if (prevRound.simulGroups.length) {
     return state;
@@ -32,27 +32,27 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_ROUND"> = (
     simulGroups: [
       {
         mainRound: {
-          eventId: destScheduleEntry.eventId,
-          roundNum: destScheduleEntry.roundNum,
+          eventId: sourceScheduleEntry.eventId,
+          roundNum: sourceScheduleEntry.roundNum,
           numGroups: "1",
-          numCompetitors: "0",
-          scheduledTime: "0",
+          numCompetitors: "10",
+          scheduledTime: "20",
         },
         groupOffset: 0,
-        numCompetitors: "0",
+        numCompetitors: "30",
       },
     ],
   };
 
   const newRounds = [...prevRounds];
-  newRounds[sourceScheduleEntry.roundNum] = newRound;
+  newRounds[destScheduleEntry.roundNum] = newRound;
 
   return {
     ...state,
     isShowingDefaultInfo: false,
     events: {
       ...state.events,
-      [sourceScheduleEntry.eventId]: newRounds,
+      [destScheduleEntry.eventId]: newRounds,
     },
     isExported: false,
   };
