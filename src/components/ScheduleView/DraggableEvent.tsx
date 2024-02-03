@@ -13,6 +13,7 @@ import type {
 import { useSelector } from "../../app/hooks";
 import { roundSelector } from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
+import { EditSimulScheduleDialog } from "./EditSimulRoundDialog";
 
 // in ems
 const MIN_HEIGHT = 3;
@@ -117,17 +118,18 @@ export const DraggableEvent = ({
                     sx={{
                       width: "40%",
                       height: `${simulHeight}%`,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "column",
-                      borderRadius: "1em",
                       position: "absolute",
                       right: 0,
                       top: `${top}em`,
+                      borderRadius: "1em",
                       backgroundColor: getEventColor(
                         simulGroup.mainRound.eventId
                       ),
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      pl: 3,
+                      pr: 1.5,
                     }}
                   >
                     {getEventName(simulGroup.mainRound.eventId)}{" "}
@@ -137,6 +139,14 @@ export const DraggableEvent = ({
                       scheduleWithTimes
                     )}{" "}
                     {groupString}
+                    {scheduleEntry.type === "event" && (
+                      <EditSimulScheduleDialog
+                        primaryRound={round}
+                        primaryScheduleEntry={scheduleEntry}
+                        secondaryEventId={simulGroup.mainRound.eventId}
+                        secondaryRoundNum={simulGroup.mainRound.roundNum}
+                      />
+                    )}
                   </Box>
                 );
               })}

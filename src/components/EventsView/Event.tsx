@@ -1,11 +1,6 @@
 import {
   Paper,
-  Table,
-  TableBody,
-  TableCell,
   TableContainer,
-  TableHead,
-  TableRow,
   IconButton,
   Toolbar,
   Typography,
@@ -18,6 +13,7 @@ import { Round } from "../../types";
 import { RoundRow } from "./RoundRow";
 import { calcNumCompetitorsPerRound } from "../../utils/utils";
 import { UpdatableRoundField, UpdatableSimulField } from "./RoundRow/types";
+import { EventTable } from "./EventTable";
 
 type EventProps = {
   eventId: EventId;
@@ -97,18 +93,7 @@ export const Event = ({
       </Toolbar>
       {rounds.length > 0 && (
         <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Event</TableCell>
-                <TableCell>Competitors</TableCell>
-                <TableCell>Groups</TableCell>
-                <TableCell>Ratio</TableCell>
-                <TableCell>Scheduled Time</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>{roundRows}</TableBody>
-          </Table>
+          <EventTable>{roundRows}</EventTable>
         </TableContainer>
       )}
     </Paper>
