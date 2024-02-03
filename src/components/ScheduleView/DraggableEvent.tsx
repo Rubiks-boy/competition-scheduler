@@ -12,6 +12,7 @@ import type {
 } from "../../types";
 import { useSelector } from "../../app/hooks";
 import { roundSelector } from "../../app/selectors";
+import MergeTypeIcon from "@mui/icons-material/MergeType";
 
 // in ems
 const MIN_HEIGHT = 3;
@@ -118,8 +119,29 @@ export const DraggableEvent = ({
                   </div>
                 );
               })}
-            {isBeingCombinedWith && "Simultaneous"}
           </Box>
+          {isBeingCombinedWith && (
+            <Box
+              sx={{
+                width: "25%",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: "1em",
+                position: "absolute",
+                right: 0,
+                border: "3px dashed",
+                // MUI's red[900]
+                borderColor: "#B71C1CCC",
+                backgroundColor: "#B71C1C88",
+              }}
+            >
+              <MergeTypeIcon fontSize="medium" />
+              Simultaneous
+            </Box>
+          )}
         </ListItem>
       )}
     </Draggable>
