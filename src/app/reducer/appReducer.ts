@@ -44,6 +44,7 @@ export const appReducer: Reducer = (state, action) => {
         activeStep: state.activeStep,
         isExported: false,
         isDebugging: state.isDebugging,
+        experimentalFeaturesEnabled: state.experimentalFeaturesEnabled,
       };
 
       return stateAfterImport;

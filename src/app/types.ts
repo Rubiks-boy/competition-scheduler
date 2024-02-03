@@ -48,6 +48,7 @@ export type State = ShareableState & {
   activeStep: number;
   isExported: boolean;
   isDebugging: boolean;
+  experimentalFeaturesEnabled: boolean;
 };
 
 export type Action =

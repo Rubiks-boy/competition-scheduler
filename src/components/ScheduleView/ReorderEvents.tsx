@@ -14,15 +14,13 @@ import {
   otherActivitiesSelector,
   scheduleSelector,
   startTimesSelector,
+  enableExperimentalFeaturesSelector,
 } from "../../app/selectors";
 import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
 import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
 import { DraggableEvent } from "./DraggableEvent";
 import { DraggableDayDivider } from "./DraggableDayDivider";
-
-const isExperimentalEnabled =
-  window.localStorage.getItem("ENABLE_EXPERIMENTAL") === "true";
 
 const getColorsForActivities = (schedule: Schedule) => {
   const colors: Partial<Record<EventId | OtherActivity, Color>> = {};
@@ -46,6 +44,9 @@ const getColorsForActivities = (schedule: Schedule) => {
 export const ReorderEvents = () => {
   const dispatch = useDispatch();
 
+  const enableExperimentalFeatures = useSelector(
+    enableExperimentalFeaturesSelector
+  );
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
   const startTimes = useSelector(startTimesSelector);
@@ -168,7 +169,7 @@ export const ReorderEvents = () => {
     <DragDropContext onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <Droppable
         droppableId="droppable"
-        isCombineEnabled={isExperimentalEnabled}
+        isCombineEnabled={enableExperimentalFeatures}
       >
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
