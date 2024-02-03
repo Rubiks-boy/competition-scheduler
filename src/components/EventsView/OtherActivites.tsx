@@ -26,7 +26,6 @@ import {
   numberOfDaysSelector,
 } from "../../app/selectors";
 import { ACTIVITIES, ACTIVITY_NAMES } from "../../constants";
-import classNames from "classnames";
 
 type Activity = (typeof ACTIVITIES)[number];
 
