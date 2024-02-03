@@ -17,6 +17,7 @@ import { EventId } from "@wca/helpers";
 import { Round } from "../../types";
 import { RoundRow } from "./RoundRow";
 import { calcNumCompetitorsPerRound } from "../../utils/utils";
+import { UpdatableRoundField, UpdatableSimulField } from "./RoundRow/types";
 
 type EventProps = {
   eventId: EventId;
@@ -27,10 +28,15 @@ type EventProps = {
     eventId: EventId,
     roundIndex: number
   ) => (
-    field: "numCompetitors" | "numGroups" | "scheduledTime",
+    field: UpdatableRoundField,
     value: string,
     isEditingTime: boolean
   ) => void;
+  makeOnUpdateSimulRound: (
+    eventId: EventId,
+    roundNum: number,
+    mainRound: { eventId: EventId; roundNum: number }
+  ) => (field: UpdatableSimulField, value: string) => void;
   onAddRound: () => void;
   onRemoveRound: () => void;
 };
@@ -41,6 +47,7 @@ export const Event = ({
   numStations,
   numRegistered,
   makeOnUpdateRound,
+  makeOnUpdateSimulRound,
   onAddRound,
   onRemoveRound,
 }: EventProps) => {
@@ -54,6 +61,7 @@ export const Event = ({
       isFinal={roundNum === rounds.length - 1}
       numStations={numStations}
       onUpdateRound={makeOnUpdateRound(round.eventId, roundNum)}
+      makeOnUpdateSimulRound={makeOnUpdateSimulRound}
       numCompetitorsInt={numCompetitorsPerRound[roundNum]}
       numRegistered={numRegistered}
     />

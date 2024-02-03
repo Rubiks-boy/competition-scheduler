@@ -1,5 +1,5 @@
 import { getColorForStage, OTHER_ACTIVITES } from "../constants";
-import { EventId, EVENT_IDS } from "../types";
+import { EventId, EVENT_IDS, Round } from "../types";
 import { calcNumGroups, calcTimeForRound } from "../utils/calculators";
 import { deepEquals } from "../utils/utils";
 import {
@@ -46,6 +46,13 @@ export const numberOfDaysSelector = (state: State) =>
 export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
+
+export const roundSelector =
+  (eventId: EventId, roundNum: number) =>
+  (state: State): Round | null => {
+    const events = eventsSelector(state);
+    return events[eventId]?.[roundNum] ?? null;
+  };
 
 export const addableEventIdsSelector = (state: State) => {
   const events = eventsSelector(state);
@@ -193,7 +200,11 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
 
   Object.entries(events).forEach(([eventId, rounds]) => {
     rounds?.forEach((round) => {
-      const { numCompetitors, numGroups, scheduledTime } = round;
+      const {
+        totalNumCompetitors: numCompetitors,
+        numGroups,
+        scheduledTime,
+      } = round;
 
       const defaultNumGroups = calcNumGroups({
         eventId: eventId as EventId,
@@ -325,3 +336,24 @@ export const numRegisteredByEventSelector = (state: State) => {
   });
   return numRegisteredByEvent;
 };
+
+export const inverseSimulGroupsSelector =
+  (eventId: EventId, roundNum: number) =>
+  (state: State): Array<Round & { roundNum: number }> => {
+    const events = eventsSelector(state);
+
+    const containsSimulGroup = ({ simulGroups }: Round) =>
+      simulGroups.some(
+        (simulGroup) =>
+          simulGroup.mainRound.eventId === eventId &&
+          simulGroup.mainRound.roundNum === roundNum
+      );
+
+    return Object.values(events).flatMap((rounds) =>
+      rounds
+        ? rounds
+            .map((round, i) => ({ roundNum: i, ...round }))
+            .filter(containsSimulGroup)
+        : []
+    );
+  };

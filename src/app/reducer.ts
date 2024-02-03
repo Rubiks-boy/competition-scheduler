@@ -25,6 +25,7 @@ import {
   numOtherActivitiesSelector,
   numStationsSelector,
 } from "./selectors";
+import { createSimulRound, updateSimulRound } from "./helpers";
 
 const reducer: Reducer = (state, action) => {
   switch (action.type) {
@@ -197,10 +198,10 @@ const reducer: Reducer = (state, action) => {
         }
 
         const resetRounds = rounds.map((round) => {
-          const { numCompetitors } = round;
+          const { totalNumCompetitors } = round;
           const defaultNumGroups = calcNumGroups({
             eventId,
-            numCompetitors: parseInt(numCompetitors),
+            numCompetitors: parseInt(totalNumCompetitors),
             numStations: numStationsSelector(state),
           });
           const defaultScheduledTime = calcTimeForRound(
@@ -209,9 +210,10 @@ const reducer: Reducer = (state, action) => {
           );
           return {
             eventId,
-            numCompetitors,
+            totalNumCompetitors,
             numGroups: `${defaultNumGroups}`,
             scheduledTime: `${defaultScheduledTime}`,
+            simulGroups: [],
           };
         });
 
@@ -366,7 +368,8 @@ const reducer: Reducer = (state, action) => {
 
       const updatedRound = {
         ...oldRound,
-        numCompetitors: action.numCompetitors ?? oldRound.numCompetitors,
+        totalNumCompetitors:
+          action.totalNumCompetitors ?? oldRound.totalNumCompetitors,
         numGroups: action.numGroups ?? oldRound.numGroups,
         scheduledTime: action.scheduledTime ?? oldRound.scheduledTime,
       };
@@ -429,7 +432,7 @@ const reducer: Reducer = (state, action) => {
           [eventId]: [
             {
               eventId,
-              numCompetitors: numCompetitors.toString(),
+              totalNumCompetitors: numCompetitors.toString(),
               numGroups: numGroups.toString(),
               scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
             },
@@ -472,9 +475,10 @@ const reducer: Reducer = (state, action) => {
 
       const roundToAdd: Round = {
         eventId: action.eventId,
-        numCompetitors: numCompetitors.toString(),
+        totalNumCompetitors: numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: calcTimeForRound(action.eventId, numGroups).toString(),
+        simulGroups: [],
       };
 
       withAddedRound.push(roundToAdd);
@@ -730,6 +734,12 @@ const reducer: Reducer = (state, action) => {
         ...state,
         isExported: true,
       };
+
+    case "CREATE_SIMUL_ROUND":
+      return createSimulRound(state, action);
+
+    case "UPDATE_SIMUL_ROUND":
+      return updateSimulRound(state, action);
 
     default:
       return state;

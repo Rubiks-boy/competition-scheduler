@@ -37,11 +37,24 @@ export type Events = {
   [E in EventId]: Array<Round> | null;
 };
 
+export type SimulGroup = {
+  mainRound: {
+    eventId: EventId;
+    roundNum: number;
+    numGroups: string;
+    numCompetitors: string;
+    scheduledTime: string;
+  };
+  groupOffset: number;
+  numCompetitors: string;
+};
+
 export type Round = {
   eventId: EventId;
-  numCompetitors: string;
+  totalNumCompetitors: string;
   numGroups: string;
   scheduledTime: string;
+  simulGroups: Array<SimulGroup>;
 };
 
 export type OtherActivity =
