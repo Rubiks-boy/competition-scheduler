@@ -61,26 +61,27 @@ export const DraggableEvent = ({
         )}`
       : "";
 
-  const baseColor = colors[scheduleEntry.eventId] || grey;
+  const getEventColor = (eventId: EventId | OtherActivity) => {
+    const baseColor = colors[eventId] || grey;
+    return baseColor[prefersDarkMode ? 800 : 300];
+  };
 
-  const backgroundColor = baseColor[prefersDarkMode ? 800 : 300];
-
-  const height = `${
+  const height =
     MIN_HEIGHT +
     (Math.max(scheduleEntry.scheduledTimeMs - shortestEventTime, 0) /
       longestEventTime) *
-      MAX_ADDITIONAL_HEIGHT
-  }em`;
+      MAX_ADDITIONAL_HEIGHT;
+  const numGroups = parseInt(round?.numGroups ?? "1");
 
   return (
     <Draggable key={id} draggableId={id} index={index}>
       {(provided) => (
         <ListItem
           sx={{
-            backgroundColor,
+            backgroundColor: getEventColor(scheduleEntry.eventId),
             borderRadius: "1em",
             marginBlock: "1em",
-            height,
+            height: `${height}em`,
             justifyContent: "center",
             textAlign: "center",
           }}
@@ -105,9 +106,29 @@ export const DraggableEvent = ({
                         simulGroup.groupOffset + numSimulGroups
                       }`
                     : `Group ${simulGroup.groupOffset + 1}`;
+
+                const simulHeight =
+                  (100 * Math.min(numSimulGroups, numGroups)) / numGroups;
+                const top = (height / numGroups) * simulGroup.groupOffset;
+
                 return (
-                  <div
+                  <Box
                     key={`${simulGroup.mainRound.eventId}-${simulGroup.mainRound.roundNum}`}
+                    sx={{
+                      width: "40%",
+                      height: `${simulHeight}%`,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: "1em",
+                      position: "absolute",
+                      right: 0,
+                      top: `${top}em`,
+                      backgroundColor: getEventColor(
+                        simulGroup.mainRound.eventId
+                      ),
+                    }}
                   >
                     {getEventName(simulGroup.mainRound.eventId)}{" "}
                     {getRoundNumStr(
@@ -116,7 +137,7 @@ export const DraggableEvent = ({
                       scheduleWithTimes
                     )}{" "}
                     {groupString}
-                  </div>
+                  </Box>
                 );
               })}
           </Box>
