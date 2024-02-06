@@ -206,8 +206,20 @@ export type Action =
       numGroups?: string;
       numMainCompetitors?: string;
       scheduledTime?: string;
-      groupOffset?: number;
       numCompetitors?: string;
+    }
+  | {
+      type: "REORDER_SIMUL_GROUP";
+      startingRound: {
+        eventId: EventId;
+        roundNum: number;
+      };
+      endingRound: {
+        eventId: EventId;
+        roundNum: number;
+      };
+      startingGroupOffset: number;
+      newGroupOffset: number;
     };
 
 export type Reducer = (state: State, action: Action) => State;
