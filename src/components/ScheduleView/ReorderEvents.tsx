@@ -106,37 +106,10 @@ export const ReorderEvents = () => {
       const sourceScheduleEntry = schedule[sourceIndex];
       const destScheduleEntry = schedule[destIndex];
 
-      if (
-        sourceScheduleEntry.type !== "event" ||
-        destScheduleEntry.type !== "event"
-      ) {
-        return false;
-      }
-
-      const hasMatchingSimul = (
-        entry1: ScheduleEntry & { type: "event" },
-        entry2: ScheduleEntry & { type: "event" }
-      ) => {
-        const round = events[entry1.eventId]?.[entry1.roundNum];
-        return (
-          round &&
-          round.simulGroups.some(
-            ({ mainRound }) =>
-              mainRound.eventId === entry2.eventId &&
-              mainRound.roundNum === entry2.roundNum
-          )
-        );
-      };
-
-      const isSimulRoundsOfSameEvent =
-        sourceScheduleEntry.eventId === destScheduleEntry.eventId;
-
-      const hasMatchingSimulEvent =
-        hasMatchingSimul(sourceScheduleEntry, destScheduleEntry) ||
-        hasMatchingSimul(destScheduleEntry, sourceScheduleEntry);
-
-      // Can't make an already-simul event simul.
-      return !isSimulRoundsOfSameEvent && !hasMatchingSimulEvent;
+      return (
+        sourceScheduleEntry.type === "event" &&
+        destScheduleEntry.type === "event"
+      );
     };
 
     setIdBeingCombinedWith(canSetId() ? combinedWithId : null);
