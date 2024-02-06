@@ -10,6 +10,8 @@ import type {
 import { ListItem } from "@mui/material";
 import { EditSimulScheduleDialog } from "./EditSimulRoundDialog";
 import { Draggable } from "react-beautiful-dnd";
+import { useSelector } from "../../app/hooks";
+import { groupNumSelector } from "../../app/selectors";
 
 export const DraggableSimulGroup = ({
   simulGroup,
@@ -30,7 +32,22 @@ export const DraggableSimulGroup = ({
   index: number;
   id: string;
 }) => {
-  const groupString = `Group ${simulGroup.groupOffset + 1}`;
+  const groupNum = useSelector(
+    scheduleEntry.type === "event"
+      ? groupNumSelector({
+          scheduleEntry: {
+            eventId: simulGroup.mainRound.eventId,
+            roundNum: simulGroup.mainRound.roundNum,
+          },
+          simulGroup: {
+            eventId: scheduleEntry.eventId,
+            roundNum: scheduleEntry.roundNum,
+            groupOffset: simulGroup.groupOffset,
+          },
+        })
+      : () => undefined
+  );
+  const groupString = `Group ${groupNum} `;
 
   return (
     <Draggable draggableId={id} index={index}>

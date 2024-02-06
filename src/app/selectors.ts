@@ -339,23 +339,89 @@ export const numRegisteredByEventSelector = (state: State) => {
 
 export const inverseSimulGroupsSelector =
   (eventId: EventId, roundNum: number) =>
-  (state: State): Array<Round & { roundNum: number }> => {
+  (state: State): Array<Round & { roundNum: number; groupOffset: number }> => {
     const events = eventsSelector(state);
 
-    const containsSimulGroup = ({ simulGroups }: Round) =>
-      simulGroups.some(
+    const filterSimulGroups = (round: Round & { roundNum: number }) => ({
+      ...round,
+      simulGroups: round.simulGroups.filter(
         (simulGroup) =>
           simulGroup.mainRound.eventId === eventId &&
           simulGroup.mainRound.roundNum === roundNum
-      );
+      ),
+    });
+
+    const attachGroupOffsets = (round: Round & { roundNum: number }) =>
+      round.simulGroups.map(({ groupOffset }) => ({ ...round, groupOffset }));
 
     return Object.values(events).flatMap((rounds) =>
       rounds
         ? rounds
             .map((round, i) => ({ roundNum: i, ...round }))
-            .filter(containsSimulGroup)
+            .map(filterSimulGroups)
+            .flatMap(attachGroupOffsets)
         : []
     );
+  };
+
+export const groupNumSelector =
+  ({
+    scheduleEntry: { eventId, roundNum },
+    simulGroup,
+  }: {
+    scheduleEntry: { eventId: EventId; roundNum: number };
+    simulGroup: { eventId: EventId; roundNum: number; groupOffset: number };
+  }) =>
+  (state: State): number | null => {
+    let currGroupNum = 1;
+
+    for (const scheduleEntry of state.schedule) {
+      if (scheduleEntry.type !== "event") {
+        continue;
+      }
+
+      const round = roundSelector(
+        scheduleEntry.eventId,
+        scheduleEntry.roundNum
+      )(state);
+
+      if (!round) {
+        continue;
+      }
+
+      if (
+        eventId === scheduleEntry.eventId &&
+        roundNum === scheduleEntry.roundNum
+      ) {
+        if (
+          eventId === simulGroup.eventId &&
+          roundNum === simulGroup.roundNum
+        ) {
+          return currGroupNum;
+        }
+
+        currGroupNum += parseInt(round.numGroups);
+      }
+
+      const simulGroups = [...round.simulGroups];
+      simulGroups.sort((a, b) => a.groupOffset - b.groupOffset);
+
+      for (const { mainRound, groupOffset } of simulGroups) {
+        if (eventId === mainRound.eventId && roundNum === mainRound.roundNum) {
+          if (
+            scheduleEntry.eventId === simulGroup.eventId &&
+            scheduleEntry.roundNum === simulGroup.roundNum &&
+            groupOffset === simulGroup.groupOffset
+          ) {
+            return currGroupNum;
+          }
+
+          currGroupNum++;
+        }
+      }
+    }
+
+    return null;
   };
 
 export const enableExperimentalFeaturesSelector = (state: State) =>

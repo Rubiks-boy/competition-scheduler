@@ -9,6 +9,8 @@ import { SimulRatioTooltip } from "./tooltips";
 import { useState } from "react";
 import { ScheduledTimeInput } from "./ScheduledTimeInput";
 import type { UpdatableSimulField } from "./types";
+import { useSelector } from "../../../app/hooks";
+import { groupNumSelector } from "../../../app/selectors";
 
 export const SimulGroupRow = ({
   eventId,
@@ -35,8 +37,22 @@ export const SimulGroupRow = ({
   const [isEditingTime, setIsEditingTime] = useState(
     calculatedTime !== parseInt(scheduledTime)
   );
+  const inverseGroupNum = useSelector(
+    groupNumSelector({
+      scheduleEntry: {
+        eventId: simulGroup.mainRound.eventId,
+        roundNum: simulGroup.mainRound.roundNum,
+      },
+      simulGroup: {
+        eventId,
+        roundNum,
+        groupOffset: simulGroup.groupOffset,
+      },
+    })
+  );
 
   let simulRoundName: string;
+  let simulGroupName: string;
   if (isInverseSimulGroup) {
     simulRoundName = getRoundName(
       eventId,
@@ -44,6 +60,7 @@ export const SimulGroupRow = ({
       // TODO: derive isFinal
       false
     );
+    simulGroupName = `Group ${simulGroup.groupOffset + 1}`;
   } else {
     simulRoundName = getRoundName(
       simulEvent,
@@ -51,7 +68,9 @@ export const SimulGroupRow = ({
       // TODO: derive isFinal
       false
     );
+    simulGroupName = `Group ${inverseGroupNum}`;
   }
+
   const ratio = compPerStationsRatio({
     numCompetitors:
       parseInt(simulGroup.numCompetitors) +
@@ -69,7 +88,7 @@ export const SimulGroupRow = ({
         scope="row"
         sx={{ minWidth: "10em", pl: 4, borderBottom: "none" }}
       >
-        Alongside {simulRoundName}
+        Alongside {simulRoundName} {simulGroupName}
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%", borderBottom: "none" }}>
         <TextField
