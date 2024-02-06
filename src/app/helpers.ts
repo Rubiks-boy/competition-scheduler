@@ -34,7 +34,6 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_ROUND"> = (
         mainRound: {
           eventId: sourceScheduleEntry.eventId,
           roundNum: sourceScheduleEntry.roundNum,
-          numGroups: "1",
           numCompetitors: "10",
           scheduledTime: "20",
         },
@@ -150,7 +149,6 @@ export const updateSimulRound: StateModifier<"UPDATE_SIMUL_ROUND"> = (
     ...removedSimulGroup,
     mainRound: {
       ...removedSimulGroup.mainRound,
-      numGroups: action.numGroups ?? removedSimulGroup.mainRound.numGroups,
       numCompetitors:
         action.numMainCompetitors ?? removedSimulGroup.mainRound.numCompetitors,
       scheduledTime:

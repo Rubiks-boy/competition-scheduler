@@ -203,7 +203,6 @@ export type Action =
         eventId: EventId;
         roundNum: number;
       };
-      numGroups?: string;
       numMainCompetitors?: string;
       scheduledTime?: string;
       numCompetitors?: string;

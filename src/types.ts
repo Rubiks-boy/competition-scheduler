@@ -41,7 +41,6 @@ export type SimulGroup = {
   mainRound: {
     eventId: EventId;
     roundNum: number;
-    numGroups: string;
     numCompetitors: string;
     scheduledTime: string;
   };

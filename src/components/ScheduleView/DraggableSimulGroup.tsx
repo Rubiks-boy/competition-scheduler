@@ -30,15 +30,7 @@ export const DraggableSimulGroup = ({
   index: number;
   id: string;
 }) => {
-  const numSimulGroups = parseInt(simulGroup.mainRound.numGroups);
-  const groupString =
-    numSimulGroups > 1
-      ? `Groups ${simulGroup.groupOffset + 1}–${
-          simulGroup.groupOffset + numSimulGroups
-        }`
-      : `Group ${simulGroup.groupOffset + 1}`;
-
-  const simulHeight = heightPerGroup * numSimulGroups;
+  const groupString = `Group ${simulGroup.groupOffset + 1}`;
 
   return (
     <Draggable draggableId={id} index={index}>
@@ -46,7 +38,7 @@ export const DraggableSimulGroup = ({
         return (
           <ListItem
             sx={{
-              height: `${simulHeight}em`,
+              height: `${heightPerGroup}em`,
               borderRadius: "1em",
               backgroundColor: getEventColor(simulGroup.mainRound.eventId),
               display: "flex",
