@@ -183,6 +183,10 @@ export const reorderSimulGroup: StateModifier<"REORDER_SIMUL_GROUP"> = (
     return state;
   }
 
+  if (action.endingRound.eventId === removedSimulGroup.mainRound.eventId) {
+    return stateWithoutOldSimulGroup;
+  }
+
   const newSimulGroup = {
     ...removedSimulGroup,
     groupOffset: action.newGroupOffset,
