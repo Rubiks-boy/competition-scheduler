@@ -168,7 +168,8 @@ export const ReorderEvents = () => {
   return (
     <DragDropContext onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <Droppable
-        droppableId="droppable"
+        droppableId="round"
+        type="round"
         isCombineEnabled={enableExperimentalFeatures}
       >
         {(provided) => (

@@ -1,6 +1,13 @@
-import { ListItem, Box, Typography, Color, useMediaQuery } from "@mui/material";
+import {
+  ListItem,
+  Box,
+  Typography,
+  Color,
+  useMediaQuery,
+  List,
+} from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { Draggable } from "react-beautiful-dnd";
+import { Draggable, Droppable } from "react-beautiful-dnd";
 import { formatTime } from "../../utils/formatTime";
 import { getEventName, getRoundNumStr } from "../../utils/calculators";
 import type {
@@ -13,7 +20,8 @@ import type {
 import { useSelector } from "../../app/hooks";
 import { roundSelector } from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
-import { EditSimulScheduleDialog } from "./EditSimulRoundDialog";
+import { range } from "../../utils/utils";
+import { DraggableSimulGroup } from "./DraggableSimulGroup";
 
 // in ems
 const MIN_HEIGHT = 3;
@@ -73,84 +81,130 @@ export const DraggableEvent = ({
       longestEventTime) *
       MAX_ADDITIONAL_HEIGHT;
   const numGroups = parseInt(round?.numGroups ?? "1");
+  const heightPerGroup = height / numGroups;
+
+  const getSimulGroup = (groupNum: number) => {
+    return round?.simulGroups.filter((g) => g.groupOffset === groupNum)?.[0];
+  };
+
+  const lastGroupNumWithoutSimulEvent = range(numGroups).reduce(
+    (currMax, i) => (getSimulGroup(i) ? currMax : i),
+    -1
+  );
 
   return (
-    <Draggable key={id} draggableId={id} index={index}>
-      {(provided) => (
+    <Draggable draggableId={id} index={index}>
+      {(provided, snapshot) => (
         <ListItem
           sx={{
             backgroundColor: getEventColor(scheduleEntry.eventId),
             borderRadius: "1em",
             marginBlock: "1em",
             height: `${height}em`,
-            justifyContent: "center",
-            textAlign: "center",
+            justifyContent: "right",
+            position: "relative",
+            p: 0,
           }}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className="schedule-draggableEvent"
         >
-          <Box>
+          <Box
+            sx={{
+              textAlign: "center",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
             <Typography variant="body1">
               {`${getEventName(scheduleEntry.eventId)}${roundNumStr}`}
             </Typography>
             <Typography variant="body2">
               {`${formatTime(startTime)}-${formatTime(endTime)}`}
             </Typography>
-            {round &&
-              round.simulGroups.map((simulGroup) => {
-                const numSimulGroups = parseInt(simulGroup.mainRound.numGroups);
-                const groupString =
-                  numSimulGroups > 1
-                    ? `Groups ${simulGroup.groupOffset + 1}–${
-                        simulGroup.groupOffset + numSimulGroups
-                      }`
-                    : `Group ${simulGroup.groupOffset + 1}`;
-
-                const simulHeight =
-                  (100 * Math.min(numSimulGroups, numGroups)) / numGroups;
-                const top = (height / numGroups) * simulGroup.groupOffset;
-
-                return (
-                  <Box
-                    key={`${simulGroup.mainRound.eventId}-${simulGroup.mainRound.roundNum}`}
-                    sx={{
-                      width: "40%",
-                      height: `${simulHeight}%`,
-                      position: "absolute",
-                      right: 0,
-                      top: `${top}em`,
-                      borderRadius: "1em",
-                      backgroundColor: getEventColor(
-                        simulGroup.mainRound.eventId
-                      ),
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      pl: 3,
-                      pr: 1.5,
-                    }}
-                  >
-                    {getEventName(simulGroup.mainRound.eventId)}{" "}
-                    {getRoundNumStr(
-                      simulGroup.mainRound.eventId,
-                      simulGroup.mainRound.roundNum,
-                      scheduleWithTimes
-                    )}{" "}
-                    {groupString}
-                    {scheduleEntry.type === "event" && (
-                      <EditSimulScheduleDialog
-                        primaryRound={round}
-                        primaryScheduleEntry={scheduleEntry}
-                        secondaryEventId={simulGroup.mainRound.eventId}
-                        secondaryRoundNum={simulGroup.mainRound.roundNum}
-                      />
-                    )}
-                  </Box>
-                );
-              })}
           </Box>
+          <Droppable
+            droppableId={`simulGroup-${scheduleEntry.eventId}-${
+              scheduleEntry.type === "event"
+                ? scheduleEntry.roundNum
+                : scheduleEntry.index
+            }`}
+            type="simulGroup"
+          >
+            {(provided, snapshot) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                <List sx={{ width: "20em" }}>
+                  {round &&
+                    range(numGroups).map((i) => {
+                      const simulGroup = getSimulGroup(i);
+
+                      const id = `simul-${round.eventId}-${
+                        type === "event"
+                          ? scheduleEntry.roundNum
+                          : scheduleEntry.index
+                      }-${i}`;
+
+                      const isAnotherEventBeingDraggingOver =
+                        snapshot.isDraggingOver &&
+                        !!snapshot.draggingOverWith &&
+                        !snapshot.draggingFromThisWith;
+
+                      const shouldHide =
+                        isAnotherEventBeingDraggingOver &&
+                        i === lastGroupNumWithoutSimulEvent;
+
+                      if (simulGroup) {
+                        return (
+                          <DraggableSimulGroup
+                            key={id}
+                            id={id}
+                            index={i}
+                            simulGroup={simulGroup}
+                            heightPerGroup={heightPerGroup}
+                            scheduleWithTimes={scheduleWithTimes}
+                            scheduleEntry={scheduleEntry}
+                            round={round}
+                            getEventColor={getEventColor}
+                          />
+                        );
+                      }
+
+                      return (
+                        <Draggable draggableId={id} index={i} isDragDisabled>
+                          {(provided) => {
+                            return (
+                              <ListItem
+                                sx={{
+                                  height: `${heightPerGroup}em`,
+                                  borderRadius: "1em",
+                                  backgroundColor: "#80008088",
+                                  visibility: snapshot.isDraggingOver
+                                    ? "visible"
+                                    : "hidden",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  pl: 3,
+                                  pr: 1.5,
+                                  ...(shouldHide ? { p: 0, height: 0 } : {}),
+                                }}
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              ></ListItem>
+                            );
+                          }}
+                        </Draggable>
+                      );
+                    })}
+                  {provided.placeholder}
+                </List>
+              </div>
+            )}
+          </Droppable>
           {isBeingCombinedWith && (
             <Box
               sx={{
