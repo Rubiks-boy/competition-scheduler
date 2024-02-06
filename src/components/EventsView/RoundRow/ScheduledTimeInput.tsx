@@ -12,7 +12,7 @@ export const ScheduledTimeInput = ({
 }: {
   round: {
     eventId: EventId;
-    numGroups: string;
+    numGroups?: string;
     scheduledTime: string;
   };
   isEditingTime: boolean;
@@ -21,7 +21,7 @@ export const ScheduledTimeInput = ({
 }) => {
   const { eventId, numGroups, scheduledTime } = round;
 
-  const calculatedTime = calcTimeForRound(eventId, parseInt(numGroups || "0"));
+  const calculatedTime = calcTimeForRound(eventId, parseInt(numGroups ?? "1"));
   const timeDiff = Math.abs(calculatedTime - parseInt(scheduledTime));
 
   return isEditingTime ? (

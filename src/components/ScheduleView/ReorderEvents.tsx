@@ -14,6 +14,7 @@ import {
   otherActivitiesSelector,
   scheduleSelector,
   startTimesSelector,
+  enableExperimentalFeaturesSelector,
 } from "../../app/selectors";
 import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
@@ -21,8 +22,14 @@ import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
 import { DraggableEvent } from "./DraggableEvent";
 import { DraggableDayDivider } from "./DraggableDayDivider";
 
-const isExperimentalEnabled =
-  window.localStorage.getItem("ENABLE_EXPERIMENTAL") === "true";
+const getRoundFromDroppableId = (droppableId: string) => {
+  const split = droppableId.split("-");
+  if (split.length !== 3 || split[0] !== "simulGroup") {
+    return null;
+  }
+
+  return { eventId: split[1] as EventId, roundNum: parseInt(split[2]) };
+};
 
 const getColorsForActivities = (schedule: Schedule) => {
   const colors: Partial<Record<EventId | OtherActivity, Color>> = {};
@@ -46,6 +53,9 @@ const getColorsForActivities = (schedule: Schedule) => {
 export const ReorderEvents = () => {
   const dispatch = useDispatch();
 
+  const enableExperimentalFeatures = useSelector(
+    enableExperimentalFeaturesSelector
+  );
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
   const startTimes = useSelector(startTimesSelector);
@@ -96,43 +106,16 @@ export const ReorderEvents = () => {
       const sourceScheduleEntry = schedule[sourceIndex];
       const destScheduleEntry = schedule[destIndex];
 
-      if (
-        sourceScheduleEntry.type !== "event" ||
-        destScheduleEntry.type !== "event"
-      ) {
-        return false;
-      }
-
-      const hasMatchingSimul = (
-        entry1: ScheduleEntry & { type: "event" },
-        entry2: ScheduleEntry & { type: "event" }
-      ) => {
-        const round = events[entry1.eventId]?.[entry1.roundNum];
-        return (
-          round &&
-          round.simulGroups.some(
-            ({ mainRound }) =>
-              mainRound.eventId === entry2.eventId &&
-              mainRound.roundNum === entry2.roundNum
-          )
-        );
-      };
-
-      const isSimulRoundsOfSameEvent =
-        sourceScheduleEntry.eventId === destScheduleEntry.eventId;
-
-      const hasMatchingSimulEvent =
-        hasMatchingSimul(sourceScheduleEntry, destScheduleEntry) ||
-        hasMatchingSimul(destScheduleEntry, sourceScheduleEntry);
-
-      // Can't make an already-simul event simul.
-      return !isSimulRoundsOfSameEvent && !hasMatchingSimulEvent;
+      return (
+        sourceScheduleEntry.type === "event" &&
+        destScheduleEntry.type === "event"
+      );
     };
 
     setIdBeingCombinedWith(canSetId() ? combinedWithId : null);
   };
 
-  const onDragEnd: OnDragEndResponder = (result) => {
+  const onReorderRound: OnDragEndResponder = (result) => {
     if (result.destination) {
       dispatch({
         type: "REORDER_ROUND",
@@ -156,6 +139,35 @@ export const ReorderEvents = () => {
     }
   };
 
+  const onReorderSimulGroup: OnDragEndResponder = (result, provided) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const startingRound = getRoundFromDroppableId(result.source.droppableId);
+    const endingRound = getRoundFromDroppableId(result.destination.droppableId);
+
+    if (!startingRound || !endingRound) {
+      return;
+    }
+
+    dispatch({
+      type: "REORDER_SIMUL_GROUP",
+      startingRound,
+      endingRound,
+      startingGroupOffset: result.source.index,
+      newGroupOffset: result.destination.index,
+    });
+  };
+
+  const onDragEnd: OnDragEndResponder = (result, provided) => {
+    if (result.type === "round") {
+      onReorderRound(result, provided);
+    } else if (result.type === "simulGroup") {
+      onReorderSimulGroup(result, provided);
+    }
+  };
+
   const onStartTimeChange = (dayIndex: number) => (startTime: Date) => {
     dispatch({
       type: "START_TIME_CHANGED",
@@ -167,8 +179,9 @@ export const ReorderEvents = () => {
   return (
     <DragDropContext onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <Droppable
-        droppableId="droppable"
-        isCombineEnabled={isExperimentalEnabled}
+        droppableId="round"
+        type="round"
+        isCombineEnabled={enableExperimentalFeatures}
       >
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>

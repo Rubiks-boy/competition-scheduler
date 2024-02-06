@@ -12,7 +12,11 @@ import {
   numOtherActivitiesSelector,
   numStationsSelector,
 } from "../selectors";
-import { createSimulRound, updateSimulRound } from "../helpers";
+import {
+  createSimulRound,
+  updateSimulRound,
+  reorderSimulGroup,
+} from "../helpers";
 import type { Reducer } from "../types";
 
 export const roundsReducer: Reducer = (state, action) => {
@@ -225,6 +229,9 @@ export const roundsReducer: Reducer = (state, action) => {
 
     case "UPDATE_SIMUL_ROUND":
       return updateSimulRound(state, action);
+
+    case "REORDER_SIMUL_GROUP":
+      return reorderSimulGroup(state, action);
 
     default:
       return state;

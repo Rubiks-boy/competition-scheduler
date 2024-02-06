@@ -18,10 +18,7 @@ export const MainSimulRow = ({
 }) => {
   const { eventId, totalNumCompetitors } = round;
 
-  const totalNumGroups = round.simulGroups.reduce(
-    (sum, { mainRound }) => sum + parseInt(mainRound.numGroups),
-    parseInt(round.numGroups)
-  );
+  const totalNumGroups = parseInt(round.numGroups) + round.simulGroups.length;
   const totalScheduledTime = round.simulGroups.reduce(
     (sum, { mainRound }) => sum + parseInt(mainRound.scheduledTime),
     parseInt(round.scheduledTime)

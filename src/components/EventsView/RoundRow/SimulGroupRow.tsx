@@ -27,15 +27,11 @@ export const SimulGroupRow = ({
 }) => {
   const {
     eventId: simulEvent,
-    numGroups: simulGroups,
     roundNum: simulRoundNum,
     scheduledTime,
   } = simulGroup.mainRound;
 
-  const calculatedTime = calcTimeForRound(
-    simulEvent,
-    parseInt(simulGroups || "0")
-  );
+  const calculatedTime = calcTimeForRound(simulEvent, 1);
   const [isEditingTime, setIsEditingTime] = useState(
     calculatedTime !== parseInt(scheduledTime)
   );
@@ -60,7 +56,7 @@ export const SimulGroupRow = ({
     numCompetitors:
       parseInt(simulGroup.numCompetitors) +
       parseInt(simulGroup.mainRound.numCompetitors),
-    numGroups: parseInt(simulGroup.mainRound.numGroups),
+    numGroups: 1,
     numStations,
   });
 
@@ -93,13 +89,7 @@ export const SimulGroupRow = ({
         />
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%", borderBottom: "none" }}>
-        <TextField
-          hiddenLabel
-          size="small"
-          type="number"
-          value={simulGroup.mainRound.numGroups}
-          onChange={(e) => onUpdate("numGroups", e.target.value)}
-        />
+        {1}
       </TableCell>
       <TableCell
         sx={{

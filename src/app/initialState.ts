@@ -39,5 +39,7 @@ export const initialState: State = {
   activeStep: 0,
   isExported: false,
   numberOfDays: null,
-  isDebugging: localStorage.getItem("ScheduleGenerator.debug") === "true",
+  isDebugging: localStorage.getItem("DEBUG") === "true",
+  experimentalFeaturesEnabled:
+    localStorage.getItem("ENABLE_EXPERIMENTAL") === "true",
 };

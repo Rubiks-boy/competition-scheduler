@@ -357,3 +357,6 @@ export const inverseSimulGroupsSelector =
         : []
     );
   };
+
+export const enableExperimentalFeaturesSelector = (state: State) =>
+  state.experimentalFeaturesEnabled;
