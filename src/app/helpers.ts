@@ -1,4 +1,4 @@
-import type { EventId, Round, SimulGroup } from "../types";
+import type { EventId, SimulGroup } from "../types";
 import { range } from "../utils/utils";
 import { roundSelector } from "./selectors";
 import type { Action, State } from "./types";
