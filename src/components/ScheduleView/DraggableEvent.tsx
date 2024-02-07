@@ -52,7 +52,8 @@ export const DraggableEvent = ({
       ? roundSelector(scheduleEntry.eventId, scheduleEntry.roundNum)
       : () => null
   );
-  const numGroups = parseInt(round?.numGroups ?? "1");
+  const numGroups =
+    parseInt(round?.numGroups ?? "1") + (round?.simulGroups ?? []).length;
   const hasSimulGroups = !!useSelector(
     scheduleEntry.type === "event"
       ? inverseSimulGroupsSelector(
