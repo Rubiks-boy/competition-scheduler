@@ -92,15 +92,16 @@ export const roundsReducer: Reducer = (state, action) => {
           numStations: parseInt(state.numStations || "0"),
         });
 
+        const newRound: Round = {
+          eventId,
+          totalNumCompetitors: numCompetitors.toString(),
+          numGroups: numGroups.toString(),
+          scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
+          simulGroups: [],
+        };
+
         return {
-          [eventId]: [
-            {
-              eventId,
-              totalNumCompetitors: numCompetitors.toString(),
-              numGroups: numGroups.toString(),
-              scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
-            },
-          ],
+          [eventId]: [newRound],
         };
       });
 
