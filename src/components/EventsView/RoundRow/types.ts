@@ -6,10 +6,9 @@ export type UpdatableRoundField =
   | "scheduledTime";
 
 export type UpdatableSimulField =
-  | "numCompetitors"
+  | "scheduledTime"
   | "numMainCompetitors"
-  | "numGroups"
-  | "scheduledTime";
+  | "numSecondaryCompetitors";
 
 export type RoundRowProps = {
   round: Round;
@@ -24,7 +23,7 @@ export type RoundRowProps = {
   makeOnUpdateSimulRound: (
     eventId: EventId,
     roundNum: number,
-    mainRound: { eventId: EventId; roundNum: number }
+    groupIndex: number
   ) => (field: UpdatableSimulField, value: string) => void;
   numCompetitorsInt: number;
   numRegistered: number;

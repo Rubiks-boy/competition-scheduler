@@ -18,11 +18,7 @@ import type {
   ScheduleWithTimes,
 } from "../../types";
 import { useSelector } from "../../app/hooks";
-import {
-  groupNumSelector,
-  inverseSimulGroupsSelector,
-  roundSelector,
-} from "../../app/selectors";
+import { roundSelector, groupIndexSelector } from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import { range } from "../../utils/utils";
 import { DraggableSimulGroup } from "./DraggableSimulGroup";
@@ -47,33 +43,35 @@ export const DraggableEvent = ({
   isBeingCombinedWith: boolean;
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const round = useSelector(
-    scheduleEntry.type === "event"
-      ? roundSelector(scheduleEntry.eventId, scheduleEntry.roundNum)
-      : () => null
-  );
+  const round = useSelector((state) => roundSelector(state, scheduleEntry));
   const numGroups =
-    parseInt(round?.numGroups ?? "1") + (round?.simulGroups ?? []).length;
-  const hasSimulGroups = !!useSelector(
-    scheduleEntry.type === "event"
-      ? inverseSimulGroupsSelector(
-          scheduleEntry.eventId,
-          scheduleEntry.roundNum
-        )
-      : () => []
-  ).length;
+    round?.type === "groups"
+      ? round?.groups.length
+      : parseInt(round?.numGroups ?? "1");
 
-  const groupNum = useSelector(
+  const hasSimulGroups = useSelector((state) =>
+    Object.values(state.events).some((rounds) =>
+      rounds?.some(
+        (round) =>
+          round.type === "groups" &&
+          round.groups.some(
+            (group) =>
+              group.secondaryEvent &&
+              group.secondaryEvent.eventId === scheduleEntry.eventId &&
+              group.secondaryEvent.roundIndex === scheduleEntry.roundNum
+          )
+      )
+    )
+  );
+
+  const groupIndex = useSelector((state) =>
     scheduleEntry.type === "event"
-      ? groupNumSelector({
-          scheduleEntry,
-          simulGroup: {
-            eventId: scheduleEntry.eventId,
-            roundNum: scheduleEntry.roundNum,
-            groupOffset: 0,
-          },
+      ? groupIndexSelector(state, {
+          eventId: scheduleEntry.eventId,
+          roundIndex: scheduleEntry.roundNum,
+          secondaryEventUnder: null,
         })
-      : () => undefined
+      : null
   );
 
   const { startTime, endTime, type } = scheduleEntry;
@@ -98,11 +96,11 @@ export const DraggableEvent = ({
       : "";
 
   let groupStr = "";
-  if (hasSimulGroups && groupNum) {
+  if (hasSimulGroups && groupIndex !== null) {
     groupStr =
       numGroups > 1
-        ? ` Groups ${groupNum}-${groupNum + numGroups - 1}`
-        : ` Group ${groupNum}`;
+        ? ` Groups ${groupIndex + 1}-${groupIndex + numGroups}`
+        : ` Group ${groupIndex + 1}`;
   }
 
   const getEventColor = (eventId: EventId | OtherActivity) => {
@@ -117,12 +115,9 @@ export const DraggableEvent = ({
       MAX_ADDITIONAL_HEIGHT;
   const heightPerGroup = height / numGroups;
 
-  const getSimulGroup = (groupNum: number) => {
-    return round?.simulGroups.filter((g) => g.groupOffset === groupNum)?.[0];
-  };
-
   const lastGroupNumWithoutSimulEvent = range(numGroups).reduce(
-    (currMax, i) => (getSimulGroup(i) ? currMax : i),
+    (currMax, i) =>
+      round?.type === "groups" && round.groups[i].secondaryEvent ? currMax : i,
     -1
   );
 
@@ -175,8 +170,6 @@ export const DraggableEvent = ({
                 <List sx={{ width: "20em" }}>
                   {round &&
                     range(numGroups).map((i) => {
-                      const simulGroup = getSimulGroup(i);
-
                       const id = `simul-${round.eventId}-${
                         type === "event"
                           ? scheduleEntry.roundNum
@@ -192,13 +185,24 @@ export const DraggableEvent = ({
                         isAnotherEventBeingDraggingOver &&
                         i === lastGroupNumWithoutSimulEvent;
 
-                      if (simulGroup) {
+                      const group =
+                        round.type === "groups" ? round.groups[i] : undefined;
+                      if (
+                        scheduleEntry.type === "event" &&
+                        group?.secondaryEvent
+                      ) {
                         return (
                           <DraggableSimulGroup
                             key={id}
                             id={id}
                             index={i}
-                            simulGroup={simulGroup}
+                            eventId={group.secondaryEvent.eventId}
+                            roundIndex={group.secondaryEvent.roundIndex}
+                            secondaryEventUnder={{
+                              eventId: round.eventId,
+                              roundIndex: scheduleEntry.roundNum,
+                              groupIndex: i,
+                            }}
                             heightPerGroup={heightPerGroup}
                             scheduleWithTimes={scheduleWithTimes}
                             scheduleEntry={scheduleEntry}

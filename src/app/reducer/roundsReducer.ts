@@ -18,6 +18,7 @@ import {
   reorderSimulGroup,
 } from "../helpers";
 import type { Reducer } from "../types";
+import { calcNumCompetitorsPerRound } from "../../utils/utils";
 
 export const roundsReducer: Reducer = (state, action) => {
   switch (action.type) {
@@ -29,6 +30,10 @@ export const roundsReducer: Reducer = (state, action) => {
       }
 
       const oldRound = oldRounds[action.roundNum];
+
+      if (oldRound.type === "groups") {
+        return state;
+      }
 
       const updatedRound = {
         ...oldRound,
@@ -93,11 +98,11 @@ export const roundsReducer: Reducer = (state, action) => {
         });
 
         const newRound: Round = {
+          type: "aggregate",
           eventId,
           totalNumCompetitors: numCompetitors.toString(),
           numGroups: numGroups.toString(),
           scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
-          simulGroups: [],
         };
 
         return {
@@ -139,11 +144,11 @@ export const roundsReducer: Reducer = (state, action) => {
       });
 
       const roundToAdd: Round = {
+        type: "aggregate",
         eventId: action.eventId,
         totalNumCompetitors: numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: calcTimeForRound(action.eventId, numGroups).toString(),
-        simulGroups: [],
       };
 
       withAddedRound.push(roundToAdd);
@@ -197,11 +202,12 @@ export const roundsReducer: Reducer = (state, action) => {
           return null;
         }
 
-        const resetRounds = rounds.map((round) => {
-          const { totalNumCompetitors } = round;
+        const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
+
+        const resetRounds = numCompetitorsPerRound.map((numCompetitors, i) => {
           const defaultNumGroups = calcNumGroups({
             eventId,
-            numCompetitors: parseInt(totalNumCompetitors),
+            numCompetitors,
             numStations: numStationsSelector(state),
           });
           const defaultScheduledTime = calcTimeForRound(
@@ -209,11 +215,11 @@ export const roundsReducer: Reducer = (state, action) => {
             defaultNumGroups
           );
           return {
+            type: "aggregate" as const,
             eventId,
-            totalNumCompetitors,
+            totalNumCompetitors: `${numCompetitors}`,
             numGroups: `${defaultNumGroups}`,
             scheduledTime: `${defaultScheduledTime}`,
-            simulGroups: [],
           };
         });
 
@@ -225,10 +231,10 @@ export const roundsReducer: Reducer = (state, action) => {
         events: eventsWithResetRounds,
       };
 
-    case "CREATE_SIMUL_ROUND":
+    case "CREATE_SIMUL_GROUP":
       return createSimulRound(state, action);
 
-    case "UPDATE_SIMUL_ROUND":
+    case "UPDATE_SIMUL_GROUP":
       return updateSimulRound(state, action);
 
     case "REORDER_SIMUL_GROUP":

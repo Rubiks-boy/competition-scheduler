@@ -48,6 +48,7 @@ import {
   calcNumCompetitorsPerRound,
   constructActivityString,
   findNthOccurrence,
+  getNumCompetitorsValue,
   makeDefaultEvents,
   numPersonsRegisteredForEvent,
   range,
@@ -120,6 +121,7 @@ const wcifRoundsToEventRounds = (
     const numRegistered = numPersonsRegisteredForEvent(eventId, wcifPersons);
 
     const scheduleEntry = {
+      type: "aggregate" as const,
       eventId,
       totalNumCompetitors:
         type === "percent" ? `${level}%` : numCompetitors.toString(),
@@ -127,7 +129,6 @@ const wcifRoundsToEventRounds = (
       scheduledTime: scheduledTime.toString(),
       roundNum,
       numRegistered,
-      simulGroups: [],
     };
 
     const wcifActivity = findMatchingWcifActivity({
@@ -424,33 +425,39 @@ const createWcifEvent = (
   }
 
   const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
+  const allRounds = Object.values(events).flatMap((rounds) =>
+    rounds ? rounds : []
+  );
 
   return {
     ...getDefaultWcifEvent(eventId),
     ...originalWcifEvent,
     rounds: rounds.map((round, index) => {
-      const advancementLevel = parseInt(
-        rounds[index + 1]?.totalNumCompetitors || "0"
-      );
-      const isPercent = rounds[index + 1]?.totalNumCompetitors.endsWith("%");
-
-      const advancementCondition: AdvancementCondition | null = advancementLevel
-        ? {
-            type: isPercent ? "percent" : "ranking",
-            level: advancementLevel,
-          }
-        : null;
+      let advancementCondition: AdvancementCondition | null = null;
+      const nextRound = rounds[index + 1];
+      if (nextRound) {
+        const { value, isPercent } = getNumCompetitorsValue(nextRound);
+        advancementCondition = {
+          type: isPercent ? "percent" : "ranking",
+          level: value,
+        };
+      }
 
       const originalRound = originalWcifEvent?.rounds.find(
         ({ id }) => id === `${eventId}-r${index + 1}`
       );
+
+      const numGroups =
+        round.type === "groups"
+          ? round.groups.length
+          : parseInt(round.numGroups);
 
       const extension: RoundExtension = {
         id: "competitionScheduler.RoundConfig",
         specUrl: EXTENSIONS_SPEC_URL,
         data: {
           expectedRegistrations: numCompetitorsPerRound[index] ?? null,
-          groupCount: parseInt(round.numGroups) ?? null,
+          groupCount: numGroups,
         },
       };
 
@@ -461,15 +468,24 @@ const createWcifEvent = (
         extension,
       ];
 
-      const numSimulGroups = round.simulGroups.length;
+      const simulGroupsAttachedToOtherEvents = allRounds.flatMap((r) =>
+        r.type === "groups"
+          ? r.groups.filter(
+              (g) =>
+                g.secondaryEvent &&
+                g.secondaryEvent.eventId === round.eventId &&
+                g.secondaryEvent.roundIndex === index
+            )
+          : []
+      );
+      const numSimulGroups = simulGroupsAttachedToOtherEvents.length;
 
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
         advancementCondition,
-        ...(round.numGroups && {
-          scrambleSetCount:
-            parseInt(round.numGroups || "0") + numSimulGroups + 1,
+        ...(numGroups && {
+          scrambleSetCount: numGroups + numSimulGroups + 1,
         }),
         extensions,
       };
@@ -504,7 +520,7 @@ const createChildActivities = ({
   simulGroupsWithTimes,
   getNextId,
 }: {
-  scheduleEntry: WithTime<ScheduleEntry & { nonSimulScheduledTimeMs: number }>;
+  scheduleEntry: WithTime<ScheduleEntry>;
   events: Events;
   simulGroupsWithTimes: Array<WithTime<SimulGroup>>;
   getNextId: () => number;
@@ -519,21 +535,19 @@ const createChildActivities = ({
     return [];
   }
 
-  const simulGroups = simulGroupsWithTimes.filter(
-    (simulGroup) =>
-      simulGroup.mainRound.eventId === scheduleEntry.eventId &&
-      simulGroup.mainRound.roundNum === scheduleEntry.roundNum
-  );
+  const numGroups =
+    round?.type === "groups"
+      ? round?.groups.length
+      : parseInt(round?.numGroups ?? "1");
 
-  const numGroups = parseInt(round.numGroups);
-  const timePerGroupMs = scheduleEntry.nonSimulScheduledTimeMs / numGroups;
+  const timePerGroupMs = scheduleEntry.scheduledTimeMs / numGroups;
   const startTimeMs = scheduleEntry.startTime.getTime();
   const nonSimulGroups = range(numGroups).map((i) => ({
     startTime: new Date(startTimeMs + i * timePerGroupMs),
     endTime: new Date(startTimeMs + (i + 1) * timePerGroupMs),
   }));
 
-  const allChildGroups = [...simulGroups, ...nonSimulGroups];
+  const allChildGroups = [...simulGroupsWithTimes, ...nonSimulGroups];
   allChildGroups.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
   return allChildGroups.map((childGroup, i) => ({
@@ -557,14 +571,12 @@ const createWcifRoom = ({
   originalWcifRoom,
   startingId = 1,
   stationsPerRoom,
-  simulGroupsWithTimes,
   events,
 }: {
   scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
   startingId: number;
   stationsPerRoom: number;
-  simulGroupsWithTimes: Array<WithTime<SimulGroup>>;
   events: Events;
 }) => {
   let nextId = startingId;
@@ -603,12 +615,31 @@ const createWcifRoom = ({
         (activity) => activity.activityCode === activityCode
       );
 
+      const simulGroupsWithTimes =
+        scheduleEntry.type === "event"
+          ? calcSimulGroupsWithTimes(
+              scheduleEntry.eventId,
+              scheduleEntry.roundNum,
+              scheduleWithTimes,
+              events
+            )
+          : [];
+
       const childActivities = createChildActivities({
         scheduleEntry,
-        events,
         simulGroupsWithTimes,
+        events,
         getNextId,
       });
+
+      const minStartTime = Math.min(
+        startTime.getTime(),
+        ...childActivities.map(({ startTime }) => new Date(startTime).getTime())
+      );
+      const maxEndTime = Math.max(
+        endTime.getTime(),
+        ...childActivities.map(({ endTime }) => new Date(endTime).getTime())
+      );
 
       return {
         ...(originalActivity
@@ -616,13 +647,13 @@ const createWcifRoom = ({
           : {
               name: constructActivityString(scheduleEntry),
               activityCode,
-              childActivities,
               scrambleSetId: null,
               extensions: [],
             }),
         id: getNextId(),
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
+        startTime: new Date(minStartTime).toISOString(),
+        endTime: new Date(maxEndTime).toISOString(),
+        childActivities,
       };
     }),
   };
@@ -693,11 +724,6 @@ export const createWcifSchedule = ({
     otherActivities
   );
 
-  const simulGroupsWithTimes = calcSimulGroupsWithTimes(
-    scheduleWithTimes,
-    events
-  );
-
   return {
     ...originalWcifSchedule,
     // Situations for venues / rooms:
@@ -714,7 +740,6 @@ export const createWcifSchedule = ({
             originalWcifRoom,
             startingId: idx * 10000,
             stationsPerRoom: Math.floor(numStations / venueRooms.length),
-            simulGroupsWithTimes,
             events,
           })
         ),

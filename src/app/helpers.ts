@@ -1,84 +1,55 @@
-import type { EventId, SimulGroup } from "../types";
-import { range, roundTo5Min } from "../utils/utils";
+import type { EventId, Round, SecondaryEvent, SimulGroup } from "../types";
+import { range } from "../utils/utils";
 import { roundSelector } from "./selectors";
 import type { Action, State } from "./types";
 
 type StateModifier<T> = (state: State, action: Action & { type: T }) => State;
 
-const removeSimulGroup = (
-  state: State,
-  eventId: EventId,
-  roundNum: number,
-  simulGroupMatches: (simulGroup: SimulGroup) => boolean
-): { state: State; removedSimulGroup: SimulGroup | null } => {
-  const prevRounds = state.events[eventId];
-  if (!prevRounds) {
-    return { state, removedSimulGroup: null };
-  }
-  const prevRound = prevRounds[roundNum];
-
-  const simulGroup = prevRound.simulGroups.find(simulGroupMatches);
-
-  if (!simulGroup) {
-    return { state, removedSimulGroup: null };
+const convertToGroupBased = (prevRound: Round): Round & { type: "groups" } => {
+  if (prevRound.type === "groups") {
+    return prevRound;
   }
 
   const numGroups = parseInt(prevRound.numGroups);
-  const newRound = {
-    ...prevRound,
-    simulGroups: [
-      ...prevRound.simulGroups.filter(
-        (simulGroup) => !simulGroupMatches(simulGroup)
-      ),
-    ],
-    numGroups: `${numGroups + 1}`,
-    scheduledTime: `${
-      parseInt(simulGroup.mainRound.scheduledTime) +
-      parseInt(prevRound.scheduledTime)
-    }`,
+  const competitorsPerGroup =
+    parseInt(prevRound.totalNumCompetitors) / numGroups;
+  const timePerGroup = parseInt(prevRound.scheduledTime) / numGroups;
+  const groups: Array<SimulGroup> = range(numGroups).map(() => ({
+    numMainCompetitors: `${competitorsPerGroup}`,
+    scheduledTime: `${timePerGroup}`,
+  }));
+
+  const newRound: Round = {
+    type: "groups",
+    eventId: prevRound.eventId,
+    groups,
   };
 
-  const newRounds = [...prevRounds];
-  newRounds[roundNum] = newRound;
-
-  const newState = {
-    ...state,
-    isShowingDefaultInfo: false,
-    isExported: false,
-    events: {
-      ...state.events,
-      [eventId]: newRounds,
-    },
-  };
-  return { state: newState, removedSimulGroup: simulGroup };
+  return newRound;
 };
 
 const addSimulGroup = (
   state: State,
   eventId: EventId,
   roundNum: number,
-  simulGroup: SimulGroup,
-  editingExistingGroup: boolean
+  groupNum: number,
+  secondaryEvent: SecondaryEvent
 ): State => {
   const prevRounds = state.events[eventId];
   if (!prevRounds) {
     return state;
   }
-  const prevRound = prevRounds[roundNum];
+  const prevRound = convertToGroupBased(prevRounds[roundNum]);
 
-  const numGroups = parseInt(prevRound.numGroups);
-  const scheduledTime = editingExistingGroup
-    ? parseInt(prevRound.scheduledTime) -
-      parseInt(simulGroup.mainRound.scheduledTime)
-    : roundTo5Min(
-        (parseInt(prevRound.scheduledTime) * (numGroups - 1)) / numGroups
-      );
+  const groups = [...prevRound.groups];
+  groups[groupNum] = {
+    ...groups[groupNum],
+    secondaryEvent,
+  };
 
   const newRound = {
     ...prevRound,
-    simulGroups: [...prevRound.simulGroups, simulGroup],
-    numGroups: `${numGroups - 1}`,
-    scheduledTime: `${scheduledTime}`,
+    groups,
   };
 
   const newRounds = [...prevRounds];
@@ -95,7 +66,37 @@ const addSimulGroup = (
   };
 };
 
-export const createSimulRound: StateModifier<"CREATE_SIMUL_ROUND"> = (
+const modifyRoundInState = (
+  state: State,
+  action: { eventId: EventId; roundIndex: number },
+  modifyRound: (prevRound: Round & { type: "groups" }) => Round
+): State => {
+  const prevRounds = state.events[action.eventId];
+  if (!prevRounds) {
+    return state;
+  }
+  const prevRound = prevRounds[action.roundIndex];
+  if (!prevRound) {
+    return state;
+  }
+
+  const newRound = modifyRound(convertToGroupBased(prevRound));
+
+  const newRounds = [...prevRounds];
+  newRounds[action.roundIndex] = newRound;
+
+  return {
+    ...state,
+    isShowingDefaultInfo: false,
+    isExported: false,
+    events: {
+      ...state.events,
+      [action.eventId]: newRounds,
+    },
+  };
+};
+
+export const createSimulRound: StateModifier<"CREATE_SIMUL_GROUP"> = (
   state,
   action
 ) => {
@@ -108,114 +109,110 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_ROUND"> = (
     return state;
   }
 
-  const currRound = roundSelector(
-    destScheduleEntry.eventId,
-    destScheduleEntry.roundNum
-  )(state);
-
+  const currRound = roundSelector(state, destScheduleEntry);
   if (!currRound) {
     return state;
   }
 
-  const currSimulGroupNums = currRound.simulGroups.map(
-    (simulGroup) => simulGroup.groupOffset
-  );
+  const firstAvailableGroupNum =
+    currRound.type === "groups"
+      ? currRound.groups.findIndex((g) => !g.secondaryEvent)
+      : 0;
 
-  const firstAvailableGroupOffset = range(parseInt(currRound.numGroups)).find(
-    (i) => !currSimulGroupNums.includes(i)
-  );
-
-  if (firstAvailableGroupOffset === undefined) {
+  if (firstAvailableGroupNum === -1) {
     // All groups have a simul event
     return state;
   }
 
-  const newSimulGroup = {
-    mainRound: {
-      eventId: sourceScheduleEntry.eventId,
-      roundNum: sourceScheduleEntry.roundNum,
-      numCompetitors: "10",
-      scheduledTime: "20",
-    },
-    groupOffset: firstAvailableGroupOffset,
-    numCompetitors: "30",
+  const secondaryEvent: SecondaryEvent = {
+    eventId: sourceScheduleEntry.eventId,
+    roundIndex: sourceScheduleEntry.roundNum,
+    numCompetitors: "10",
   };
 
   return addSimulGroup(
     state,
     destScheduleEntry.eventId,
     destScheduleEntry.roundNum,
-    newSimulGroup,
-    false
+    firstAvailableGroupNum,
+    secondaryEvent
   );
 };
 
-export const updateSimulRound: StateModifier<"UPDATE_SIMUL_ROUND"> = (
+export const updateSimulRound: StateModifier<"UPDATE_SIMUL_GROUP"> = (
   state,
   action
 ) => {
-  const simulGroupMatches = (simulGroup: SimulGroup) =>
-    simulGroup.mainRound.eventId === action.mainRound.eventId &&
-    simulGroup.mainRound.roundNum === action.mainRound.roundNum;
+  return modifyRoundInState(state, action, (prevRound) => {
+    const groups = [...prevRound.groups];
 
-  const { state: stateWithoutOldSimulGroup, removedSimulGroup } =
-    removeSimulGroup(state, action.eventId, action.roundNum, simulGroupMatches);
+    const prevGroup = prevRound.groups[action.groupIndex];
+    groups[action.groupIndex] = {
+      numMainCompetitors:
+        action.numMainCompetitors ?? prevGroup.numMainCompetitors,
+      scheduledTime: action.scheduledTime ?? prevGroup.scheduledTime,
+      secondaryEvent: prevGroup.secondaryEvent
+        ? {
+            eventId: prevGroup.secondaryEvent.eventId,
+            roundIndex: prevGroup.secondaryEvent.roundIndex,
+            numCompetitors:
+              action.numSecondaryCompetitors ??
+              prevGroup.secondaryEvent.numCompetitors,
+          }
+        : undefined,
+    };
 
-  if (!removedSimulGroup) {
-    return state;
-  }
+    const newRound: Round = {
+      ...prevRound,
+      groups,
+    };
 
-  const newSimulGroup = {
-    ...removedSimulGroup,
-    mainRound: {
-      ...removedSimulGroup.mainRound,
-      numCompetitors:
-        action.numMainCompetitors ?? removedSimulGroup.mainRound.numCompetitors,
-      scheduledTime:
-        action.scheduledTime ?? removedSimulGroup.mainRound.scheduledTime,
-    },
-    numCompetitors: action.numCompetitors ?? removedSimulGroup.numCompetitors,
-  };
-
-  return addSimulGroup(
-    stateWithoutOldSimulGroup,
-    action.eventId,
-    action.roundNum,
-    newSimulGroup,
-    true
-  );
+    return newRound;
+  });
 };
 
 export const reorderSimulGroup: StateModifier<"REORDER_SIMUL_GROUP"> = (
   state,
   action
 ) => {
-  const { state: stateWithoutOldSimulGroup, removedSimulGroup } =
-    removeSimulGroup(
-      state,
-      action.startingRound.eventId,
-      action.startingRound.roundNum,
-      (simulGroup) => simulGroup.groupOffset === action.startingGroupOffset
-    );
+  let oldSecondaryEvent: SecondaryEvent | undefined;
 
-  if (!removedSimulGroup) {
-    return state;
-  }
+  const withoutOld = modifyRoundInState(
+    state,
+    {
+      eventId: action.startingLocation.eventId,
+      roundIndex: action.startingLocation.roundIndex,
+    },
+    (prevRound) => {
+      const groups = [...prevRound.groups];
+      oldSecondaryEvent =
+        groups[action.startingLocation.groupIndex].secondaryEvent;
+      groups[action.startingLocation.groupIndex].secondaryEvent = undefined;
 
-  if (action.endingRound.eventId === removedSimulGroup.mainRound.eventId) {
-    return stateWithoutOldSimulGroup;
-  }
-
-  const newSimulGroup = {
-    ...removedSimulGroup,
-    groupOffset: action.newGroupOffset,
-  };
-
-  return addSimulGroup(
-    stateWithoutOldSimulGroup,
-    action.endingRound.eventId,
-    action.endingRound.roundNum,
-    newSimulGroup,
-    true
+      return {
+        ...prevRound,
+        groups,
+      };
+    }
   );
+
+  const withNew = modifyRoundInState(
+    withoutOld,
+    {
+      eventId: action.endingLocation.eventId,
+      roundIndex: action.endingLocation.roundIndex,
+    },
+    (prevRound) => {
+      const groups = [...prevRound.groups];
+      groups[action.endingLocation.groupIndex].secondaryEvent =
+        oldSecondaryEvent;
+
+      return {
+        ...prevRound,
+        groups,
+      };
+    }
+  );
+
+  return withNew;
 };

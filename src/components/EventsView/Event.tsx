@@ -30,8 +30,8 @@ type EventProps = {
   ) => void;
   makeOnUpdateSimulRound: (
     eventId: EventId,
-    roundNum: number,
-    mainRound: { eventId: EventId; roundNum: number }
+    roundIndex: number,
+    groupIndex: number
   ) => (field: UpdatableSimulField, value: string) => void;
   onAddRound: () => void;
   onRemoveRound: () => void;

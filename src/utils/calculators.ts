@@ -15,7 +15,7 @@ import {
   SimulGroup,
   WithTime,
 } from "../types";
-import { range } from "./utils";
+import { getScheduledTimeMs } from "./utils";
 
 export const compPerStationsRatio = ({
   numCompetitors,
@@ -128,18 +128,9 @@ export const calcScheduleTimes = (
     }
 
     let scheduledTimeMs: number;
-    let nonSimulScheduledTimeMs: number = 0;
     if (scheduleEntry.type === "event") {
       const round = events[scheduleEntry.eventId]?.[scheduleEntry.roundNum];
-      nonSimulScheduledTimeMs =
-        parseInt(round?.scheduledTime || "0") * 60 * 1000;
-      const simulScheduledTimeMs = (round?.simulGroups || []).reduce(
-        (sum, simulGroup) =>
-          sum + parseInt(simulGroup.mainRound.scheduledTime) * 60 * 1000,
-        0
-      );
-
-      scheduledTimeMs = nonSimulScheduledTimeMs + simulScheduledTimeMs;
+      scheduledTimeMs = round ? getScheduledTimeMs(round) : 0;
     } else {
       scheduledTimeMs =
         parseInt(otherActivities[scheduleEntry.eventId] || "0") * 60 * 1000;
@@ -150,7 +141,6 @@ export const calcScheduleTimes = (
       startTime: new Date(currStartMs),
       endTime: new Date(currStartMs + scheduledTimeMs),
       scheduledTimeMs,
-      nonSimulScheduledTimeMs,
     });
 
     currStartMs += scheduledTimeMs;
@@ -160,6 +150,8 @@ export const calcScheduleTimes = (
 };
 
 export const calcSimulGroupsWithTimes = (
+  eventId: EventId,
+  roundIndex: number,
   scheduleWithTimes: ScheduleWithTimes,
   events: Events
 ) => {
@@ -171,36 +163,26 @@ export const calcSimulGroupsWithTimes = (
     }
 
     const round = events[scheduleEntry.eventId]?.[scheduleEntry.roundNum];
-    if (!round) {
+    if (!round || round.type !== "groups") {
       return;
     }
 
-    const numGroups = parseInt(round.numGroups);
     let currStartTimeMs = scheduleEntry.startTime.getTime();
-    const defaultTimePerGroupMs = Math.floor(
-      scheduleEntry.nonSimulScheduledTimeMs / numGroups
-    );
-
-    range(numGroups).forEach((i) => {
-      const simulGroup = round.simulGroups.find(
-        ({ groupOffset }) => groupOffset === i
-      );
-
-      if (simulGroup) {
-        const scheduledTimeMs =
-          parseInt(simulGroup.mainRound.scheduledTime) * 1000 * 60;
-
+    round.groups.forEach((g) => {
+      const scheduledTimeMs = parseInt(g.scheduledTime) * 1000 * 60;
+      if (
+        g.secondaryEvent &&
+        g.secondaryEvent.eventId === eventId &&
+        g.secondaryEvent.roundIndex === roundIndex
+      ) {
         simulGroupsWithTimes.push({
+          ...g,
           startTime: new Date(currStartTimeMs),
           endTime: new Date(currStartTimeMs + scheduledTimeMs),
           scheduledTimeMs,
-          ...simulGroup,
         });
-
-        currStartTimeMs += scheduledTimeMs;
-      } else {
-        currStartTimeMs += defaultTimePerGroupMs;
       }
+      currStartTimeMs += scheduledTimeMs;
     });
   });
 

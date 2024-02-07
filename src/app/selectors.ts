@@ -1,5 +1,5 @@
 import { getColorForStage, OTHER_ACTIVITES } from "../constants";
-import { EventId, EVENT_IDS, Round } from "../types";
+import { EventId, EVENT_IDS, OtherActivity, Round } from "../types";
 import { calcNumGroups, calcTimeForRound } from "../utils/calculators";
 import { deepEquals } from "../utils/utils";
 import {
@@ -47,12 +47,16 @@ export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
 
-export const roundSelector =
-  (eventId: EventId, roundNum: number) =>
-  (state: State): Round | null => {
-    const events = eventsSelector(state);
-    return events[eventId]?.[roundNum] ?? null;
-  };
+export const roundSelector = (
+  state: State,
+  { eventId, roundNum }: { eventId: EventId | OtherActivity; roundNum?: number }
+): Round | null => {
+  const events = eventsSelector(state);
+  if (roundNum == null || !(eventId in events)) {
+    return null;
+  }
+  return events[eventId as EventId]?.[roundNum] ?? null;
+};
 
 export const addableEventIdsSelector = (state: State) => {
   const events = eventsSelector(state);
@@ -113,7 +117,13 @@ export const isEventsPageValidSelector = (state: State) => {
       return [];
     }
 
-    return rounds.map((round) => round.scheduledTime);
+    return rounds.flatMap((round) => {
+      if (round.type === "aggregate") {
+        return round.scheduledTime;
+      } else {
+        return round.groups.map((g) => g.scheduledTime);
+      }
+    });
   });
   const scheduledOtherTimes = Object.values(state.otherActivities);
   const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
@@ -200,6 +210,10 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
 
   Object.entries(events).forEach(([eventId, rounds]) => {
     rounds?.forEach((round) => {
+      if (round.type !== "aggregate") {
+        return false;
+      }
+
       const {
         totalNumCompetitors: numCompetitors,
         numGroups,
@@ -337,92 +351,95 @@ export const numRegisteredByEventSelector = (state: State) => {
   return numRegisteredByEvent;
 };
 
-export const inverseSimulGroupsSelector =
-  (eventId: EventId, roundNum: number) =>
-  (state: State): Array<Round & { roundNum: number; groupOffset: number }> => {
-    const events = eventsSelector(state);
+type GroupIndicesForRound = Array<{
+  correspondingMainEvent: {
+    eventId: EventId;
+    roundIndex: number;
+    groupIndex: number;
+  } | null;
+  groupIndex: number;
+}>;
+const groupIndicesForRoundSelector = (
+  state: State,
+  { eventId, roundIndex }: { eventId: EventId; roundIndex: number }
+): GroupIndicesForRound => {
+  let currGroupIndex = 0;
+  let result: GroupIndicesForRound = [];
 
-    const filterSimulGroups = (round: Round & { roundNum: number }) => ({
-      ...round,
-      simulGroups: round.simulGroups.filter(
-        (simulGroup) =>
-          simulGroup.mainRound.eventId === eventId &&
-          simulGroup.mainRound.roundNum === roundNum
-      ),
-    });
-
-    const attachGroupOffsets = (round: Round & { roundNum: number }) =>
-      round.simulGroups.map(({ groupOffset }) => ({ ...round, groupOffset }));
-
-    return Object.values(events).flatMap((rounds) =>
-      rounds
-        ? rounds
-            .map((round, i) => ({ roundNum: i, ...round }))
-            .map(filterSimulGroups)
-            .flatMap(attachGroupOffsets)
-        : []
-    );
-  };
-
-export const groupNumSelector =
-  ({
-    scheduleEntry: { eventId, roundNum },
-    simulGroup,
-  }: {
-    scheduleEntry: { eventId: EventId; roundNum: number };
-    simulGroup: { eventId: EventId; roundNum: number; groupOffset: number };
-  }) =>
-  (state: State): number | null => {
-    let currGroupNum = 1;
-
-    for (const scheduleEntry of state.schedule) {
-      if (scheduleEntry.type !== "event") {
-        continue;
-      }
-
-      const round = roundSelector(
-        scheduleEntry.eventId,
-        scheduleEntry.roundNum
-      )(state);
-
-      if (!round) {
-        continue;
-      }
-
-      if (
-        eventId === scheduleEntry.eventId &&
-        roundNum === scheduleEntry.roundNum
-      ) {
-        if (
-          eventId === simulGroup.eventId &&
-          roundNum === simulGroup.roundNum
-        ) {
-          return currGroupNum;
-        }
-
-        currGroupNum += parseInt(round.numGroups);
-      }
-
-      const simulGroups = [...round.simulGroups];
-      simulGroups.sort((a, b) => a.groupOffset - b.groupOffset);
-
-      for (const { mainRound, groupOffset } of simulGroups) {
-        if (eventId === mainRound.eventId && roundNum === mainRound.roundNum) {
-          if (
-            scheduleEntry.eventId === simulGroup.eventId &&
-            scheduleEntry.roundNum === simulGroup.roundNum &&
-            groupOffset === simulGroup.groupOffset
-          ) {
-            return currGroupNum;
-          }
-
-          currGroupNum++;
-        }
-      }
+  state.schedule.forEach((scheduleEntry) => {
+    if (scheduleEntry.type !== "event") {
+      return;
     }
 
-    return null;
-  };
+    const round = roundSelector(state, scheduleEntry);
+    if (!round) {
+      return;
+    }
+
+    if (
+      eventId === scheduleEntry.eventId &&
+      roundIndex === scheduleEntry.roundNum
+    ) {
+      result.push({
+        correspondingMainEvent: null,
+        groupIndex: currGroupIndex,
+      });
+      currGroupIndex +=
+        round.type === "aggregate"
+          ? parseInt(round.numGroups)
+          : round.groups.length;
+    }
+
+    if (round.type === "groups") {
+      round.groups.forEach((group, i) => {
+        if (
+          group.secondaryEvent &&
+          group.secondaryEvent.eventId === eventId &&
+          group.secondaryEvent.roundIndex === roundIndex
+        ) {
+          result.push({
+            correspondingMainEvent: {
+              eventId: scheduleEntry.eventId,
+              roundIndex: scheduleEntry.roundNum,
+              groupIndex: i,
+            },
+            groupIndex: currGroupIndex++,
+          });
+        }
+      });
+    }
+  });
+
+  return result;
+};
+
+export const groupIndexSelector = (
+  state: State,
+  {
+    eventId,
+    roundIndex,
+    secondaryEventUnder,
+  }: {
+    eventId: EventId;
+    roundIndex: number;
+    secondaryEventUnder: {
+      eventId: EventId;
+      roundIndex: number;
+      groupIndex: number;
+    } | null;
+  }
+): number | null => {
+  const groupIndicesForRound = groupIndicesForRoundSelector(state, {
+    eventId,
+    roundIndex,
+  });
+
+  return (
+    groupIndicesForRound.find((g) =>
+      deepEquals(g.correspondingMainEvent, secondaryEventUnder)
+    )?.groupIndex ?? null
+  );
+};
 
 export const enableExperimentalFeaturesSelector = (state: State) =>
   state.experimentalFeaturesEnabled;

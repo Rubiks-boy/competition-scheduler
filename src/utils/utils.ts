@@ -85,15 +85,43 @@ export const deepEquals = (a: unknown, b: unknown) => {
   return true;
 };
 
-export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
-  const numCompetitorsPerRound: Array<number> = [];
-  rounds.forEach((round, roundNum) => {
-    const isPercent = round.totalNumCompetitors.endsWith("%");
-    const advancement = parseInt(round.totalNumCompetitors);
+export const getNumCompetitorsValue = (round: Round) => {
+  if (round.type === "aggregate") {
+    return {
+      value: parseInt(round.totalNumCompetitors),
+      isPercent: round.totalNumCompetitors.endsWith("%"),
+    };
+  } else {
+    return {
+      value: round.groups.reduce(
+        (s, g) => s + parseInt(g.numMainCompetitors),
+        0
+      ),
+      isPercent: false,
+    };
+  }
+};
 
+export const getScheduledTimeMs = (round: Round) => {
+  if (round.type === "aggregate") {
+    return parseInt(round.scheduledTime) * 60 * 1000;
+  } else {
+    return (
+      round.groups.reduce((s, g) => s + parseInt(g.scheduledTime), 0) *
+      60 *
+      1000
+    );
+  }
+};
+
+export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
+  const numCompetitorsValue = rounds.map(getNumCompetitorsValue);
+
+  const numCompetitorsPerRound: Array<number> = [];
+  numCompetitorsValue.forEach(({ isPercent, value }, roundNum) => {
     const numCopetitorsInt = isPercent
-      ? Math.floor((numCompetitorsPerRound[roundNum - 1] * advancement) / 100)
-      : advancement;
+      ? Math.floor((numCompetitorsPerRound[roundNum - 1] * value) / 100)
+      : value;
 
     numCompetitorsPerRound.push(numCopetitorsInt);
   });

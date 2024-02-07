@@ -7,7 +7,22 @@ import {
 import { getRoundName } from "./helpers";
 import { NumCompetitorsInput } from "./NumCompetitorsInput";
 import { ScheduledTimeInput } from "./ScheduledTimeInput";
-import type { RoundRowProps } from "./types";
+import type { UpdatableRoundField } from "./types";
+import { Round } from "../../../types";
+
+type Props = {
+  round: Round & { type: "aggregate" };
+  roundNum: number;
+  isFinal: boolean;
+  numStations: number;
+  onUpdateRound: (
+    field: UpdatableRoundField,
+    value: string,
+    isEditingTime: boolean
+  ) => void;
+  numCompetitorsInt: number;
+  numRegistered: number;
+};
 
 export const NormalRoundRow = ({
   round,
@@ -17,7 +32,7 @@ export const NormalRoundRow = ({
   onUpdateRound,
   numCompetitorsInt,
   numRegistered,
-}: RoundRowProps) => {
+}: Props) => {
   const {
     eventId,
     totalNumCompetitors: numCompetitors,

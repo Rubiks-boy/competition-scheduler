@@ -37,24 +37,31 @@ export type Events = {
   [E in EventId]: Array<Round> | null;
 };
 
-export type SimulGroup = {
-  mainRound: {
-    eventId: EventId;
-    roundNum: number;
-    numCompetitors: string;
-    scheduledTime: string;
-  };
-  groupOffset: number;
+export type SecondaryEvent = {
+  eventId: EventId;
+  roundIndex: number;
   numCompetitors: string;
 };
 
-export type Round = {
-  eventId: EventId;
-  totalNumCompetitors: string;
-  numGroups: string;
+export type SimulGroup = {
+  secondaryEvent?: SecondaryEvent;
+  numMainCompetitors: string;
   scheduledTime: string;
-  simulGroups: Array<SimulGroup>;
 };
+
+export type Round =
+  | {
+      type: "aggregate";
+      eventId: EventId;
+      totalNumCompetitors: string;
+      numGroups: string;
+      scheduledTime: string;
+    }
+  | {
+      type: "groups";
+      eventId: EventId;
+      groups: Array<SimulGroup>;
+    };
 
 export type OtherActivity =
   | "registration"
@@ -83,9 +90,7 @@ export type WithTime<T> = T & {
 };
 
 export type Schedule = Array<ScheduleEntry | DayDivider>;
-export type ScheduleWithTimes = Array<
-  WithTime<(ScheduleEntry & { nonSimulScheduledTimeMs: number }) | DayDivider>
->;
+export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
 
 // Re-export the WCA types with Wcif prefix,
 // to denote project-specific types from the WCA's types

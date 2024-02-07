@@ -131,7 +131,7 @@ export const ReorderEvents = () => {
       }
 
       dispatch({
-        type: "CREATE_SIMUL_ROUND",
+        type: "CREATE_SIMUL_GROUP",
         sourceIndex: result.source.index,
         destinationIndex: draggableIds.indexOf(result.combine.draggableId),
       });
@@ -153,10 +153,16 @@ export const ReorderEvents = () => {
 
     dispatch({
       type: "REORDER_SIMUL_GROUP",
-      startingRound,
-      endingRound,
-      startingGroupOffset: result.source.index,
-      newGroupOffset: result.destination.index,
+      startingLocation: {
+        eventId: startingRound.eventId,
+        roundIndex: startingRound.roundNum,
+        groupIndex: result.source.index,
+      },
+      endingLocation: {
+        eventId: endingRound.eventId,
+        roundIndex: endingRound.roundNum,
+        groupIndex: result.destination.index,
+      },
     });
   };
 

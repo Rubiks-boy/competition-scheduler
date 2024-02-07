@@ -46,15 +46,15 @@ const EventsView = () => {
 
   const makeOnUpdateSimulRound = (
     eventId: EventId,
-    roundNum: number,
-    mainRound: { eventId: EventId; roundNum: number }
+    roundIndex: number,
+    groupIndex: number
   ) => {
     return (field: UpdatableSimulField, value: string) => {
       dispatch({
-        type: "UPDATE_SIMUL_ROUND",
+        type: "UPDATE_SIMUL_GROUP",
         eventId,
-        roundNum,
-        mainRound,
+        roundIndex,
+        groupIndex,
         [field]: value,
       });
     };
