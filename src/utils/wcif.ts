@@ -463,8 +463,6 @@ const createWcifEvent = (
 
       const numSimulGroups = round.simulGroups.length;
 
-      debugger;
-
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
