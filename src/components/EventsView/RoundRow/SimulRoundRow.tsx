@@ -16,7 +16,7 @@ export const SimulRoundRow = ({
   numStations,
   inverseSimulGroups,
 }: RoundRowProps & {
-  inverseSimulGroups: Array<Round & { roundNum: number }>;
+  inverseSimulGroups: Array<Round & { roundNum: number; groupOffset: number }>;
 }) => {
   const calculatedTime = calcTimeForRound(
     round.eventId,
@@ -63,7 +63,10 @@ export const SimulRoundRow = ({
           <SimulGroupRow
             eventId={inverseSimulGroup.eventId}
             roundNum={inverseSimulGroup.roundNum - 1}
-            simulGroup={simulGroup}
+            simulGroup={{
+              ...simulGroup,
+              groupOffset: inverseSimulGroup.groupOffset,
+            }}
             onUpdate={makeOnUpdateSimulRound(
               inverseSimulGroup.eventId,
               inverseSimulGroup.roundNum - 1,

@@ -18,7 +18,11 @@ import type {
   ScheduleWithTimes,
 } from "../../types";
 import { useSelector } from "../../app/hooks";
-import { roundSelector } from "../../app/selectors";
+import {
+  groupNumSelector,
+  inverseSimulGroupsSelector,
+  roundSelector,
+} from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import { range } from "../../utils/utils";
 import { DraggableSimulGroup } from "./DraggableSimulGroup";
@@ -48,6 +52,29 @@ export const DraggableEvent = ({
       ? roundSelector(scheduleEntry.eventId, scheduleEntry.roundNum)
       : () => null
   );
+  const numGroups =
+    parseInt(round?.numGroups ?? "1") + (round?.simulGroups ?? []).length;
+  const hasSimulGroups = !!useSelector(
+    scheduleEntry.type === "event"
+      ? inverseSimulGroupsSelector(
+          scheduleEntry.eventId,
+          scheduleEntry.roundNum
+        )
+      : () => []
+  ).length;
+
+  const groupNum = useSelector(
+    scheduleEntry.type === "event"
+      ? groupNumSelector({
+          scheduleEntry,
+          simulGroup: {
+            eventId: scheduleEntry.eventId,
+            roundNum: scheduleEntry.roundNum,
+            groupOffset: 0,
+          },
+        })
+      : () => undefined
+  );
 
   const { startTime, endTime, type } = scheduleEntry;
 
@@ -70,6 +97,14 @@ export const DraggableEvent = ({
         )}`
       : "";
 
+  let groupStr = "";
+  if (hasSimulGroups && groupNum) {
+    groupStr =
+      numGroups > 1
+        ? ` Groups ${groupNum}-${groupNum + numGroups - 1}`
+        : ` Group ${groupNum}`;
+  }
+
   const getEventColor = (eventId: EventId | OtherActivity) => {
     const baseColor = colors[eventId] || grey;
     return baseColor[prefersDarkMode ? 800 : 300];
@@ -80,7 +115,6 @@ export const DraggableEvent = ({
     (Math.max(scheduleEntry.scheduledTimeMs - shortestEventTime, 0) /
       longestEventTime) *
       MAX_ADDITIONAL_HEIGHT;
-  const numGroups = parseInt(round?.numGroups ?? "1");
   const heightPerGroup = height / numGroups;
 
   const getSimulGroup = (groupNum: number) => {
@@ -94,7 +128,7 @@ export const DraggableEvent = ({
 
   return (
     <Draggable draggableId={id} index={index}>
-      {(provided, snapshot) => (
+      {(provided) => (
         <ListItem
           sx={{
             backgroundColor: getEventColor(scheduleEntry.eventId),
@@ -120,7 +154,9 @@ export const DraggableEvent = ({
             }}
           >
             <Typography variant="body1">
-              {`${getEventName(scheduleEntry.eventId)}${roundNumStr}`}
+              {`${getEventName(
+                scheduleEntry.eventId
+              )}${roundNumStr}${groupStr}`}
             </Typography>
             <Typography variant="body2">
               {`${formatTime(startTime)}-${formatTime(endTime)}`}

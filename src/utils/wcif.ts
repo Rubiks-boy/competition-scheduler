@@ -13,6 +13,7 @@ import {
   EXTENSIONS_SPEC_URL,
   OTHER_ACTIVITES,
   ONE_DAY_MS,
+  LONG_EVENT_NAMES,
 } from "../constants";
 import {
   CustomStage,
@@ -34,11 +35,13 @@ import {
   WcifSchedule,
   WcifPerson,
   WithTime,
+  SimulGroup,
 } from "../types";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
   calcScheduleTimes,
+  calcSimulGroupsWithTimes,
   calcTimeForRound,
 } from "./calculators";
 import {
@@ -412,9 +415,14 @@ const getDefaultWcifRound = (
 
 const createWcifEvent = (
   eventId: EventId,
-  rounds: Array<Round>,
+  events: Events,
   originalWcifEvent: WcifEvent | undefined
-): WcifEvent => {
+): WcifEvent | null => {
+  const rounds = events[eventId];
+  if (!rounds || !rounds.length) {
+    return null;
+  }
+
   const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
 
   return {
@@ -453,14 +461,16 @@ const createWcifEvent = (
         extension,
       ];
 
+      const numSimulGroups = round.simulGroups.length;
+
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
         advancementCondition,
-        ...(round.numGroups &&
-          !originalRound?.scrambleSets && {
-            scrambleSetCount: parseInt(round.numGroups || "0") + 1,
-          }),
+        ...(round.numGroups && {
+          scrambleSetCount:
+            parseInt(round.numGroups || "0") + numSimulGroups + 1,
+        }),
         extensions,
       };
     }),
@@ -470,33 +480,95 @@ const createWcifEvent = (
 export const createWcifEvents = (
   events: Events,
   originalWcifEvents: Array<WcifEvent>
-): Array<WcifEvent> =>
-  Object.entries(events)
-    .filter(([_, rounds]) => rounds?.length)
-    .map(([eventId, rounds]) => {
-      const originalWcifEvent = originalWcifEvents.find(
-        ({ id }) => id === eventId
-      );
+): Array<WcifEvent> => {
+  const wcifEvents: Array<WcifEvent> = [];
+  Object.keys(events).forEach((eventId) => {
+    const originalWcifEvent = originalWcifEvents.find(
+      ({ id }) => id === eventId
+    );
 
-      return createWcifEvent(
-        eventId as EventId,
-        rounds ?? [],
-        originalWcifEvent
-      );
-    });
+    const newWcifEvent = createWcifEvent(
+      eventId as EventId,
+      events,
+      originalWcifEvent
+    );
+
+    newWcifEvent && wcifEvents.push(newWcifEvent);
+  });
+  return wcifEvents;
+};
+
+const createChildActivities = ({
+  scheduleEntry,
+  events,
+  simulGroupsWithTimes,
+  getNextId,
+}: {
+  scheduleEntry: WithTime<ScheduleEntry & { nonSimulScheduledTimeMs: number }>;
+  events: Events;
+  simulGroupsWithTimes: Array<WithTime<SimulGroup>>;
+  getNextId: () => number;
+}) => {
+  if (scheduleEntry.type !== "event") {
+    return [];
+  }
+
+  const round = events[scheduleEntry.eventId]?.[scheduleEntry.roundNum];
+
+  if (!round) {
+    return [];
+  }
+
+  const simulGroups = simulGroupsWithTimes.filter(
+    (simulGroup) =>
+      simulGroup.mainRound.eventId === scheduleEntry.eventId &&
+      simulGroup.mainRound.roundNum === scheduleEntry.roundNum
+  );
+
+  const numGroups = parseInt(round.numGroups);
+  const timePerGroupMs = scheduleEntry.nonSimulScheduledTimeMs / numGroups;
+  const startTimeMs = scheduleEntry.startTime.getTime();
+  const nonSimulGroups = range(numGroups).map((i) => ({
+    startTime: new Date(startTimeMs + i * timePerGroupMs),
+    endTime: new Date(startTimeMs + (i + 1) * timePerGroupMs),
+  }));
+
+  const allChildGroups = [...simulGroups, ...nonSimulGroups];
+  allChildGroups.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+
+  return allChildGroups.map((childGroup, i) => ({
+    id: getNextId(),
+    name: `${LONG_EVENT_NAMES[scheduleEntry.eventId]}, Round ${
+      scheduleEntry.roundNum + 1
+    }, Group ${i + 1}`,
+    activityCode: `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}-g${
+      i + 1
+    }`,
+    startTime: childGroup.startTime.toISOString(),
+    endTime: childGroup.endTime.toISOString(),
+    childActivities: [],
+    scrambleSetId: null,
+    extensions: [],
+  }));
+};
 
 const createWcifRoom = ({
   scheduleWithTimes,
   originalWcifRoom,
   startingId = 1,
   stationsPerRoom,
+  simulGroupsWithTimes,
+  events,
 }: {
   scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
   startingId: number;
   stationsPerRoom: number;
+  simulGroupsWithTimes: Array<WithTime<SimulGroup>>;
+  events: Events;
 }) => {
   let nextId = startingId;
+  const getNextId = () => nextId++;
 
   const groupifierRoomConfig = {
     id: "groupifier.RoomConfig",
@@ -514,7 +586,7 @@ const createWcifRoom = ({
 
   const scheduleEntriesWithTimes = scheduleWithTimes.filter(
     ({ type }) => type !== "day-divider"
-  ) as Array<WithTime<ScheduleEntry>>;
+  ) as Array<WithTime<ScheduleEntry & { nonSimulScheduledTimeMs: number }>>;
 
   return {
     ...originalWcifRoom,
@@ -531,17 +603,24 @@ const createWcifRoom = ({
         (activity) => activity.activityCode === activityCode
       );
 
+      const childActivities = createChildActivities({
+        scheduleEntry,
+        events,
+        simulGroupsWithTimes,
+        getNextId,
+      });
+
       return {
         ...(originalActivity
           ? originalActivity
           : {
               name: constructActivityString(scheduleEntry),
               activityCode,
-              childActivities: [],
+              childActivities,
               scrambleSetId: null,
               extensions: [],
             }),
-        id: nextId++,
+        id: getNextId(),
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
       };
@@ -614,6 +693,11 @@ export const createWcifSchedule = ({
     otherActivities
   );
 
+  const simulGroupsWithTimes = calcSimulGroupsWithTimes(
+    scheduleWithTimes,
+    events
+  );
+
   return {
     ...originalWcifSchedule,
     // Situations for venues / rooms:
@@ -630,6 +714,8 @@ export const createWcifSchedule = ({
             originalWcifRoom,
             startingId: idx * 10000,
             stationsPerRoom: Math.floor(numStations / venueRooms.length),
+            simulGroupsWithTimes,
+            events,
           })
         ),
       },

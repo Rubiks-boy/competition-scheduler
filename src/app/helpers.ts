@@ -1,5 +1,5 @@
 import type { EventId, SimulGroup } from "../types";
-import { range } from "../utils/utils";
+import { range, roundTo5Min } from "../utils/utils";
 import { roundSelector } from "./selectors";
 import type { Action, State } from "./types";
 
@@ -23,6 +23,7 @@ const removeSimulGroup = (
     return { state, removedSimulGroup: null };
   }
 
+  const numGroups = parseInt(prevRound.numGroups);
   const newRound = {
     ...prevRound,
     simulGroups: [
@@ -30,6 +31,11 @@ const removeSimulGroup = (
         (simulGroup) => !simulGroupMatches(simulGroup)
       ),
     ],
+    numGroups: `${numGroups + 1}`,
+    scheduledTime: `${
+      parseInt(simulGroup.mainRound.scheduledTime) +
+      parseInt(prevRound.scheduledTime)
+    }`,
   };
 
   const newRounds = [...prevRounds];
@@ -51,7 +57,8 @@ const addSimulGroup = (
   state: State,
   eventId: EventId,
   roundNum: number,
-  simulGroup: SimulGroup
+  simulGroup: SimulGroup,
+  editingExistingGroup: boolean
 ): State => {
   const prevRounds = state.events[eventId];
   if (!prevRounds) {
@@ -59,9 +66,19 @@ const addSimulGroup = (
   }
   const prevRound = prevRounds[roundNum];
 
+  const numGroups = parseInt(prevRound.numGroups);
+  const scheduledTime = editingExistingGroup
+    ? parseInt(prevRound.scheduledTime) -
+      parseInt(simulGroup.mainRound.scheduledTime)
+    : roundTo5Min(
+        (parseInt(prevRound.scheduledTime) * (numGroups - 1)) / numGroups
+      );
+
   const newRound = {
     ...prevRound,
     simulGroups: [...prevRound.simulGroups, simulGroup],
+    numGroups: `${numGroups - 1}`,
+    scheduledTime: `${scheduledTime}`,
   };
 
   const newRounds = [...prevRounds];
@@ -128,7 +145,8 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_ROUND"> = (
     state,
     destScheduleEntry.eventId,
     destScheduleEntry.roundNum,
-    newSimulGroup
+    newSimulGroup,
+    false
   );
 };
 
@@ -163,7 +181,8 @@ export const updateSimulRound: StateModifier<"UPDATE_SIMUL_ROUND"> = (
     stateWithoutOldSimulGroup,
     action.eventId,
     action.roundNum,
-    newSimulGroup
+    newSimulGroup,
+    true
   );
 };
 
@@ -196,6 +215,7 @@ export const reorderSimulGroup: StateModifier<"REORDER_SIMUL_GROUP"> = (
     stateWithoutOldSimulGroup,
     action.endingRound.eventId,
     action.endingRound.roundNum,
-    newSimulGroup
+    newSimulGroup,
+    true
   );
 };
