@@ -124,11 +124,22 @@ export const calcScheduleTimes = (
       return;
     }
 
-    const scheduledTime =
-      scheduleEntry.type === "event"
-        ? events[scheduleEntry.eventId]?.[scheduleEntry.roundNum].scheduledTime
-        : otherActivities[scheduleEntry.eventId];
-    const scheduledTimeMs = parseInt(scheduledTime || "0") * 60 * 1000;
+    let scheduledTimeMs: number;
+    if (scheduleEntry.type === "event") {
+      const round = events[scheduleEntry.eventId]?.[scheduleEntry.roundNum];
+      const nonSimulScheduledTimeMs =
+        parseInt(round?.scheduledTime || "0") * 60 * 1000;
+      const simulScheduledTimeMs = (round?.simulGroups || []).reduce(
+        (sum, simulGroup) =>
+          sum + parseInt(simulGroup.mainRound.scheduledTime) * 60 * 1000,
+        0
+      );
+
+      scheduledTimeMs = nonSimulScheduledTimeMs + simulScheduledTimeMs;
+    } else {
+      scheduledTimeMs =
+        parseInt(otherActivities[scheduleEntry.eventId] || "0") * 60 * 1000;
+    }
 
     roundsWithTimes.push({
       ...scheduleEntry,
