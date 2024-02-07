@@ -412,9 +412,14 @@ const getDefaultWcifRound = (
 
 const createWcifEvent = (
   eventId: EventId,
-  rounds: Array<Round>,
+  events: Events,
   originalWcifEvent: WcifEvent | undefined
-): WcifEvent => {
+): WcifEvent | null => {
+  const rounds = events[eventId];
+  if (!rounds || !rounds.length) {
+    return null;
+  }
+
   const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
 
   return {
@@ -453,14 +458,24 @@ const createWcifEvent = (
         extension,
       ];
 
+      const numSimulGroups = Object.values(events)
+        .flatMap(
+          (rounds) => rounds?.flatMap((round) => round.simulGroups) ?? []
+        )
+        .filter(
+          (simulGroup) =>
+            simulGroup.mainRound.eventId === eventId &&
+            simulGroup.mainRound.roundNum === index
+        ).length;
+
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
         advancementCondition,
-        ...(round.numGroups &&
-          !originalRound?.scrambleSets && {
-            scrambleSetCount: parseInt(round.numGroups || "0") + 1,
-          }),
+        ...(round.numGroups && {
+          scrambleSetCount:
+            parseInt(round.numGroups || "0") + numSimulGroups + 1,
+        }),
         extensions,
       };
     }),
@@ -470,20 +485,23 @@ const createWcifEvent = (
 export const createWcifEvents = (
   events: Events,
   originalWcifEvents: Array<WcifEvent>
-): Array<WcifEvent> =>
-  Object.entries(events)
-    .filter(([_, rounds]) => rounds?.length)
-    .map(([eventId, rounds]) => {
-      const originalWcifEvent = originalWcifEvents.find(
-        ({ id }) => id === eventId
-      );
+): Array<WcifEvent> => {
+  const wcifEvents: Array<WcifEvent> = [];
+  Object.keys(events).forEach((eventId) => {
+    const originalWcifEvent = originalWcifEvents.find(
+      ({ id }) => id === eventId
+    );
 
-      return createWcifEvent(
-        eventId as EventId,
-        rounds ?? [],
-        originalWcifEvent
-      );
-    });
+    const newWcifEvent = createWcifEvent(
+      eventId as EventId,
+      events,
+      originalWcifEvent
+    );
+
+    newWcifEvent && wcifEvents.push(newWcifEvent);
+  });
+  return wcifEvents;
+};
 
 const createWcifRoom = ({
   scheduleWithTimes,
