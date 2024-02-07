@@ -83,7 +83,9 @@ export type WithTime<T> = T & {
 };
 
 export type Schedule = Array<ScheduleEntry | DayDivider>;
-export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
+export type ScheduleWithTimes = Array<
+  WithTime<(ScheduleEntry & { nonSimulScheduledTimeMs: number }) | DayDivider>
+>;
 
 // Re-export the WCA types with Wcif prefix,
 // to denote project-specific types from the WCA's types

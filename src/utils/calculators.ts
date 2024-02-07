@@ -12,7 +12,10 @@ import {
   Round,
   Schedule,
   ScheduleWithTimes,
+  SimulGroup,
+  WithTime,
 } from "../types";
+import { range } from "./utils";
 
 export const compPerStationsRatio = ({
   numCompetitors,
@@ -125,9 +128,10 @@ export const calcScheduleTimes = (
     }
 
     let scheduledTimeMs: number;
+    let nonSimulScheduledTimeMs: number = 0;
     if (scheduleEntry.type === "event") {
       const round = events[scheduleEntry.eventId]?.[scheduleEntry.roundNum];
-      const nonSimulScheduledTimeMs =
+      nonSimulScheduledTimeMs =
         parseInt(round?.scheduledTime || "0") * 60 * 1000;
       const simulScheduledTimeMs = (round?.simulGroups || []).reduce(
         (sum, simulGroup) =>
@@ -146,10 +150,59 @@ export const calcScheduleTimes = (
       startTime: new Date(currStartMs),
       endTime: new Date(currStartMs + scheduledTimeMs),
       scheduledTimeMs,
+      nonSimulScheduledTimeMs,
     });
 
     currStartMs += scheduledTimeMs;
   });
 
   return roundsWithTimes;
+};
+
+export const calcSimulGroupsWithTimes = (
+  scheduleWithTimes: ScheduleWithTimes,
+  events: Events
+) => {
+  const simulGroupsWithTimes: Array<WithTime<SimulGroup>> = [];
+
+  scheduleWithTimes.forEach((scheduleEntry) => {
+    if (scheduleEntry.type !== "event") {
+      return;
+    }
+
+    const round = events[scheduleEntry.eventId]?.[scheduleEntry.roundNum];
+    if (!round) {
+      return;
+    }
+
+    const numGroups = parseInt(round.numGroups);
+    let currStartTimeMs = scheduleEntry.startTime.getTime();
+    const defaultTimePerGroupMs = Math.floor(
+      scheduleEntry.nonSimulScheduledTimeMs / numGroups
+    );
+
+    range(numGroups).forEach((i) => {
+      const simulGroup = round.simulGroups.find(
+        ({ groupOffset }) => groupOffset === i
+      );
+
+      if (simulGroup) {
+        const scheduledTimeMs =
+          parseInt(simulGroup.mainRound.scheduledTime) * 1000 * 60;
+
+        simulGroupsWithTimes.push({
+          startTime: new Date(currStartTimeMs),
+          endTime: new Date(currStartTimeMs + scheduledTimeMs),
+          scheduledTimeMs,
+          ...simulGroup,
+        });
+
+        currStartTimeMs += scheduledTimeMs;
+      } else {
+        currStartTimeMs += defaultTimePerGroupMs;
+      }
+    });
+  });
+
+  return simulGroupsWithTimes;
 };

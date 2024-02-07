@@ -39,6 +39,7 @@ import {
   calcExpectedNumCompetitors,
   calcNumGroups,
   calcScheduleTimes,
+  calcSimulGroupsWithTimes,
   calcTimeForRound,
 } from "./calculators";
 import {
@@ -630,6 +631,11 @@ export const createWcifSchedule = ({
     schedule,
     events,
     otherActivities
+  );
+
+  const simulGroupsWithTimes = calcSimulGroupsWithTimes(
+    scheduleWithTimes,
+    events
   );
 
   return {
