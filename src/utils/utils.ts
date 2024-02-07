@@ -111,3 +111,7 @@ export const numPersonsRegisteredForEvent = (
       registration.status === "accepted" &&
       registration.eventIds.includes(eventId)
   ).length;
+
+export const roundTo5Min = (num: number) => {
+  return Math.round(num / 5) * 5;
+};
