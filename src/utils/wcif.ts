@@ -461,15 +461,9 @@ const createWcifEvent = (
         extension,
       ];
 
-      const numSimulGroups = Object.values(events)
-        .flatMap(
-          (rounds) => rounds?.flatMap((round) => round.simulGroups) ?? []
-        )
-        .filter(
-          (simulGroup) =>
-            simulGroup.mainRound.eventId === eventId &&
-            simulGroup.mainRound.roundNum === index
-        ).length;
+      const numSimulGroups = round.simulGroups.length;
+
+      debugger;
 
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
