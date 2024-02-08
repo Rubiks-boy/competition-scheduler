@@ -48,9 +48,9 @@ export const GroupRow = ({
       })
     : "";
 
-  const calculatedMainTime = calcTimeForRound(eventId, 1);
+  const calculatedMainTime = calcTimeForRound(eventId, 1, false);
   const calculatedSecondaryTime = secondaryEvent
-    ? calcTimeForRound(secondaryEvent.eventId, 1)
+    ? calcTimeForRound(secondaryEvent.eventId, 1, false)
     : 0;
   const calculatedTime = Math.max(calculatedMainTime, calculatedSecondaryTime);
 

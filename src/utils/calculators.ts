@@ -35,12 +35,13 @@ export const compPerStationsRatio = ({
 
 export const calcTimeForRound = (
   eventId: EventId,
-  numGroups: number | null
+  numGroups: number | null,
+  shouldRound: boolean = true
 ) => {
   const calculatedTime = TIME_PER_GROUP[eventId] * (numGroups || 0);
 
   // round up to the nearest 5 mins
-  return Math.ceil(calculatedTime / 5) * 5;
+  return shouldRound ? Math.ceil(calculatedTime / 5) * 5 : calculatedTime;
 };
 
 export const calcExpectedNumCompetitors = (

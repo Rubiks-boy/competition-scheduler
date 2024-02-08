@@ -15,8 +15,6 @@ export const ScheduledTimeInput = ({
   onChange: (value: string) => void;
   setEditingTime: () => void;
 }) => {
-  const timeDiff = Math.abs(calculatedTime - parseInt(scheduledTime));
-
   return isEditingTime ? (
     <TextField
       hiddenLabel
@@ -29,7 +27,7 @@ export const ScheduledTimeInput = ({
         endAdornment: scheduledTime && (
           <TimeDiffTooltip
             calculatedTime={calculatedTime}
-            timeDiff={timeDiff}
+            scheduledTime={parseInt(scheduledTime)}
           />
         ),
       }}

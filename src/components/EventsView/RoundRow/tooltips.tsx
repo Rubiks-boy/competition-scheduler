@@ -2,28 +2,30 @@ import { InputAdornment, Tooltip } from "@mui/material";
 import { Info, Warning, Error } from "@mui/icons-material";
 
 export const TimeDiffTooltip = ({
-  timeDiff,
+  scheduledTime,
   calculatedTime,
 }: {
-  timeDiff: number;
+  scheduledTime: number;
   calculatedTime: number;
 }) => {
-  if (timeDiff === 0) {
-    // show a dummy hidden icon
-    // this makes sure the up/down arrows on the text field don't jump around.
-    return (
-      <InputAdornment position="end" sx={{ visibility: "hidden" }}>
-        <Info color="info" fontSize="small" />
-      </InputAdornment>
-    );
-  }
+  const timeDiff = Math.abs(calculatedTime - scheduledTime);
 
-  if (timeDiff % 5) {
+  if (scheduledTime % 5) {
     return (
       <InputAdornment position="end">
         <Tooltip title="Must be in increments of 5 minutes">
           <Error color="error" fontSize="small" />
         </Tooltip>
+      </InputAdornment>
+    );
+  }
+
+  if (timeDiff < 5) {
+    // show a dummy hidden icon
+    // this makes sure the up/down arrows on the text field don't jump around.
+    return (
+      <InputAdornment position="end" sx={{ visibility: "hidden" }}>
+        <Info color="info" fontSize="small" />
       </InputAdornment>
     );
   }
