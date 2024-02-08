@@ -365,7 +365,7 @@ type GroupIndicesForRound = Array<{
   } | null;
   groupIndex: number;
 }>;
-const groupIndicesForRoundSelector = (
+export const groupIndicesForRoundSelector = (
   state: State,
   { eventId, roundIndex }: { eventId: EventId; roundIndex: number }
 ): GroupIndicesForRound => {
@@ -467,6 +467,7 @@ export const getGroupNameSelector =
     roundIndex,
     groupIndex = 0,
     secondaryEventUnder,
+    showRoundName = true,
   }: {
     eventId: EventId;
     roundIndex: number;
@@ -476,6 +477,7 @@ export const getGroupNameSelector =
       roundIndex: number;
       groupIndex: number;
     } | null;
+    showRoundName?: boolean;
   }) => {
     const roundName = getRoundNameSelector(state)({ eventId, roundIndex });
     const trueStartingIndex =
@@ -484,7 +486,8 @@ export const getGroupNameSelector =
         roundIndex,
         secondaryEventUnder,
       }) ?? 0;
-    return `${roundName} Group ${trueStartingIndex + groupIndex + 1}`;
+    const groupName = `Group ${trueStartingIndex + groupIndex + 1}`;
+    return showRoundName ? `${roundName} ${groupName}` : groupName;
   };
 
 export const showAdvancedSelector = (state: State) => state.showAdvanced;
@@ -530,4 +533,100 @@ export const getSimulGroupsForEventSelector =
     });
 
     return simulGroups;
+  };
+
+export const totalNumCompetitorsSelector =
+  (state: State) =>
+  ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
+    const getRound = getRoundSelector(state);
+    const mainRound = getRound({ eventId, roundNum: roundIndex });
+    const simulGroups = getSimulGroupsForEventSelector(state)({
+      eventId,
+      roundIndex,
+    });
+
+    if (!mainRound) {
+      return 0;
+    }
+
+    const numMainCompetitors =
+      mainRound.type === "aggregate"
+        ? parseInt(mainRound.totalNumCompetitors)
+        : mainRound.groups.reduce(
+            (s, g) => parseInt(g.numMainCompetitors) + s,
+            0
+          );
+
+    const simulRounds = simulGroups.map(({ eventId, roundIndex }) =>
+      getRound({ eventId, roundNum: roundIndex })
+    );
+
+    const getNumCompetitorsInRound = (round: Round) => {
+      if (round.type !== "groups") {
+        return 0;
+      }
+
+      const secondaryEvents = round.groups
+        .map(({ secondaryEvent }) => secondaryEvent)
+        .filter(
+          (secondaryEvent) =>
+            secondaryEvent &&
+            secondaryEvent.eventId === eventId &&
+            secondaryEvent.roundIndex === roundIndex
+        );
+
+      const numCompetitors = secondaryEvents.reduce(
+        (s, secondaryEvent) =>
+          parseInt(secondaryEvent?.numCompetitors ?? "0") + s,
+        0
+      );
+
+      return numCompetitors;
+    };
+
+    const numInSimulGroups = simulRounds
+      .map((round) => (round ? getNumCompetitorsInRound(round) : 0))
+      .reduce((s, num) => num + s, 0);
+
+    return numMainCompetitors + numInSimulGroups;
+  };
+
+export const getNumGroupsSelector =
+  (state: State) =>
+  ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
+    const getRound = getRoundSelector(state);
+    const mainRound = getRound({ eventId, roundNum: roundIndex });
+    const simulGroups = getSimulGroupsForEventSelector(state)({
+      eventId,
+      roundIndex,
+    });
+
+    if (!mainRound) {
+      return 0;
+    }
+
+    const numMainGroups =
+      mainRound.type === "aggregate"
+        ? parseInt(mainRound.numGroups)
+        : mainRound.groups.length;
+    const numSimulGroups = simulGroups.length;
+
+    return numMainGroups + numSimulGroups;
+  };
+
+export const getScheduledTimeSelector =
+  (state: State) =>
+  ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
+    const getRound = getRoundSelector(state);
+    const mainRound = getRound({ eventId, roundNum: roundIndex });
+
+    if (!mainRound) {
+      return 0;
+    }
+
+    if (mainRound.type === "aggregate") {
+      return parseInt(mainRound.scheduledTime);
+    }
+
+    return mainRound.groups.reduce((s, g) => parseInt(g.scheduledTime) + s, 0);
   };

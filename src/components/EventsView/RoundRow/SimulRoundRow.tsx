@@ -10,7 +10,11 @@ import { EventId, Round, SimulGroup } from "../../../types";
 import { useDispatch, useSelector } from "../../../app/hooks";
 import {
   getGroupNameSelector,
+  getNumGroupsSelector,
+  getRoundNameSelector,
+  getScheduledTimeSelector,
   numStationsSelector,
+  totalNumCompetitorsSelector,
 } from "../../../app/selectors";
 
 export const GroupRow = ({
@@ -34,6 +38,7 @@ export const GroupRow = ({
     eventId,
     roundIndex,
     groupIndex,
+    showRoundName: !!secondaryEvent,
   });
 
   const secondaryGroupName = secondaryEvent
@@ -88,9 +93,33 @@ export const GroupRow = ({
         scope="row"
         sx={{
           minWidth: "10em",
+          borderBottom: 0,
+          pb: 1,
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "2.4em" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            lineHeight: "40px",
+            gap: "1em",
+            pl: secondaryEvent ? "3em" : "2em",
+          }}
+        >
+          {secondaryEvent && (
+            <Box
+              sx={{
+                position: "absolute",
+                width: "0.5em",
+                height: "55px",
+                border: "1px solid",
+                borderRight: 0,
+                left: "2em",
+                top: "20px",
+              }}
+            ></Box>
+          )}
           <span>{mainGroupName}</span>
           {secondaryEvent && <span>{secondaryGroupName}</span>}
         </Box>
@@ -99,6 +128,8 @@ export const GroupRow = ({
         sx={{
           minWidth: "8em",
           width: "20%",
+          borderBottom: 0,
+          pb: 1,
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: "1em" }}>
@@ -118,9 +149,15 @@ export const GroupRow = ({
           )}
         </Box>
       </TableCell>
-      <TableCell sx={{ minWidth: "8em", width: "20%" }}></TableCell>
-      <TableCell sx={{ minWidth: "6em", width: "10%" }}>{ratio}</TableCell>
-      <TableCell sx={{ minWidth: "10em", width: "20%" }}>
+      <TableCell
+        sx={{ minWidth: "8em", width: "20%", borderBottom: 0, pb: 1 }}
+      ></TableCell>
+      <TableCell sx={{ minWidth: "6em", width: "10%", borderBottom: 0, pb: 1 }}>
+        {ratio}
+      </TableCell>
+      <TableCell
+        sx={{ minWidth: "10em", width: "20%", borderBottom: 0, pb: 1 }}
+      >
         <ScheduledTimeInput
           isEditingTime={isEditingTime}
           setEditingTime={() => setIsEditingTime(true)}
@@ -128,6 +165,59 @@ export const GroupRow = ({
           calculatedTime={calculatedTime}
           onChange={(value) => onUpdateRound("scheduledTime", value)}
         />
+      </TableCell>
+    </TableRow>
+  );
+};
+
+export const TotalRow = ({
+  round,
+  roundIndex,
+}: {
+  round: Round & { type: "groups" };
+  roundIndex: number;
+}) => {
+  const { eventId } = round;
+  const roundName = useSelector(getRoundNameSelector)({ eventId, roundIndex });
+  const numCompetitors = useSelector(totalNumCompetitorsSelector)({
+    eventId,
+    roundIndex,
+  });
+  const numGroups = useSelector(getNumGroupsSelector)({ eventId, roundIndex });
+  const scheduledTime = useSelector(getScheduledTimeSelector)({
+    eventId,
+    roundIndex,
+  });
+
+  return (
+    <TableRow key={`${eventId}-${roundIndex}`}>
+      <TableCell
+        component="th"
+        scope="row"
+        sx={{
+          minWidth: "10em",
+          borderBottom: 0,
+        }}
+      >
+        {roundName}
+      </TableCell>
+      <TableCell
+        sx={{
+          minWidth: "8em",
+          width: "20%",
+          borderBottom: 0,
+        }}
+      >
+        {numCompetitors}
+      </TableCell>
+      <TableCell sx={{ minWidth: "8em", width: "20%", borderBottom: 0 }}>
+        {numGroups}
+      </TableCell>
+      <TableCell
+        sx={{ minWidth: "6em", width: "10%", borderBottom: 0 }}
+      ></TableCell>
+      <TableCell sx={{ minWidth: "10em", width: "20%", borderBottom: 0 }}>
+        {scheduledTime}
       </TableCell>
     </TableRow>
   );
@@ -142,6 +232,7 @@ export const SimulRoundRow = ({
 }) => {
   return (
     <>
+      <TotalRow round={round} roundIndex={roundIndex} />
       {round.groups.map((group, groupIndex) => (
         <GroupRow
           group={group}

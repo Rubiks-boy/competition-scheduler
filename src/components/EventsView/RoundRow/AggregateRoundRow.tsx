@@ -12,6 +12,8 @@ import {
   numRegisteredByEventSelector,
   numStationsSelector,
   getRoundNameSelector,
+  groupIndexSelector,
+  getSimulGroupsForEventSelector,
 } from "../../../app/selectors";
 
 type Props = {
@@ -26,7 +28,24 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
   const numCompetitorsInt = parseInt(totalNumCompetitors);
 
   const getRoundName = useSelector(getRoundNameSelector);
+  const hasOtherSimulGroups = !!useSelector(getSimulGroupsForEventSelector)({
+    eventId,
+    roundIndex,
+  }).length;
   const roundName = getRoundName({ eventId, roundIndex });
+  const startingGroupIndex =
+    useSelector((state) =>
+      groupIndexSelector(state, {
+        eventId,
+        roundIndex,
+      })
+    ) ?? 0;
+  const groupString =
+    parseInt(numGroups) > 1
+      ? ` Groups ${startingGroupIndex + 1}-${
+          startingGroupIndex + parseInt(numGroups)
+        }`
+      : ` Group ${startingGroupIndex + 1}`;
 
   const numStations = useSelector(numStationsSelector);
   const numRegisteredByEvent = useSelector(numRegisteredByEventSelector);
@@ -62,10 +81,15 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
 
   return (
     <TableRow key={`${eventId}-${roundIndex}`}>
-      <TableCell component="th" scope="row" sx={{ minWidth: "10em" }}>
+      <TableCell
+        component="th"
+        scope="row"
+        sx={{ borderBottom: 0, minWidth: "10em" }}
+      >
         {roundName}
+        {hasOtherSimulGroups && groupString}
       </TableCell>
-      <TableCell sx={{ minWidth: "8em", width: "20%" }}>
+      <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
         <NumCompetitorsInput
           numCompetitors={totalNumCompetitors}
           roundIndex={roundIndex}
@@ -74,7 +98,7 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           regDiffPercent={regDiffPercent}
         />
       </TableCell>
-      <TableCell sx={{ minWidth: "8em", width: "20%" }}>
+      <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
         <TextField
           hiddenLabel
           size="small"
@@ -83,8 +107,10 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
         />
       </TableCell>
-      <TableCell sx={{ minWidth: "6em", width: "10%" }}>{ratio}</TableCell>
-      <TableCell sx={{ minWidth: "10em", width: "20%" }}>
+      <TableCell sx={{ borderBottom: 0, minWidth: "6em", width: "10%" }}>
+        {ratio}
+      </TableCell>
+      <TableCell sx={{ borderBottom: 0, minWidth: "10em", width: "20%" }}>
         <ScheduledTimeInput
           isEditingTime={isEditingTime}
           setEditingTime={() => setIsEditingTime(true)}
