@@ -6,9 +6,13 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { UnfoldMore, UnfoldLess } from "@mui/icons-material";
+import { UnfoldMore, UnfoldLess, SettingsSuggest } from "@mui/icons-material";
 import { useDispatch, useSelector } from "../../app/hooks";
-import { numberOfDaysSelector, startTimesSelector } from "../../app/selectors";
+import {
+  numberOfDaysSelector,
+  startTimesSelector,
+  showAdvancedSelector,
+} from "../../app/selectors";
 import { ReorderEvents } from "./ReorderEvents";
 import { TimePicker } from "../TimePicker";
 import classNames from "classnames";
@@ -20,7 +24,15 @@ const ScheduleView = () => {
   const dispatch = useDispatch();
   const startTimes = useSelector(startTimesSelector);
   const numberOfDays = useSelector(numberOfDaysSelector);
+  const showAdvanced = useSelector(showAdvancedSelector);
   const [evenlySpaced, setEvenlySpaced] = useState(false);
+
+  const setShowAdvanced = (showAdvanced: boolean) => {
+    dispatch({
+      type: "SHOW_ADVANCED",
+      showAdvanced,
+    });
+  };
 
   const onStartTimeChange = (startTime: Date) => {
     dispatch({
@@ -54,8 +66,14 @@ const ScheduleView = () => {
             />
           )}
           <ToggleButtonGroup
-            value={evenlySpaced ? [] : ["expand"]}
-            onChange={() => setEvenlySpaced(!evenlySpaced)}
+            value={[
+              ...(evenlySpaced ? [] : ["expand"]),
+              ...(showAdvanced ? ["advanced"] : []),
+            ]}
+            onChange={(_, value) => {
+              setEvenlySpaced(!value.includes("expand"));
+              setShowAdvanced(value.includes("advanced"));
+            }}
           >
             <ToggleButton value="expand">
               {evenlySpaced ? (
@@ -67,6 +85,11 @@ const ScheduleView = () => {
                   <UnfoldLess />
                 </Tooltip>
               )}
+            </ToggleButton>
+            <ToggleButton value="advanced">
+              <Tooltip title="Show advanced information">
+                <SettingsSuggest />
+              </Tooltip>
             </ToggleButton>
           </ToggleButtonGroup>
         </Grid>

@@ -18,7 +18,11 @@ import type {
   ScheduleWithTimes,
 } from "../../types";
 import { useSelector } from "../../app/hooks";
-import { roundSelector, groupIndexSelector } from "../../app/selectors";
+import {
+  roundSelector,
+  groupIndexSelector,
+  showAdvancedSelector,
+} from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import { range } from "../../utils/utils";
 import { DraggableSimulGroup } from "./DraggableSimulGroup";
@@ -45,6 +49,7 @@ export const DraggableEvent = ({
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const round = useSelector((state) => roundSelector(state, scheduleEntry));
+  const showAdvanced = useSelector(showAdvancedSelector);
   const numGroups =
     round?.type === "groups"
       ? round?.groups.length
@@ -153,12 +158,13 @@ export const DraggableEvent = ({
               display: "flex",
             }}
           >
-            {scheduleEntry.type === "event" && hasGroupsSimulWithCurrRound && (
-              <EditSimulScheduleDialog
-                eventId={scheduleEntry.eventId}
-                roundIndex={scheduleEntry.roundNum}
-              />
-            )}
+            {scheduleEntry.type === "event" &&
+              (hasGroupsSimulWithCurrRound || showAdvanced) && (
+                <EditSimulScheduleDialog
+                  eventId={scheduleEntry.eventId}
+                  roundIndex={scheduleEntry.roundNum}
+                />
+              )}
           </Box>
           <Box
             sx={{

@@ -481,3 +481,5 @@ export const getGroupNameSelector =
       }) ?? 0;
     return `${roundName} Group ${trueStartingIndex + groupIndex + 1}`;
   };
+
+export const showAdvancedSelector = (state: State) => state.showAdvanced;
