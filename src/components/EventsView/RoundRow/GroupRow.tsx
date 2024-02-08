@@ -34,7 +34,7 @@ export const GroupRow = ({
     eventId,
     roundIndex,
     groupIndex,
-    showRoundName: !!secondaryEvent,
+    roundNames: secondaryEvent ? "short" : "none",
   });
 
   const secondaryGroupName = secondaryEvent
@@ -46,6 +46,7 @@ export const GroupRow = ({
           roundIndex,
           groupIndex,
         },
+        roundNames: "short",
       })
     : "";
 

@@ -452,12 +452,20 @@ export const enableExperimentalFeaturesSelector = (state: State) =>
 
 export const getRoundNameSelector =
   (state: State) =>
-  ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
+  ({
+    eventId,
+    roundIndex,
+    useShortName = false,
+  }: {
+    eventId: EventId;
+    roundIndex: number;
+    useShortName?: boolean;
+  }) => {
     const events = eventsSelector(state);
     const numRounds = events[eventId as EventId]?.length ?? 0;
     const isFinal = roundIndex === numRounds - 1;
 
-    return getRoundName(eventId, roundIndex, isFinal);
+    return getRoundName(eventId, roundIndex, isFinal, useShortName);
   };
 
 export const getGroupNameSelector =
@@ -467,7 +475,7 @@ export const getGroupNameSelector =
     roundIndex,
     groupIndex = 0,
     secondaryEventUnder,
-    showRoundName = true,
+    roundNames,
   }: {
     eventId: EventId;
     roundIndex: number;
@@ -477,9 +485,13 @@ export const getGroupNameSelector =
       roundIndex: number;
       groupIndex: number;
     } | null;
-    showRoundName?: boolean;
+    roundNames?: "short" | "normal" | "none";
   }) => {
-    const roundName = getRoundNameSelector(state)({ eventId, roundIndex });
+    const roundName = getRoundNameSelector(state)({
+      eventId,
+      roundIndex,
+      useShortName: roundNames === "short",
+    });
     const trueStartingIndex =
       groupIndexSelector(state, {
         eventId,
@@ -487,7 +499,7 @@ export const getGroupNameSelector =
         secondaryEventUnder,
       }) ?? 0;
     const groupName = `Group ${trueStartingIndex + groupIndex + 1}`;
-    return showRoundName ? `${roundName} ${groupName}` : groupName;
+    return roundNames !== "none" ? `${roundName} ${groupName}` : groupName;
   };
 
 export const showAdvancedSelector = (state: State) => state.showAdvanced;

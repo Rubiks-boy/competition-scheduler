@@ -2,6 +2,31 @@ import { RoundFormat } from "@wca/helpers";
 import type { EventId, Stage } from "./types";
 import { colors } from "@mui/material";
 
+export const SHORT_EVENT_NAMES = {
+  "333": "3x3",
+  "222": "2x2",
+  "444": "4x4",
+  "555": "5x5",
+  "666": "6x6",
+  "777": "7x7",
+  "333bf": "3BLD",
+  "333fm": "FMC",
+  "333oh": "OH",
+  clock: "Clock",
+  pyram: "Pyra",
+  minx: "Mega",
+  skewb: "Skewb",
+  sq1: "Sq1",
+  "444bf": "4BLD",
+  "555bf": "5BLD",
+  "333mbf": "MBLD",
+  // Deprecated events
+  magic: "magic",
+  mmagic: "mmagic",
+  "333mbo": "333mbo",
+  "333ft": "333ft",
+};
+
 export const EVENT_NAMES = {
   "333": "3x3",
   "222": "2x2",

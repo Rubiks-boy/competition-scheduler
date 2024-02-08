@@ -1,4 +1,4 @@
-import { EVENT_NAMES } from "../constants";
+import { EVENT_NAMES, SHORT_EVENT_NAMES } from "../constants";
 import type { EventId, Round, SecondaryEvent, SimulGroup } from "../types";
 import { range, splitEvenlyWithRounding } from "../utils/utils";
 import { getRoundSelector } from "./selectors";
@@ -228,5 +228,18 @@ export const reorderSimulGroup: StateModifier<"REORDER_SIMUL_GROUP"> = (
 export const getRoundName = (
   eventId: EventId,
   roundNum: number,
-  isFinal: boolean
-) => `${EVENT_NAMES[eventId]} ${isFinal ? "Final" : `Round ${roundNum + 1}`}`;
+  isFinal: boolean,
+  useShortName: boolean = false
+) => {
+  const { event, roundNumText } = useShortName
+    ? {
+        event: SHORT_EVENT_NAMES[eventId],
+        roundNumText: `R${roundNum + 1}`,
+      }
+    : {
+        event: EVENT_NAMES[eventId],
+        roundNumText: `Round ${roundNum + 1}`,
+      };
+
+  return `${event} ${isFinal ? "Final" : roundNumText}`;
+};
