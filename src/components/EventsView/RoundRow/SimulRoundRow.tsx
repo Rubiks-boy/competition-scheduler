@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, TableCell, TableRow, TextField } from "@mui/material";
+import { Box, TableCell, TableRow } from "@mui/material";
 import {
   calcTimeForRound,
   compPerStationsRatio,
@@ -10,7 +10,6 @@ import { EventId, Round, SimulGroup } from "../../../types";
 import { useDispatch, useSelector } from "../../../app/hooks";
 import {
   getGroupNameSelector,
-  numRegisteredByEventSelector,
   numStationsSelector,
 } from "../../../app/selectors";
 
@@ -30,8 +29,6 @@ const GroupRow = ({
   const { secondaryEvent, numMainCompetitors, scheduledTime } = group;
 
   const numStations = useSelector(numStationsSelector);
-  const numRegisteredByEvent = useSelector(numRegisteredByEventSelector);
-  const numRegistered = numRegisteredByEvent[eventId];
   const getGroupName = useSelector(getGroupNameSelector);
   const mainGroupName = getGroupName({ eventId, roundIndex, groupIndex });
 
