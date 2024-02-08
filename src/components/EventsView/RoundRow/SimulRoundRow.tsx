@@ -13,7 +13,7 @@ import {
   numStationsSelector,
 } from "../../../app/selectors";
 
-const GroupRow = ({
+export const GroupRow = ({
   group,
   eventId,
   roundIndex,

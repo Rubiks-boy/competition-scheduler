@@ -1,7 +1,11 @@
 import { useDispatch, useSelector } from "../../app/hooks";
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { addableEventIdsSelector, eventsSelector } from "../../app/selectors";
+import {
+  addableEventIdsSelector,
+  eventsSelector,
+  getSimulGroupsForEventSelector,
+} from "../../app/selectors";
 import { Event } from "./Event";
 import { OtherActivities } from "./OtherActivites";
 import { AddEvent } from "./AddEvent";
