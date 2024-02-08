@@ -6,7 +6,8 @@ import {
   groupIndicesForRoundSelector,
 } from "../../../app/selectors";
 import { AggregateRoundRow } from "./AggregateRoundRow";
-import { GroupRow, SimulRoundRow } from "./SimulRoundRow";
+import { GroupRow } from "./GroupRow";
+import { SimulRoundRow } from "./SimulRoundRow";
 
 const BottomBorder = () => (
   <TableRow>
