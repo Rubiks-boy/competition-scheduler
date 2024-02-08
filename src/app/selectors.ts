@@ -619,14 +619,47 @@ export const getScheduledTimeSelector =
   ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
     const getRound = getRoundSelector(state);
     const mainRound = getRound({ eventId, roundNum: roundIndex });
+    const simulGroups = getSimulGroupsForEventSelector(state)({
+      eventId,
+      roundIndex,
+    });
 
     if (!mainRound) {
       return 0;
     }
 
-    if (mainRound.type === "aggregate") {
-      return parseInt(mainRound.scheduledTime);
-    }
+    const mainScheduledTime =
+      mainRound.type === "aggregate"
+        ? parseInt(mainRound.scheduledTime)
+        : mainRound.groups.reduce((s, g) => parseInt(g.scheduledTime) + s, 0);
 
-    return mainRound.groups.reduce((s, g) => parseInt(g.scheduledTime) + s, 0);
+    const simulRounds = simulGroups.map(({ eventId, roundIndex }) =>
+      getRound({ eventId, roundNum: roundIndex })
+    );
+
+    const getScheduledTimeInSimulRound = (round: Round) => {
+      if (round.type !== "groups") {
+        return 0;
+      }
+
+      const matchingSimulGroups = round.groups.filter(
+        ({ secondaryEvent }) =>
+          secondaryEvent &&
+          secondaryEvent.eventId === eventId &&
+          secondaryEvent.roundIndex === roundIndex
+      );
+
+      const scheduledTime = matchingSimulGroups.reduce(
+        (s, { scheduledTime }) => parseInt(scheduledTime) + s,
+        0
+      );
+
+      return scheduledTime;
+    };
+
+    const simulScheduledTime = simulRounds
+      .map((round) => (round ? getScheduledTimeInSimulRound(round) : 0))
+      .reduce((s, num) => num + s, 0);
+
+    return mainScheduledTime + simulScheduledTime;
   };

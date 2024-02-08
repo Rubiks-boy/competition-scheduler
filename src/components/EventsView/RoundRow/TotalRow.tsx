@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from "@mui/material";
+import { Box, TableCell, TableRow } from "@mui/material";
 import type { Round } from "../../../types";
 import { useSelector } from "../../../app/hooks";
 import {
@@ -7,6 +7,7 @@ import {
   getScheduledTimeSelector,
   totalNumCompetitorsSelector,
 } from "../../../app/selectors";
+import { RegDiffTooltip } from "./tooltips";
 
 export const TotalRow = ({
   round,
@@ -46,7 +47,10 @@ export const TotalRow = ({
           borderBottom: 0,
         }}
       >
-        {numCompetitors}
+        <Box sx={{ display: "flex", gap: "0.5em" }}>
+          {numCompetitors}
+          <RegDiffTooltip regDiffPercent={20} numRegistered={25} />
+        </Box>
       </TableCell>
       <TableCell sx={{ minWidth: "8em", width: "20%", borderBottom: 0 }}>
         {numGroups}

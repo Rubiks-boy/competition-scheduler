@@ -36,39 +36,36 @@ export const RoundRow = ({
     return null;
   }
 
-  const mainRoundRow =
-    round.type === "aggregate" ? (
-      <AggregateRoundRow round={round} roundIndex={roundIndex} />
-    ) : (
-      <SimulRoundRow round={round} roundIndex={roundIndex} />
-    );
-
   return (
     <>
-      {groupIndices.map((entry, i) => {
+      {round.type === "aggregate" && (
+        <AggregateRoundRow round={round} roundIndex={roundIndex} />
+      )}
+      {round.type === "aggregate" && groupIndices.length > 1 && (
+        <TableRow>
+          <TableCell sx={{ borderBottom: 0, pb: 0 }}>
+            Simul with other rounds
+          </TableCell>
+        </TableRow>
+      )}
+      {groupIndices.map((entry) => {
         if (entry.correspondingMainEvent == null) {
           return (
-            <>
-              {mainRoundRow}
-              {i < groupIndices.length - 1 && (
-                <>
-                  <TableRow>
-                    <TableCell sx={{ borderBottom: 0, pb: 0 }}>
-                      Part of later events
-                    </TableCell>
-                  </TableRow>
-                </>
-              )}
-            </>
+            round.type === "groups" && (
+              <SimulRoundRow round={round} roundIndex={roundIndex} />
+            )
           );
         }
 
-        const { eventId, roundIndex, groupIndex } =
-          entry.correspondingMainEvent;
+        const {
+          eventId,
+          roundIndex: roundNum,
+          groupIndex,
+        } = entry.correspondingMainEvent;
 
         const simulRound = getRound({
           eventId: eventId,
-          roundNum: roundIndex,
+          roundNum,
         });
         if (!simulRound || simulRound?.type !== "groups") {
           return null;
@@ -76,21 +73,12 @@ export const RoundRow = ({
         const group = simulRound.groups[groupIndex];
 
         return (
-          <>
-            {i === 0 && (
-              <TableRow>
-                <TableCell sx={{ borderBottom: 0, pb: 0 }}>
-                  Part of earlier events
-                </TableCell>
-              </TableRow>
-            )}
-            <GroupRow
-              group={group}
-              eventId={eventId}
-              roundIndex={roundIndex}
-              groupIndex={groupIndex}
-            />
-          </>
+          <GroupRow
+            group={group}
+            eventId={eventId}
+            roundIndex={roundNum}
+            groupIndex={groupIndex}
+          />
         );
       })}
       <BottomBorder />
