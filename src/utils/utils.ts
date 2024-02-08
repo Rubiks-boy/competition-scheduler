@@ -140,6 +140,27 @@ export const numPersonsRegisteredForEvent = (
       registration.eventIds.includes(eventId)
   ).length;
 
-export const roundTo5Min = (num: number) => {
-  return Math.round(num / 5) * 5;
+export const roundDownTo = (num: number, roundingAmount: number = 5) => {
+  return Math.floor(num / roundingAmount) * roundingAmount;
+};
+
+// Tries to split `totalNum` evenly into `numEntries` chunks,
+// making sure that each chunk is rounded to `roundAmount`
+// and that the total of each chunk still adds perfectly to `totalNum`
+// Examples:
+// - splitEvenlyWithRounding(80, 4, 5) => [20, 20, 20, 20]
+// - splitEvenlyWithRounding(85, 4, 5) => [25, 20, 20, 20]
+// - splitEvenlyWithRounding(95, 3, 5) => [35, 30, 30]
+export const splitEvenlyWithRounding = (
+  totalNum: number,
+  numEntries: number,
+  roundingAmount: number = 5
+) => {
+  const idealSplit = roundDownTo(totalNum / numEntries, roundingAmount);
+  const remainder = totalNum - idealSplit * numEntries;
+  const numGroupsWithRemainder = remainder / roundingAmount;
+
+  return range(numEntries).map(
+    (i) => idealSplit + (i < numGroupsWithRemainder ? roundingAmount : 0)
+  );
 };

@@ -1,6 +1,6 @@
 import { EVENT_NAMES } from "../constants";
 import type { EventId, Round, SecondaryEvent, SimulGroup } from "../types";
-import { range } from "../utils/utils";
+import { range, splitEvenlyWithRounding } from "../utils/utils";
 import { getRoundSelector } from "./selectors";
 import type { Action, State } from "./types";
 
@@ -12,12 +12,19 @@ const convertToGroupBased = (prevRound: Round): Round & { type: "groups" } => {
   }
 
   const numGroups = parseInt(prevRound.numGroups);
-  const competitorsPerGroup =
-    parseInt(prevRound.totalNumCompetitors) / numGroups;
-  const timePerGroup = parseInt(prevRound.scheduledTime) / numGroups;
-  const groups: Array<SimulGroup> = range(numGroups).map(() => ({
-    numMainCompetitors: `${competitorsPerGroup}`,
-    scheduledTime: `${timePerGroup}`,
+  const competitorsPerGroup = splitEvenlyWithRounding(
+    parseInt(prevRound.totalNumCompetitors),
+    numGroups,
+    1
+  );
+  const timePerGroup = splitEvenlyWithRounding(
+    parseInt(prevRound.scheduledTime),
+    numGroups,
+    5
+  );
+  const groups: Array<SimulGroup> = range(numGroups).map((i) => ({
+    numMainCompetitors: `${competitorsPerGroup[i]}`,
+    scheduledTime: `${timePerGroup[i]}`,
   }));
 
   const newRound: Round = {
