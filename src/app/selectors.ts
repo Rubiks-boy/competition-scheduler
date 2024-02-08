@@ -48,16 +48,21 @@ export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
 
-export const roundSelector = (
-  state: State,
-  { eventId, roundNum }: { eventId: EventId | OtherActivity; roundNum?: number }
-): Round | null => {
-  const events = eventsSelector(state);
-  if (roundNum == null || !(eventId in events)) {
-    return null;
-  }
-  return events[eventId as EventId]?.[roundNum] ?? null;
-};
+export const getRoundSelector =
+  (state: State) =>
+  ({
+    eventId,
+    roundNum,
+  }: {
+    eventId: EventId | OtherActivity;
+    roundNum?: number;
+  }): Round | null => {
+    const events = eventsSelector(state);
+    if (roundNum == null || !(eventId in events)) {
+      return null;
+    }
+    return events[eventId as EventId]?.[roundNum] ?? null;
+  };
 
 export const addableEventIdsSelector = (state: State) => {
   const events = eventsSelector(state);
@@ -372,7 +377,7 @@ const groupIndicesForRoundSelector = (
       return;
     }
 
-    const round = roundSelector(state, scheduleEntry);
+    const round = getRoundSelector(state)(scheduleEntry);
     if (!round) {
       return;
     }
@@ -423,7 +428,7 @@ export const groupIndexSelector = (
   }: {
     eventId: EventId;
     roundIndex: number;
-    secondaryEventUnder: {
+    secondaryEventUnder?: {
       eventId: EventId;
       roundIndex: number;
       groupIndex: number;
@@ -437,7 +442,7 @@ export const groupIndexSelector = (
 
   return (
     groupIndicesForRound.find((g) =>
-      deepEquals(g.correspondingMainEvent, secondaryEventUnder)
+      deepEquals(g.correspondingMainEvent, secondaryEventUnder ?? null)
     )?.groupIndex ?? null
   );
 };
@@ -460,12 +465,69 @@ export const getGroupNameSelector =
   ({
     eventId,
     roundIndex,
-    groupIndex,
+    groupIndex = 0,
+    secondaryEventUnder,
   }: {
     eventId: EventId;
     roundIndex: number;
-    groupIndex: number;
+    groupIndex?: number;
+    secondaryEventUnder?: {
+      eventId: EventId;
+      roundIndex: number;
+      groupIndex: number;
+    } | null;
   }) => {
     const roundName = getRoundNameSelector(state)({ eventId, roundIndex });
-    return `${roundName} Group ${groupIndex + 1}`;
+    const trueStartingIndex =
+      groupIndexSelector(state, {
+        eventId,
+        roundIndex,
+        secondaryEventUnder,
+      }) ?? 0;
+    return `${roundName} Group ${trueStartingIndex + groupIndex + 1}`;
+  };
+
+export const showAdvancedSelector = (state: State) => state.showAdvanced;
+
+type MainGroupEntry = {
+  eventId: EventId;
+  roundIndex: number;
+  groupIndex: number;
+};
+export const getSimulGroupsForEventSelector =
+  (state: State) =>
+  ({
+    eventId,
+    roundIndex,
+  }: {
+    eventId: EventId;
+    roundIndex: number;
+  }): Array<MainGroupEntry> => {
+    const events = eventsSelector(state);
+
+    const simulGroups = [] as Array<MainGroupEntry>;
+    Object.entries(events).forEach(([mainEventId, mainRounds]) => {
+      mainRounds &&
+        mainRounds.forEach((mainRound, mainRoundIndex) => {
+          if (mainRound.type !== "groups") {
+            return;
+          }
+
+          mainRound.groups.forEach(({ secondaryEvent }, mainGroupIndex) => {
+            if (
+              secondaryEvent &&
+              secondaryEvent.eventId === eventId &&
+              secondaryEvent.roundIndex === roundIndex
+            ) {
+              simulGroups.push({
+                eventId: mainEventId as EventId,
+                roundIndex: mainRoundIndex,
+                groupIndex: mainGroupIndex,
+              });
+            }
+          });
+        });
+    });
+
+    return simulGroups;
   };

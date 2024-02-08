@@ -7,7 +7,7 @@ import {
   DialogActions,
   useMediaQuery,
 } from "@mui/material";
-import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
+import { Settings } from "@mui/icons-material";
 import { EventTable } from "../EventsView/EventTable";
 import { RoundRow } from "../EventsView/RoundRow";
 import type { EventId } from "../../types";
@@ -27,7 +27,7 @@ export const EditSimulScheduleDialog = ({
 
   const dialog = (
     <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="md">
-      <DialogTitle>Edit simultaneous event</DialogTitle>
+      <DialogTitle>Edit round</DialogTitle>
       <DialogContent>
         <EventTable>
           <RoundRow eventId={eventId} roundIndex={roundIndex} />
@@ -50,7 +50,7 @@ export const EditSimulScheduleDialog = ({
             : { color: "#000", backgroundColor: "#fff3" }
         }
       >
-        <SettingsSuggestIcon />
+        <Settings />
       </Button>
     </>
   );

@@ -42,4 +42,5 @@ export const initialState: State = {
   isDebugging: localStorage.getItem("DEBUG") === "true",
   experimentalFeaturesEnabled:
     localStorage.getItem("ENABLE_EXPERIMENTAL") === "true",
+  showAdvanced: false,
 };

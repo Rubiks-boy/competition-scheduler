@@ -1,7 +1,7 @@
 import { EVENT_NAMES } from "../constants";
 import type { EventId, Round, SecondaryEvent, SimulGroup } from "../types";
 import { range } from "../utils/utils";
-import { roundSelector } from "./selectors";
+import { getRoundSelector } from "./selectors";
 import type { Action, State } from "./types";
 
 type StateModifier<T> = (state: State, action: Action & { type: T }) => State;
@@ -110,7 +110,7 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_GROUP"> = (
     return state;
   }
 
-  const currRound = roundSelector(state, destScheduleEntry);
+  const currRound = getRoundSelector(state)(destScheduleEntry);
   if (!currRound) {
     return state;
   }

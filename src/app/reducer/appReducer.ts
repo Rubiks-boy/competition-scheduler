@@ -45,6 +45,7 @@ export const appReducer: Reducer = (state, action) => {
         isExported: false,
         isDebugging: state.isDebugging,
         experimentalFeaturesEnabled: state.experimentalFeaturesEnabled,
+        showAdvanced: state.showAdvanced,
       };
 
       return stateAfterImport;
@@ -60,6 +61,12 @@ export const appReducer: Reducer = (state, action) => {
       return {
         ...state,
         isExported: true,
+      };
+
+    case "SHOW_ADVANCED":
+      return {
+        ...state,
+        showAdvanced: action.showAdvanced,
       };
 
     default:

@@ -18,7 +18,12 @@ import type {
   ScheduleWithTimes,
 } from "../../types";
 import { useSelector } from "../../app/hooks";
-import { roundSelector, groupIndexSelector } from "../../app/selectors";
+import {
+  getRoundSelector,
+  groupIndexSelector,
+  showAdvancedSelector,
+  getSimulGroupsForEventSelector,
+} from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import { range } from "../../utils/utils";
 import { DraggableSimulGroup } from "./DraggableSimulGroup";
@@ -44,26 +49,21 @@ export const DraggableEvent = ({
   isBeingCombinedWith: boolean;
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const round = useSelector((state) => roundSelector(state, scheduleEntry));
+  const round = useSelector(getRoundSelector)(scheduleEntry);
+  const showAdvanced = useSelector(showAdvancedSelector);
   const numGroups =
     round?.type === "groups"
       ? round?.groups.length
       : parseInt(round?.numGroups ?? "1");
 
-  const hasOtherSimulGroups = useSelector((state) =>
-    Object.values(state.events).some((rounds) =>
-      rounds?.some(
-        (round) =>
-          round.type === "groups" &&
-          round.groups.some(
-            (group) =>
-              group.secondaryEvent &&
-              group.secondaryEvent.eventId === scheduleEntry.eventId &&
-              group.secondaryEvent.roundIndex === scheduleEntry.roundNum
-          )
-      )
-    )
-  );
+  const getSimulGroupsForEvent = useSelector(getSimulGroupsForEventSelector);
+  const hasOtherSimulGroups =
+    scheduleEntry.type === "event" &&
+    !!getSimulGroupsForEvent({
+      eventId: scheduleEntry.eventId,
+      roundIndex: scheduleEntry.roundNum,
+    }).length;
+
   const hasGroupsSimulWithCurrRound =
     round?.type === "groups" &&
     round.groups.some((group) => group.secondaryEvent);
@@ -153,12 +153,13 @@ export const DraggableEvent = ({
               display: "flex",
             }}
           >
-            {scheduleEntry.type === "event" && hasGroupsSimulWithCurrRound && (
-              <EditSimulScheduleDialog
-                eventId={scheduleEntry.eventId}
-                roundIndex={scheduleEntry.roundNum}
-              />
-            )}
+            {scheduleEntry.type === "event" &&
+              (hasGroupsSimulWithCurrRound || showAdvanced) && (
+                <EditSimulScheduleDialog
+                  eventId={scheduleEntry.eventId}
+                  roundIndex={scheduleEntry.roundNum}
+                />
+              )}
           </Box>
           <Box
             sx={{

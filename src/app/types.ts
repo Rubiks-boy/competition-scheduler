@@ -49,6 +49,7 @@ export type State = ShareableState & {
   isExported: boolean;
   isDebugging: boolean;
   experimentalFeaturesEnabled: boolean;
+  showAdvanced: boolean;
 };
 
 export type Action =
@@ -216,6 +217,10 @@ export type Action =
         roundIndex: number;
         groupIndex: number;
       };
+    }
+  | {
+      type: "SHOW_ADVANCED";
+      showAdvanced: boolean;
     };
 
 export type Reducer = (state: State, action: Action) => State;
