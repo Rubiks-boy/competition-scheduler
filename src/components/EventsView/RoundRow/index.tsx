@@ -1,17 +1,27 @@
+import { EventId } from "@wca/helpers";
 import { useSelector } from "../../../app/hooks";
-import { inverseSimulGroupsSelector } from "../../../app/selectors";
-import { NormalRoundRow } from "./NormalRoundRow";
+import { roundSelector } from "../../../app/selectors";
+import { AggregateRoundRow } from "./AggregateRoundRow";
 import { SimulRoundRow } from "./SimulRoundRow";
-import { RoundRowProps } from "./types";
 
-export const RoundRow = (props: RoundRowProps) => {
-  const inverseSimulGroups = useSelector(
-    inverseSimulGroupsSelector(props.round.eventId, props.roundNum)
+export const RoundRow = ({
+  eventId,
+  roundIndex,
+}: {
+  eventId: EventId;
+  roundIndex: number;
+}) => {
+  const round = useSelector((state) =>
+    roundSelector(state, { eventId, roundNum: roundIndex })
   );
 
-  if (props.round.simulGroups.length || inverseSimulGroups.length) {
-    return <SimulRoundRow {...props} inverseSimulGroups={inverseSimulGroups} />;
+  if (!round) {
+    return null;
   }
 
-  return <NormalRoundRow {...props} />;
+  if (round.type === "aggregate") {
+    return <AggregateRoundRow round={round} roundIndex={roundIndex} />;
+  } else {
+    return <SimulRoundRow round={round} roundIndex={roundIndex} />;
+  }
 };

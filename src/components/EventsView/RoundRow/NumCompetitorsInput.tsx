@@ -4,21 +4,22 @@ import { RegDiffTooltip } from "./tooltips";
 
 export const NumCompetitorsInput = ({
   numCompetitors,
-  roundNum,
+  roundIndex,
   onChange,
   numRegistered,
   regDiffPercent,
 }: {
   numCompetitors: string;
-  roundNum: number;
+  roundIndex: number;
   onChange: (value: string) => void;
-  numRegistered: number;
-  regDiffPercent: number;
+  numRegistered?: number;
+  regDiffPercent?: number;
 }) => {
   return (
     <div
       className={classNames("events-fieldWithTooltip", {
-        "events-fieldWithTooltip--showTooltip": numRegistered > 0,
+        "events-fieldWithTooltip--showTooltip":
+          numRegistered && numRegistered > 0,
       })}
     >
       <TextField
@@ -26,20 +27,23 @@ export const NumCompetitorsInput = ({
         size="small"
         value={numCompetitors}
         onChange={(e) => {
-          const isPercent = roundNum > 0 && e.target.value.endsWith("%");
+          const isPercent = roundIndex > 0 && e.target.value.endsWith("%");
           const numCompetitors = `${parseInt(e.target.value) || ""}`;
           const value = `${numCompetitors}${isPercent ? "%" : ""}`;
           onChange(value);
         }}
         InputProps={{
-          endAdornment: roundNum === 0 && numRegistered > 0 && (
-            <InputAdornment position="end">
-              <RegDiffTooltip
-                regDiffPercent={regDiffPercent}
-                numRegistered={numRegistered}
-              />
-            </InputAdornment>
-          ),
+          endAdornment: !!regDiffPercent &&
+            !!numRegistered &&
+            roundIndex === 0 &&
+            numRegistered > 0 && (
+              <InputAdornment position="end">
+                <RegDiffTooltip
+                  regDiffPercent={regDiffPercent}
+                  numRegistered={numRegistered}
+                />
+              </InputAdornment>
+            ),
         }}
       />
     </div>

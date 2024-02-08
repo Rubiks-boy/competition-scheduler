@@ -1,53 +1,42 @@
 import { getEventName, getRoundNumStr } from "../../utils/calculators";
-import type {
-  EventId,
-  OtherActivity,
-  ScheduleEntry,
-  ScheduleWithTimes,
-  SimulGroup,
-  Round,
-} from "../../types";
+import type { EventId, OtherActivity, ScheduleWithTimes } from "../../types";
 import { ListItem } from "@mui/material";
-import { EditSimulScheduleDialog } from "./EditSimulRoundDialog";
 import { Draggable } from "react-beautiful-dnd";
 import { useSelector } from "../../app/hooks";
-import { groupNumSelector } from "../../app/selectors";
+import { groupIndexSelector } from "../../app/selectors";
 
 export const DraggableSimulGroup = ({
-  simulGroup,
+  eventId,
+  roundIndex,
+  secondaryEventUnder,
   heightPerGroup,
   scheduleWithTimes,
-  scheduleEntry,
-  round,
   getEventColor,
   index,
   id,
 }: {
-  simulGroup: SimulGroup;
+  eventId: EventId;
+  roundIndex: number;
+  secondaryEventUnder: {
+    eventId: EventId;
+    roundIndex: number;
+    groupIndex: number;
+  };
   heightPerGroup: number;
   scheduleWithTimes: ScheduleWithTimes;
-  scheduleEntry: ScheduleEntry;
-  round: Round;
   getEventColor: (eventId: EventId | OtherActivity) => string;
   index: number;
   id: string;
 }) => {
-  const groupNum = useSelector(
-    scheduleEntry.type === "event"
-      ? groupNumSelector({
-          scheduleEntry: {
-            eventId: simulGroup.mainRound.eventId,
-            roundNum: simulGroup.mainRound.roundNum,
-          },
-          simulGroup: {
-            eventId: scheduleEntry.eventId,
-            roundNum: scheduleEntry.roundNum,
-            groupOffset: simulGroup.groupOffset,
-          },
-        })
-      : () => undefined
-  );
-  const groupString = `Group ${groupNum} `;
+  const groupIndex =
+    useSelector((state) =>
+      groupIndexSelector(state, {
+        eventId,
+        roundIndex,
+        secondaryEventUnder,
+      })
+    ) ?? 0;
+  const groupString = `Group ${groupIndex + 1} `;
 
   return (
     <Draggable draggableId={id} index={index}>
@@ -57,7 +46,7 @@ export const DraggableSimulGroup = ({
             sx={{
               height: `${heightPerGroup}em`,
               borderRadius: "1em",
-              backgroundColor: getEventColor(simulGroup.mainRound.eventId),
+              backgroundColor: getEventColor(eventId),
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -68,21 +57,9 @@ export const DraggableSimulGroup = ({
             {...provided.draggableProps}
             {...provided.dragHandleProps}
           >
-            {getEventName(simulGroup.mainRound.eventId)}{" "}
-            {getRoundNumStr(
-              simulGroup.mainRound.eventId,
-              simulGroup.mainRound.roundNum,
-              scheduleWithTimes
-            )}{" "}
+            {getEventName(eventId)}{" "}
+            {getRoundNumStr(eventId, roundIndex, scheduleWithTimes)}{" "}
             {groupString}
-            {scheduleEntry.type === "event" && (
-              <EditSimulScheduleDialog
-                primaryRound={round}
-                primaryScheduleEntry={scheduleEntry}
-                secondaryEventId={simulGroup.mainRound.eventId}
-                secondaryRoundNum={simulGroup.mainRound.roundNum}
-              />
-            )}
           </ListItem>
         );
       }}

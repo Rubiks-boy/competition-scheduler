@@ -1,27 +1,20 @@
 import { IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 import { TimeDiffTooltip } from "./tooltips";
-import { calcTimeForRound } from "../../../utils/calculators";
-import type { EventId } from "../../../types";
 
 export const ScheduledTimeInput = ({
-  round,
+  scheduledTime,
+  calculatedTime,
   isEditingTime,
   onChange,
   setEditingTime,
 }: {
-  round: {
-    eventId: EventId;
-    numGroups?: string;
-    scheduledTime: string;
-  };
+  scheduledTime: string;
+  calculatedTime: number;
   isEditingTime: boolean;
   onChange: (value: string) => void;
   setEditingTime: () => void;
 }) => {
-  const { eventId, numGroups, scheduledTime } = round;
-
-  const calculatedTime = calcTimeForRound(eventId, parseInt(numGroups ?? "1"));
   const timeDiff = Math.abs(calculatedTime - parseInt(scheduledTime));
 
   return isEditingTime ? (

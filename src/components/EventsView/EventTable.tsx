@@ -9,7 +9,7 @@ import {
 export const EventTable = ({
   children,
 }: {
-  children: Array<JSX.Element | null>;
+  children: JSX.Element | Array<JSX.Element | null>;
 }) => {
   return (
     <Table>

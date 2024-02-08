@@ -191,34 +191,31 @@ export type Action =
       type: "REIMPORT_SCHEDULE_FROM_WCIF";
     }
   | {
-      type: "CREATE_SIMUL_ROUND";
+      type: "CREATE_SIMUL_GROUP";
       sourceIndex: number;
       destinationIndex: number;
     }
   | {
-      type: "UPDATE_SIMUL_ROUND";
+      type: "UPDATE_SIMUL_GROUP";
       eventId: EventId;
-      roundNum: number;
-      mainRound: {
-        eventId: EventId;
-        roundNum: number;
-      };
-      numMainCompetitors?: string;
+      roundIndex: number;
+      groupIndex: number;
       scheduledTime?: string;
-      numCompetitors?: string;
+      numMainCompetitors?: string;
+      numSecondaryCompetitors?: string;
     }
   | {
       type: "REORDER_SIMUL_GROUP";
-      startingRound: {
+      startingLocation: {
         eventId: EventId;
-        roundNum: number;
+        roundIndex: number;
+        groupIndex: number;
       };
-      endingRound: {
+      endingLocation: {
         eventId: EventId;
-        roundNum: number;
+        roundIndex: number;
+        groupIndex: number;
       };
-      startingGroupOffset: number;
-      newGroupOffset: number;
     };
 
 export type Reducer = (state: State, action: Action) => State;
