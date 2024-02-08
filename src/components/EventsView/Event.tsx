@@ -10,29 +10,12 @@ import { AddCircle, Close } from "@mui/icons-material";
 import { EVENT_NAMES } from "../../constants";
 import { EventId } from "@wca/helpers";
 import { Round } from "../../types";
-import { RoundRow } from "./RoundRow";
-import { calcNumCompetitorsPerRound } from "../../utils/utils";
-import { UpdatableRoundField, UpdatableSimulField } from "./RoundRow/types";
 import { EventTable } from "./EventTable";
+import { RoundRow } from "./RoundRow";
 
 type EventProps = {
   eventId: EventId;
   rounds: Array<Round>;
-  numStations: number;
-  numRegistered: number;
-  makeOnUpdateRound: (
-    eventId: EventId,
-    roundIndex: number
-  ) => (
-    field: UpdatableRoundField,
-    value: string,
-    isEditingTime: boolean
-  ) => void;
-  makeOnUpdateSimulRound: (
-    eventId: EventId,
-    roundIndex: number,
-    groupIndex: number
-  ) => (field: UpdatableSimulField, value: string) => void;
   onAddRound: () => void;
   onRemoveRound: () => void;
 };
@@ -40,27 +23,12 @@ type EventProps = {
 export const Event = ({
   eventId,
   rounds,
-  numStations,
-  numRegistered,
-  makeOnUpdateRound,
-  makeOnUpdateSimulRound,
   onAddRound,
   onRemoveRound,
 }: EventProps) => {
   const eventName = EVENT_NAMES[eventId];
-  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
-  const roundRows = rounds.map((round, roundNum) => (
-    <RoundRow
-      key={`${round.eventId}-${roundNum}`}
-      round={round}
-      roundNum={roundNum}
-      isFinal={roundNum === rounds.length - 1}
-      numStations={numStations}
-      onUpdateRound={makeOnUpdateRound(round.eventId, roundNum)}
-      makeOnUpdateSimulRound={makeOnUpdateSimulRound}
-      numCompetitorsInt={numCompetitorsPerRound[roundNum]}
-      numRegistered={numRegistered}
-    />
+  const roundRows = rounds.map((round, roundIndex) => (
+    <RoundRow eventId={round.eventId} roundIndex={roundIndex} />
   ));
 
   return (

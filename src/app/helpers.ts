@@ -1,3 +1,4 @@
+import { EVENT_NAMES } from "../constants";
 import type { EventId, Round, SecondaryEvent, SimulGroup } from "../types";
 import { range } from "../utils/utils";
 import { roundSelector } from "./selectors";
@@ -216,3 +217,9 @@ export const reorderSimulGroup: StateModifier<"REORDER_SIMUL_GROUP"> = (
 
   return withNew;
 };
+
+export const getRoundName = (
+  eventId: EventId,
+  roundNum: number,
+  isFinal: boolean
+) => `${EVENT_NAMES[eventId]} ${isFinal ? "Final" : `Round ${roundNum + 1}`}`;

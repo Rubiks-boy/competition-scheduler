@@ -1,28 +1,27 @@
-import { NormalRoundRow } from "./NormalRoundRow";
-import { RoundRowProps } from "./types";
+import { EventId } from "@wca/helpers";
+import { useSelector } from "../../../app/hooks";
+import { roundSelector } from "../../../app/selectors";
+import { AggregateRoundRow } from "./AggregateRoundRow";
+import { SimulRoundRow } from "./SimulRoundRow";
 
 export const RoundRow = ({
-  round,
-  roundNum,
-  isFinal,
-  numStations,
-  onUpdateRound,
-  numCompetitorsInt,
-  numRegistered,
-}: RoundRowProps) => {
-  if (round.type === "groups") {
+  eventId,
+  roundIndex,
+}: {
+  eventId: EventId;
+  roundIndex: number;
+}) => {
+  const round = useSelector((state) =>
+    roundSelector(state, { eventId, roundNum: roundIndex })
+  );
+
+  if (!round) {
     return null;
   }
 
-  return (
-    <NormalRoundRow
-      round={round}
-      roundNum={roundNum}
-      isFinal={isFinal}
-      numStations={numStations}
-      onUpdateRound={onUpdateRound}
-      numCompetitorsInt={numCompetitorsInt}
-      numRegistered={numRegistered}
-    />
-  );
+  if (round.type === "aggregate") {
+    return <AggregateRoundRow round={round} roundIndex={roundIndex} />;
+  } else {
+    return <SimulRoundRow round={round} roundIndex={roundIndex} />;
+  }
 };

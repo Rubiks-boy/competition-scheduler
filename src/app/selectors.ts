@@ -7,6 +7,7 @@ import {
   getDefaultSchedule,
   reorderFromWcif,
 } from "../utils/wcif";
+import { getRoundName } from "./helpers";
 import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
@@ -443,3 +444,28 @@ export const groupIndexSelector = (
 
 export const enableExperimentalFeaturesSelector = (state: State) =>
   state.experimentalFeaturesEnabled;
+
+export const getRoundNameSelector =
+  (state: State) =>
+  ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
+    const events = eventsSelector(state);
+    const numRounds = events[eventId as EventId]?.length ?? 0;
+    const isFinal = roundIndex === numRounds - 1;
+
+    return getRoundName(eventId, roundIndex, isFinal);
+  };
+
+export const getGroupNameSelector =
+  (state: State) =>
+  ({
+    eventId,
+    roundIndex,
+    groupIndex,
+  }: {
+    eventId: EventId;
+    roundIndex: number;
+    groupIndex: number;
+  }) => {
+    const roundName = getRoundNameSelector(state)({ eventId, roundIndex });
+    return `${roundName} Group ${groupIndex + 1}`;
+  };
