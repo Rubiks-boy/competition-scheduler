@@ -22,6 +22,7 @@ import { roundSelector, groupIndexSelector } from "../../app/selectors";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import { range } from "../../utils/utils";
 import { DraggableSimulGroup } from "./DraggableSimulGroup";
+import { EditSimulScheduleDialog } from "./EditSimulRoundDialog";
 
 // in ems
 const MIN_HEIGHT = 3;
@@ -49,7 +50,7 @@ export const DraggableEvent = ({
       ? round?.groups.length
       : parseInt(round?.numGroups ?? "1");
 
-  const hasSimulGroups = useSelector((state) =>
+  const hasOtherSimulGroups = useSelector((state) =>
     Object.values(state.events).some((rounds) =>
       rounds?.some(
         (round) =>
@@ -63,6 +64,9 @@ export const DraggableEvent = ({
       )
     )
   );
+  const hasGroupsSimulWithCurrRound =
+    round?.type === "groups" &&
+    round.groups.some((group) => group.secondaryEvent);
 
   const groupIndex = useSelector((state) =>
     scheduleEntry.type === "event"
@@ -96,7 +100,7 @@ export const DraggableEvent = ({
       : "";
 
   let groupStr = "";
-  if (hasSimulGroups && groupIndex !== null) {
+  if (hasOtherSimulGroups && groupIndex !== null) {
     groupStr =
       numGroups > 1
         ? ` Groups ${groupIndex + 1}-${groupIndex + numGroups}`
@@ -133,12 +137,29 @@ export const DraggableEvent = ({
             justifyContent: "right",
             position: "relative",
             p: 0,
+            display: "flex",
+            overflow: "clip",
           }}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className="schedule-draggableEvent"
         >
+          <Box
+            sx={{
+              position: "absolute",
+              left: 0,
+              height: "100%",
+              display: "flex",
+            }}
+          >
+            {scheduleEntry.type === "event" && hasGroupsSimulWithCurrRound && (
+              <EditSimulScheduleDialog
+                eventId={scheduleEntry.eventId}
+                roundIndex={scheduleEntry.roundNum}
+              />
+            )}
+          </Box>
           <Box
             sx={{
               textAlign: "center",
@@ -189,6 +210,7 @@ export const DraggableEvent = ({
                         round.type === "groups" ? round.groups[i] : undefined;
                       if (
                         scheduleEntry.type === "event" &&
+                        round.type === "groups" &&
                         group?.secondaryEvent
                       ) {
                         return (
@@ -205,8 +227,6 @@ export const DraggableEvent = ({
                             }}
                             heightPerGroup={heightPerGroup}
                             scheduleWithTimes={scheduleWithTimes}
-                            scheduleEntry={scheduleEntry}
-                            round={round}
                             getEventColor={getEventColor}
                           />
                         );

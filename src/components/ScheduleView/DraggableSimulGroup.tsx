@@ -1,13 +1,6 @@
 import { getEventName, getRoundNumStr } from "../../utils/calculators";
-import type {
-  EventId,
-  OtherActivity,
-  ScheduleEntry,
-  ScheduleWithTimes,
-  Round,
-} from "../../types";
+import type { EventId, OtherActivity, ScheduleWithTimes } from "../../types";
 import { ListItem } from "@mui/material";
-import { EditSimulScheduleDialog } from "./EditSimulRoundDialog";
 import { Draggable } from "react-beautiful-dnd";
 import { useSelector } from "../../app/hooks";
 import { groupIndexSelector } from "../../app/selectors";
@@ -18,8 +11,6 @@ export const DraggableSimulGroup = ({
   secondaryEventUnder,
   heightPerGroup,
   scheduleWithTimes,
-  scheduleEntry,
-  round,
   getEventColor,
   index,
   id,
@@ -33,8 +24,6 @@ export const DraggableSimulGroup = ({
   };
   heightPerGroup: number;
   scheduleWithTimes: ScheduleWithTimes;
-  scheduleEntry: ScheduleEntry;
-  round: Round;
   getEventColor: (eventId: EventId | OtherActivity) => string;
   index: number;
   id: string;
@@ -71,14 +60,6 @@ export const DraggableSimulGroup = ({
             {getEventName(eventId)}{" "}
             {getRoundNumStr(eventId, roundIndex, scheduleWithTimes)}{" "}
             {groupString}
-            {scheduleEntry.type === "event" && (
-              <EditSimulScheduleDialog
-                primaryRound={round}
-                primaryScheduleEntry={scheduleEntry}
-                secondaryEventId={eventId}
-                secondaryRoundNum={roundIndex}
-              />
-            )}
           </ListItem>
         );
       }}
