@@ -423,7 +423,7 @@ export const groupIndexSelector = (
   }: {
     eventId: EventId;
     roundIndex: number;
-    secondaryEventUnder: {
+    secondaryEventUnder?: {
       eventId: EventId;
       roundIndex: number;
       groupIndex: number;
@@ -437,7 +437,7 @@ export const groupIndexSelector = (
 
   return (
     groupIndicesForRound.find((g) =>
-      deepEquals(g.correspondingMainEvent, secondaryEventUnder)
+      deepEquals(g.correspondingMainEvent, secondaryEventUnder ?? null)
     )?.groupIndex ?? null
   );
 };
@@ -460,12 +460,24 @@ export const getGroupNameSelector =
   ({
     eventId,
     roundIndex,
-    groupIndex,
+    groupIndex = 0,
+    secondaryEventUnder,
   }: {
     eventId: EventId;
     roundIndex: number;
-    groupIndex: number;
+    groupIndex?: number;
+    secondaryEventUnder?: {
+      eventId: EventId;
+      roundIndex: number;
+      groupIndex: number;
+    } | null;
   }) => {
     const roundName = getRoundNameSelector(state)({ eventId, roundIndex });
-    return `${roundName} Group ${groupIndex + 1}`;
+    const trueStartingIndex =
+      groupIndexSelector(state, {
+        eventId,
+        roundIndex,
+        secondaryEventUnder,
+      }) ?? 0;
+    return `${roundName} Group ${trueStartingIndex + groupIndex + 1}`;
   };

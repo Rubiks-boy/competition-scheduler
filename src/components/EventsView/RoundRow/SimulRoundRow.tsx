@@ -30,13 +30,21 @@ const GroupRow = ({
 
   const numStations = useSelector(numStationsSelector);
   const getGroupName = useSelector(getGroupNameSelector);
-  const mainGroupName = getGroupName({ eventId, roundIndex, groupIndex });
+  const mainGroupName = getGroupName({
+    eventId,
+    roundIndex,
+    groupIndex,
+  });
 
   const secondaryGroupName = secondaryEvent
     ? getGroupName({
         eventId: secondaryEvent.eventId,
         roundIndex: secondaryEvent.roundIndex,
-        groupIndex: 0,
+        secondaryEventUnder: {
+          eventId,
+          roundIndex,
+          groupIndex,
+        },
       })
     : "";
 
