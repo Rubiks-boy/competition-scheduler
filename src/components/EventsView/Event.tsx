@@ -28,7 +28,11 @@ export const Event = ({
 }: EventProps) => {
   const eventName = EVENT_NAMES[eventId];
   const roundRows = rounds.map((round, roundIndex) => (
-    <RoundRow eventId={round.eventId} roundIndex={roundIndex} />
+    <RoundRow
+      key={`${round.eventId}-${roundIndex}`}
+      eventId={round.eventId}
+      roundIndex={roundIndex}
+    />
   ));
 
   return (
