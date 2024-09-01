@@ -116,7 +116,23 @@ export const stagesInUseSelector = (state: State) => {
   }));
 };
 
-export const isEventsPageValidSelector = (state: State) => {
+const allEventFieldsFilledInSelector = (state: State) => {
+  const rounds = Object.values(state.events).flatMap((rounds) => rounds ?? []);
+
+  return rounds.every((round) => {
+    if (round.type === "aggregate") {
+      // Successfully able to parse number of groups and num competitors,
+      // and it's a non-zero value
+      return (
+        !!parseInt(round.numGroups) && !!parseInt(round.totalNumCompetitors)
+      );
+    } else {
+      return round.groups.every((group) => parseInt(group.numMainCompetitors));
+    }
+  });
+};
+
+const areScheduledTimesValidSelector = (state: State) => {
   // Check that all the durations of each round are increments of 5 min
   const scheduledRoundTimes = Object.values(state.events).flatMap((rounds) => {
     if (!rounds) {
@@ -134,6 +150,13 @@ export const isEventsPageValidSelector = (state: State) => {
   const scheduledOtherTimes = Object.values(state.otherActivities);
   const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
   return scheduledTimes.every((time) => parseInt(time) % 5 === 0);
+};
+
+export const isEventsPageValidSelector = (state: State) => {
+  return (
+    areScheduledTimesValidSelector(state) &&
+    allEventFieldsFilledInSelector(state)
+  );
 };
 
 const isVenuePageValid = (state: State) => {

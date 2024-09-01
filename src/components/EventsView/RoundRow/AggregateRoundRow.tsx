@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TableCell, TableRow, TextField } from "@mui/material";
+import { InputAdornment, TableCell, TableRow, TextField } from "@mui/material";
 import {
   calcTimeForRound,
   compPerStationsRatio,
@@ -16,6 +16,7 @@ import {
   getSimulGroupsForEventSelector,
   numCompetitorsInRoundSelector,
 } from "../../../app/selectors";
+import { Error } from "@mui/icons-material";
 
 type Props = {
   round: Round & { type: "aggregate" };
@@ -109,6 +110,13 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           type="number"
           value={numGroups}
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
+          InputProps={{
+            endAdornment: !parseInt(numGroups) && (
+              <InputAdornment position="end">
+                <Error color="error" fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
         />
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "6em", width: "10%" }}>

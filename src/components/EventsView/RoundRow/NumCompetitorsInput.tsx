@@ -1,6 +1,7 @@
 import { InputAdornment, TextField } from "@mui/material";
 import classNames from "classnames";
 import { RegDiffTooltip } from "./tooltips";
+import { Error } from "@mui/icons-material";
 
 export const NumCompetitorsInput = ({
   numCompetitors,
@@ -15,6 +16,29 @@ export const NumCompetitorsInput = ({
   numRegistered?: number;
   regDiffPercent?: number;
 }) => {
+  let endAdornment = null;
+  if (!parseInt(numCompetitors)) {
+    endAdornment = (
+      <InputAdornment position="end">
+        <Error color="error" fontSize="small" />
+      </InputAdornment>
+    );
+  } else if (
+    !!regDiffPercent &&
+    !!numRegistered &&
+    roundIndex === 0 &&
+    numRegistered > 0
+  ) {
+    endAdornment = (
+      <InputAdornment position="end">
+        <RegDiffTooltip
+          regDiffPercent={regDiffPercent}
+          numRegistered={numRegistered}
+        />
+      </InputAdornment>
+    );
+  }
+
   return (
     <div
       className={classNames("events-fieldWithTooltip", {
@@ -33,17 +57,7 @@ export const NumCompetitorsInput = ({
           onChange(value);
         }}
         InputProps={{
-          endAdornment: !!regDiffPercent &&
-            !!numRegistered &&
-            roundIndex === 0 &&
-            numRegistered > 0 && (
-              <InputAdornment position="end">
-                <RegDiffTooltip
-                  regDiffPercent={regDiffPercent}
-                  numRegistered={numRegistered}
-                />
-              </InputAdornment>
-            ),
+          endAdornment,
         }}
       />
     </div>
