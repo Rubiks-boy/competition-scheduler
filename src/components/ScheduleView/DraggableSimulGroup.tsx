@@ -1,9 +1,10 @@
 import { getEventName, getRoundNumStr } from "../../utils/calculators";
 import type { EventId, OtherActivity, ScheduleWithTimes } from "../../types";
-import { ListItem } from "@mui/material";
+import { IconButton, ListItem } from "@mui/material";
 import { Draggable } from "react-beautiful-dnd";
 import { useSelector } from "../../app/hooks";
 import { groupIndexSelector } from "../../app/selectors";
+import { Clear } from "@mui/icons-material";
 
 export const DraggableSimulGroup = ({
   eventId,
@@ -14,6 +15,7 @@ export const DraggableSimulGroup = ({
   getEventColor,
   index,
   id,
+  onDeleteSimulGroup,
 }: {
   eventId: EventId;
   roundIndex: number;
@@ -27,6 +29,7 @@ export const DraggableSimulGroup = ({
   getEventColor: (eventId: EventId | OtherActivity) => string;
   index: number;
   id: string;
+  onDeleteSimulGroup: () => void;
 }) => {
   const groupIndex =
     useSelector((state) =>
@@ -60,6 +63,9 @@ export const DraggableSimulGroup = ({
             {getEventName(eventId)}{" "}
             {getRoundNumStr(eventId, roundIndex, scheduleWithTimes)}{" "}
             {groupString}
+            <IconButton size="small" onClick={onDeleteSimulGroup}>
+              <Clear fontSize="small" />
+            </IconButton>
           </ListItem>
         );
       }}

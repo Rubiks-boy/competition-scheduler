@@ -219,6 +219,12 @@ export type Action =
       };
     }
   | {
+      type: "DELETE_SIMUL_GROUP";
+      eventId: EventId;
+      roundIndex: number;
+      groupIndex: number;
+    }
+  | {
       type: "SHOW_ADVANCED";
       showAdvanced: boolean;
     };

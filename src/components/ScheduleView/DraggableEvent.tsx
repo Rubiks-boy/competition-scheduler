@@ -40,6 +40,7 @@ export const DraggableEvent = ({
   scheduleWithTimes,
   id,
   isBeingCombinedWith,
+  onDeleteSimulGroup,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
   index: number;
@@ -47,6 +48,11 @@ export const DraggableEvent = ({
   scheduleWithTimes: ScheduleWithTimes;
   id: string;
   isBeingCombinedWith: boolean;
+  onDeleteSimulGroup: (
+    eventId: EventId,
+    roundNum: number,
+    groupIndex: number
+  ) => void;
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const round = useSelector(getRoundSelector)(scheduleEntry);
@@ -229,6 +235,13 @@ export const DraggableEvent = ({
                             heightPerGroup={heightPerGroup}
                             scheduleWithTimes={scheduleWithTimes}
                             getEventColor={getEventColor}
+                            onDeleteSimulGroup={() =>
+                              onDeleteSimulGroup(
+                                round.eventId,
+                                scheduleEntry.roundNum,
+                                i
+                              )
+                            }
                           />
                         );
                       }

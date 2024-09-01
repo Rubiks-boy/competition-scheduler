@@ -16,6 +16,7 @@ import {
   createSimulRound,
   updateSimulRound,
   reorderSimulGroup,
+  deleteSimulGroup,
 } from "../helpers";
 import type { Reducer } from "../types";
 import { calcNumCompetitorsPerRound } from "../../utils/utils";
@@ -247,6 +248,9 @@ export const roundsReducer: Reducer = (state, action) => {
 
     case "REORDER_SIMUL_GROUP":
       return reorderSimulGroup(state, action);
+
+    case "DELETE_SIMUL_GROUP":
+      return deleteSimulGroup(state, action);
 
     default:
       return state;

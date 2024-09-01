@@ -166,6 +166,19 @@ export const ReorderEvents = () => {
     });
   };
 
+  const onDeleteSimulGroup = (
+    eventId: EventId,
+    roundIndex: number,
+    groupIndex: number
+  ) => {
+    dispatch({
+      type: "DELETE_SIMUL_GROUP",
+      eventId,
+      roundIndex,
+      groupIndex,
+    });
+  };
+
   const onDragEnd: OnDragEndResponder = (result, provided) => {
     if (result.type === "round") {
       onReorderRound(result, provided);
@@ -227,6 +240,7 @@ export const ReorderEvents = () => {
                     colors={colors}
                     scheduleWithTimes={scheduleWithTimes}
                     isBeingCombinedWith={id === idBeingCombinedWith}
+                    onDeleteSimulGroup={onDeleteSimulGroup}
                   />
                 );
               })}

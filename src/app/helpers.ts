@@ -225,6 +225,28 @@ export const reorderSimulGroup: StateModifier<"REORDER_SIMUL_GROUP"> = (
   return withNew;
 };
 
+export const deleteSimulGroup: StateModifier<"DELETE_SIMUL_GROUP"> = (
+  state,
+  action
+) => {
+  return modifyRoundInState(
+    state,
+    {
+      eventId: action.eventId,
+      roundIndex: action.roundIndex,
+    },
+    (prevRound) => {
+      const groups = [...prevRound.groups];
+      groups[action.groupIndex].secondaryEvent = undefined;
+
+      return {
+        ...prevRound,
+        groups,
+      };
+    }
+  );
+};
+
 export const getRoundName = (
   eventId: EventId,
   roundNum: number,
