@@ -5,7 +5,11 @@ import {
   getDefaultNumStations,
   getDefaultSchedule,
 } from "../../utils/wcif";
-import { numberOfDaysSelector, numOtherActivitiesSelector } from "../selectors";
+import {
+  competitorLimitSelector,
+  numberOfDaysSelector,
+  numOtherActivitiesSelector,
+} from "../selectors";
 import type { Reducer } from "../types";
 
 export const manageCompReducer: Reducer = (state, action) => {
@@ -69,7 +73,7 @@ export const manageCompReducer: Reducer = (state, action) => {
       const updatedDefaultEvents = getDefaultEventsData({
         wcif: state.wcif,
         numStations: parseInt(numStations || "0"),
-        competitorLimit: parseInt(state.competitorLimit || "0"),
+        competitorLimit: competitorLimitSelector(state),
       });
 
       return {

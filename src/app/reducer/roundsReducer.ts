@@ -89,7 +89,7 @@ export const roundsReducer: Reducer = (state, action) => {
       const eventsToAdd = action.eventIds.map((eventId) => {
         const numCompetitors = calcExpectedNumCompetitors(
           eventId,
-          state.wcif?.competitorLimit || 0
+          competitorLimitSelector(state)
         );
         const numGroups = calcNumGroups({
           eventId,
@@ -133,7 +133,7 @@ export const roundsReducer: Reducer = (state, action) => {
       const numCompetitors = !withAddedRound.length
         ? calcExpectedNumCompetitors(
             action.eventId,
-            state.wcif?.competitorLimit || 0
+            competitorLimitSelector(state)
           )
         : 0;
 
