@@ -234,7 +234,12 @@ export const DraggableEvent = ({
                       }
 
                       return (
-                        <Draggable draggableId={id} index={i} isDragDisabled>
+                        <Draggable
+                          key={id}
+                          draggableId={id}
+                          index={i}
+                          isDragDisabled
+                        >
                           {(provided) => {
                             return (
                               <ListItem

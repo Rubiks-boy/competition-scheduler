@@ -14,6 +14,7 @@ export const SimulRoundRow = ({
       <TotalRow round={round} roundIndex={roundIndex} />
       {round.groups.map((group, groupIndex) => (
         <GroupRow
+          key={groupIndex}
           group={group}
           eventId={round.eventId}
           roundIndex={roundIndex}

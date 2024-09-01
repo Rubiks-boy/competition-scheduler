@@ -52,7 +52,11 @@ export const RoundRow = ({
         if (entry.correspondingMainEvent == null) {
           return (
             round.type === "groups" && (
-              <SimulRoundRow round={round} roundIndex={roundIndex} />
+              <SimulRoundRow
+                key={entry.groupIndex}
+                round={round}
+                roundIndex={roundIndex}
+              />
             )
           );
         }
@@ -74,6 +78,7 @@ export const RoundRow = ({
 
         return (
           <GroupRow
+            key={entry.groupIndex}
             group={group}
             eventId={eventId}
             roundIndex={roundNum}
