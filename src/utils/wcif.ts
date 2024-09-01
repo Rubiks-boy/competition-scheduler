@@ -98,7 +98,7 @@ const wcifRoundsToEventRounds = (
     let numCompetitors: number;
     if (type === "percent") {
       numCompetitors = Math.floor(
-        (numCompetitorsPerRound[roundNum - 1] * level) / 100
+        (numCompetitorsPerRound[roundIndex - 1] * level) / 100
       );
     } else if (extension?.data.expectedRegistrations) {
       numCompetitors = extension?.data.expectedRegistrations;
