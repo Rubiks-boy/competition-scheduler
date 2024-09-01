@@ -56,8 +56,8 @@ const ActivityRow = ({
       <TableCell component="th" scope="row">
         {ACTIVITY_NAMES[activity]}
       </TableCell>
-      {shouldDisplayOccurrenes && (
-        <TableCell sx={{ width: "30%" }}>
+      <TableCell sx={{ width: "30%" }}>
+        {enabled && shouldDisplayOccurrenes && (
           <TextField
             hiddenLabel
             size="small"
@@ -66,8 +66,8 @@ const ActivityRow = ({
             value={enabled ? numOfActivity : ""}
             onChange={(e) => onOccurrencesChange(e.target.value)}
           />
-        </TableCell>
-      )}
+        )}
+      </TableCell>
       <TableCell sx={{ width: "30%" }}>
         <TextField
           hiddenLabel
@@ -119,7 +119,7 @@ export const OtherActivities = () => {
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell>Activity</TableCell>
-                  {numberOfDays > 1 && <TableCell>Occurrences</TableCell>}
+                  <TableCell>Occurrences</TableCell>
                   <TableCell>Time</TableCell>
                 </TableRow>
               </TableHead>
@@ -149,7 +149,12 @@ export const OtherActivities = () => {
                           time,
                         });
                       }}
-                      shouldDisplayOccurrenes={numberOfDays > 1}
+                      shouldDisplayOccurrenes={
+                        numberOfDays > 1 ||
+                        ["registration", "checkin", "tutorial"].includes(
+                          activity
+                        )
+                      }
                       onOccurrencesChange={(numberOfActivity) => {
                         dispatch({
                           type: "OTHER_ACTIVITY_NUMBER_CHANGED",
