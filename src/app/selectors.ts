@@ -675,3 +675,35 @@ export const getScheduledTimeSelector =
 
     return mainScheduledTime + simulScheduledTime;
   };
+
+// totalNumCompetitors = string representing the total number of competitors in a round
+//                       this is a raw string from the user, and might be a %
+// numCompetitorsInRoundSelector = returns an actual number for the amount of competitors
+//                       in a group. e.g. if round 2 takes 75%, it calculates 75% of the previous round's total
+export const numCompetitorsInRoundSelector =
+  (state: State) =>
+  ({
+    eventId,
+    roundNum,
+  }: {
+    eventId: EventId | OtherActivity;
+    roundNum?: number;
+  }): number => {
+    const round = getRoundSelector(state)({ eventId, roundNum });
+    if (round?.type !== "aggregate") {
+      return 0;
+    }
+
+    const { totalNumCompetitors } = round;
+
+    if (totalNumCompetitors.endsWith("%") && roundNum && roundNum >= 1) {
+      const prevRoundCompetitors = numCompetitorsInRoundSelector(state)({
+        eventId,
+        roundNum: roundNum - 1,
+      });
+      const perc = parseInt(totalNumCompetitors);
+      return Math.floor((perc * prevRoundCompetitors) / 100);
+    } else {
+      return parseInt(totalNumCompetitors);
+    }
+  };

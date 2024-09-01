@@ -14,6 +14,7 @@ import {
   getRoundNameSelector,
   groupIndexSelector,
   getSimulGroupsForEventSelector,
+  numCompetitorsInRoundSelector,
 } from "../../../app/selectors";
 
 type Props = {
@@ -25,7 +26,10 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
   const dispatch = useDispatch();
 
   const { eventId, totalNumCompetitors, numGroups, scheduledTime } = round;
-  const numCompetitorsInt = parseInt(totalNumCompetitors);
+  const numCompetitorsInt = useSelector(numCompetitorsInRoundSelector)({
+    eventId,
+    roundNum: roundIndex,
+  });
 
   const getRoundName = useSelector(getRoundNameSelector);
   const hasOtherSimulGroups = !!useSelector(getSimulGroupsForEventSelector)({
