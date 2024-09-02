@@ -1,4 +1,5 @@
 import type {
+  Activity,
   AdvancementCondition,
   Cutoff,
   Room,
@@ -33,7 +34,6 @@ import {
   WcifRoom,
   WcifRound,
   WcifSchedule,
-  WcifPerson,
   WithTime,
   SimulGroup,
 } from "../types";
@@ -50,8 +50,8 @@ import {
   findNthOccurrence,
   getNumCompetitorsValue,
   makeDefaultEvents,
-  numPersonsRegisteredForEvent,
   range,
+  splitEvenlyWithRounding,
 } from "./utils";
 
 const getAdvancementForRound = (
@@ -76,13 +76,46 @@ const getAdvancementForRound = (
   };
 };
 
+const wcifActivityToGroups = (
+  wcifActivity: Activity,
+  numCompetitors: number,
+  numGroups: number
+) => {
+  const { childActivities } = wcifActivity;
+  if (!childActivities) {
+    return [];
+  }
+
+  const defaultNumCompetitors = splitEvenlyWithRounding(
+    numCompetitors,
+    numGroups,
+    1
+  );
+
+  return childActivities.map((ca, i) => {
+    const wcifScheduledTime =
+      new Date(ca.endTime).getTime() - new Date(ca.startTime).getTime();
+
+    const extension = ca.extensions.find(
+      ({ id }) => id === "competitionScheduler.GroupConfig"
+    ) as RoundExtension | undefined;
+
+    const numCompetitorsInGroup =
+      extension?.data.expectedRegistrations ?? defaultNumCompetitors[i] ?? 0;
+
+    return {
+      numMainCompetitors: `${numCompetitorsInGroup}`,
+      scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60)}`,
+    };
+  });
+};
+
 const wcifRoundsToEventRounds = (
   wcifRounds: Array<WcifRound>,
   eventId: EventId,
   competitorLimit: number,
   numStations: number,
-  wcifSchedule: WcifSchedule,
-  wcifPersons: Array<WcifPerson>
+  wcifSchedule: WcifSchedule
 ): Array<Round> => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
@@ -118,37 +151,43 @@ const wcifRoundsToEventRounds = (
 
     const scheduledTime = calcTimeForRound(eventId, numGroups);
 
-    const numRegistered = numPersonsRegisteredForEvent(eventId, wcifPersons);
-
-    const scheduleEntry = {
-      type: "aggregate" as const,
-      eventId,
-      totalNumCompetitors:
-        type === "percent" ? `${level}%` : numCompetitors.toString(),
-      numGroups: numGroups.toString(),
-      scheduledTime: scheduledTime.toString(),
-      roundNum,
-      numRegistered,
-    };
-
     const wcifActivity = findMatchingWcifActivity({
       wcifSchedule,
       type: "event",
       eventId,
       roundNum,
     });
-    if (wcifActivity) {
-      const wcifScheduledTime =
-        new Date(wcifActivity.endTime).getTime() -
-        new Date(wcifActivity.startTime).getTime();
 
-      scheduleEntry.scheduledTime = `${Math.floor(
-        wcifScheduledTime / 1000 / 60
-      )}`;
+    const shouldImportIndividualGroups = false;
+
+    let round: Round;
+    if (shouldImportIndividualGroups && wcifActivity?.childActivities?.length) {
+      round = {
+        type: "groups",
+        eventId,
+        groups: wcifActivityToGroups(wcifActivity, numCompetitors, numGroups),
+      };
+    } else {
+      round = {
+        type: "aggregate",
+        eventId,
+        totalNumCompetitors:
+          type === "percent" ? `${level}%` : numCompetitors.toString(),
+        numGroups: numGroups.toString(),
+        scheduledTime: scheduledTime.toString(),
+      };
+
+      if (wcifActivity) {
+        const wcifScheduledTime =
+          new Date(wcifActivity.endTime).getTime() -
+          new Date(wcifActivity.startTime).getTime();
+
+        round.scheduledTime = `${Math.floor(wcifScheduledTime / 1000 / 60)}`;
+      }
     }
 
     numCompetitorsPerRound.push(numCompetitors);
-    rounds.push(scheduleEntry);
+    rounds.push(round);
   });
   return rounds;
 };
@@ -219,8 +258,7 @@ export const getDefaultEventsData = ({
       id,
       competitorLimit || 0,
       numStations,
-      wcif.schedule,
-      wcif.persons
+      wcif.schedule
     );
   });
 
