@@ -1,4 +1,4 @@
-import { ACTIVITIES, LONG_EVENT_NAMES } from "../constants";
+import { LONG_EVENT_NAMES } from "../constants";
 import {
   EventId,
   Events,
