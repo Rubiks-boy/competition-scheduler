@@ -38,6 +38,7 @@ import {
   WithTime,
   SimulGroup,
   SecondaryEvent,
+  GroupExtension,
 } from "../types";
 import {
   calcExpectedNumCompetitors,
@@ -103,10 +104,10 @@ const wcifActivityToGroups = (
 
     const extension = ca.extensions.find(
       ({ id }) => id === "competitionScheduler.GroupConfig"
-    ) as RoundExtension | undefined;
+    ) as GroupExtension | undefined;
 
     const numCompetitorsInGroup: number =
-      extension?.data.expectedRegistrations ?? defaultNumCompetitors[i] ?? 0;
+      extension?.data.numCompetitors ?? defaultNumCompetitors[i] ?? 0;
 
     const secondaryActivity = secondaryActivities.find((act) =>
       isOverlappingDates(
@@ -129,15 +130,13 @@ const wcifActivityToGroups = (
 
       const secondaryActExtension = secondaryActivity.extensions.find(
         ({ id }) => id === "competitionScheduler.GroupConfig"
-      ) as RoundExtension | undefined;
+      ) as GroupExtension | undefined;
 
       if (roundNumber) {
         secondaryEvent = {
           eventId,
           roundIndex: roundNumber - 1,
-          numCompetitors: `${
-            secondaryActExtension?.data.expectedRegistrations ?? 0
-          }`,
+          numCompetitors: `${secondaryActExtension?.data.numCompetitors ?? 0}`,
         };
       }
     }
@@ -629,15 +628,16 @@ const createWcifEvent = (
         extension,
       ];
 
-      const simulGroupsAttachedToOtherEvents = allRounds.flatMap((r) =>
-        r.type === "groups"
-          ? r.groups.filter(
-              (g) =>
-                g.secondaryEvent &&
-                g.secondaryEvent.eventId === round.eventId &&
-                g.secondaryEvent.roundIndex === index
-            )
-          : []
+      const simulGroupsAttachedToOtherEvents: SimulGroup[] = allRounds.flatMap(
+        (r) =>
+          r.type === "groups"
+            ? r.groups.filter(
+                (g) =>
+                  g.secondaryEvent &&
+                  g.secondaryEvent.eventId === round.eventId &&
+                  g.secondaryEvent.roundIndex === index
+              )
+            : []
       );
       const numSimulGroups = simulGroupsAttachedToOtherEvents.length;
 
@@ -696,17 +696,23 @@ const createChildActivities = ({
     return [];
   }
 
-  const numGroups =
-    round?.type === "groups"
-      ? round?.groups.length
-      : parseInt(round?.numGroups ?? "1");
+  let numGroups: number;
+  let timeMsByGroup: number[];
+  if (round?.type === "groups") {
+    numGroups = round.groups.length;
+    timeMsByGroup = round.groups.map(
+      (r) => parseInt(r.scheduledTime) * 60 * 1000
+    );
+  } else {
+    numGroups = parseInt(round?.numGroups ?? "1");
+    timeMsByGroup = splitEvenlyWithRounding(
+      scheduleEntry.scheduledTimeMs,
+      numGroups,
+      // Round to nearest 5 min
+      1000 * 60 * 5
+    );
+  }
 
-  const timeMsByGroup = splitEvenlyWithRounding(
-    scheduleEntry.scheduledTimeMs,
-    numGroups,
-    // Round to nearest 5 min
-    1000 * 60 * 5
-  );
   const startTimeMs = scheduleEntry.startTime.getTime();
   let currStartTime = startTimeMs;
   const nonSimulGroups = range(numGroups).map((i) => {
@@ -714,29 +720,66 @@ const createChildActivities = ({
     const endTime = currStartTime + timeMsByGroup[i];
     currStartTime = endTime;
 
+    const extensions =
+      round.type === "groups"
+        ? [
+            {
+              id: "competitionScheduler.GroupConfig",
+              specUrl:
+                "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md",
+              data: {
+                numCompetitors: parseInt(round.groups[i].numMainCompetitors),
+              },
+            },
+          ]
+        : [];
+
     return {
       startTime: new Date(startTime),
       endTime: new Date(currStartTime),
+      extensions,
     };
   });
 
-  const allChildGroups = [...simulGroupsWithTimes, ...nonSimulGroups];
-  allChildGroups.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+  const simulGroups = simulGroupsWithTimes.map((g) => {
+    const numCompetitors = g.secondaryEvent?.numCompetitors;
 
-  return allChildGroups.map((childGroup, i) => ({
-    id: getNextId(),
-    name: `${LONG_EVENT_NAMES[scheduleEntry.eventId]}, Round ${
-      scheduleEntry.roundNum + 1
-    }, Group ${i + 1}`,
-    activityCode: `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}-g${
-      i + 1
-    }`,
-    startTime: childGroup.startTime.toISOString(),
-    endTime: childGroup.endTime.toISOString(),
-    childActivities: [],
-    scrambleSetId: null,
-    extensions: [],
-  }));
+    const extensions = numCompetitors
+      ? [
+          {
+            id: "competitionScheduler.GroupConfig",
+            specUrl:
+              "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md",
+            data: {
+              numCompetitors: parseInt(numCompetitors),
+            },
+          },
+        ]
+      : [];
+
+    return {
+      ...g,
+      extensions,
+    };
+  });
+
+  const allChildGroups = [...simulGroups, ...nonSimulGroups];
+  return allChildGroups.map((childGroup, i) => {
+    return {
+      id: getNextId(),
+      name: `${LONG_EVENT_NAMES[scheduleEntry.eventId]}, Round ${
+        scheduleEntry.roundNum + 1
+      }, Group ${i + 1}`,
+      activityCode: `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}-g${
+        i + 1
+      }`,
+      startTime: childGroup.startTime.toISOString(),
+      endTime: childGroup.endTime.toISOString(),
+      childActivities: [],
+      scrambleSetId: null,
+      extensions: childGroup.extensions,
+    };
+  });
 };
 
 const createWcifRoom = ({

@@ -119,3 +119,11 @@ export type RoundExtension = {
     groupCount?: number | null | undefined;
   };
 };
+
+export type GroupExtension = {
+  id: "competitionScheduler.GroupConfig";
+  specUrl: "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md";
+  data: {
+    numCompetitors?: number | null | undefined;
+  };
+};
