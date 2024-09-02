@@ -8,6 +8,7 @@ import {
 import { AggregateRoundRow } from "./AggregateRoundRow";
 import { GroupRow } from "./GroupRow";
 import { SimulRoundRow } from "./SimulRoundRow";
+import { TotalRow } from "./TotalRow";
 
 const BottomBorder = () => (
   <TableRow>
@@ -36,6 +37,10 @@ export const RoundRow = ({
     return null;
   }
 
+  const showTotalRow = groupIndices.some(
+    (entry) => entry.correspondingMainEvent == null
+  );
+
   return (
     <>
       {round.type === "aggregate" && (
@@ -47,6 +52,9 @@ export const RoundRow = ({
             Simul with other rounds
           </TableCell>
         </TableRow>
+      )}
+      {showTotalRow && round.type === "groups" && (
+        <TotalRow round={round} roundIndex={roundIndex} />
       )}
       {groupIndices.map((entry) => {
         if (entry.correspondingMainEvent == null) {

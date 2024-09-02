@@ -1,6 +1,5 @@
 import type { Round } from "../../../types";
 import { GroupRow } from "./GroupRow";
-import { TotalRow } from "./TotalRow";
 
 export const SimulRoundRow = ({
   round,
@@ -11,7 +10,6 @@ export const SimulRoundRow = ({
 }) => {
   return (
     <>
-      <TotalRow round={round} roundIndex={roundIndex} />
       {round.groups.map((group, groupIndex) => (
         <GroupRow
           key={groupIndex}
