@@ -115,7 +115,8 @@ const wcifRoundsToEventRounds = (
   eventId: EventId,
   competitorLimit: number,
   numStations: number,
-  wcifSchedule: WcifSchedule
+  wcifSchedule: WcifSchedule,
+  mainEventStartAndEndTimes: Record<string, { startTime: Date; endTime: Date }>
 ): Array<Round> => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
@@ -177,10 +178,12 @@ const wcifRoundsToEventRounds = (
         scheduledTime: scheduledTime.toString(),
       };
 
-      if (wcifActivity) {
+      const wcifStartEndTime =
+        mainEventStartAndEndTimes[`${eventId}-r${roundIndex + 1}`];
+      if (wcifStartEndTime) {
         const wcifScheduledTime =
-          new Date(wcifActivity.endTime).getTime() -
-          new Date(wcifActivity.startTime).getTime();
+          new Date(wcifStartEndTime.endTime).getTime() -
+          new Date(wcifStartEndTime.startTime).getTime();
 
         round.scheduledTime = `${Math.floor(wcifScheduledTime / 1000 / 60)}`;
       }
@@ -245,6 +248,7 @@ export const getDefaultEventsData = ({
   const { events: wcifEvents } = wcif;
 
   const events = makeDefaultEvents();
+  const mainEventStartAndEndTimes = getMainEventStartAndEndTimes(wcif.schedule);
 
   wcifEvents.forEach(({ id, rounds }) => {
     // Sort based on round number
@@ -258,7 +262,8 @@ export const getDefaultEventsData = ({
       id,
       competitorLimit || 0,
       numStations,
-      wcif.schedule
+      wcif.schedule,
+      mainEventStartAndEndTimes
     );
   });
 
@@ -268,6 +273,52 @@ export const getDefaultEventsData = ({
 export const getAllActivities = (wcifSchedule: WcifSchedule) => {
   const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
   return rooms?.flatMap((room) => room.activities);
+};
+
+// Gets the start and end times for main events
+// Excludes simul child activities
+export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
+  const activities = getAllActivities(wcifSchedule);
+  const childActivities = activities.flatMap((a) => {
+    return a.childActivities?.length ? a.childActivities : a;
+  });
+  childActivities.sort((a, b) => {
+    return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+  });
+
+  const startAndEndTimes: Record<string, { startTime: Date; endTime: Date }> =
+    {};
+  let nextStartTime = new Date(childActivities[0].startTime);
+  for (const childActivity of childActivities) {
+    const start = new Date(childActivity.startTime);
+    if (start < nextStartTime) {
+      // We're simul with whatever the last child activity was
+      // Skip for now
+      continue;
+    }
+
+    // New main activity
+    const { activityCode } = childActivity;
+    const eventRoundTuple = activityCode.substring(
+      0,
+      activityCode.indexOf("-r") + 3
+    );
+
+    // If there's already a start time, that one will be earlier
+    const startTime =
+      startAndEndTimes[eventRoundTuple]?.startTime ??
+      new Date(childActivity.startTime);
+    const endTime = new Date(childActivity.endTime);
+    startAndEndTimes[eventRoundTuple] = {
+      startTime,
+      endTime,
+    };
+
+    // Heuristic: End time of one round is the min start time for the next round
+    nextStartTime = endTime;
+  }
+
+  return startAndEndTimes;
 };
 
 export const findMatchingWcifActivity = ({
