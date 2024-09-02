@@ -50,7 +50,6 @@ import {
 import {
   calcNumCompetitorsPerRound,
   constructActivityString,
-  findNthOccurrence,
   getNumCompetitorsValue,
   isOverlappingDates,
   makeDefaultEvents,
@@ -81,13 +80,15 @@ const getAdvancementForRound = (
 };
 
 const wcifActivityToGroups = (
-  wcifActivity: Activity,
+  wcifActivities: Activity[],
   numCompetitors: number,
   numGroups: number,
   secondaryActivities: Activity[]
 ): SimulGroup[] => {
-  const { childActivities } = wcifActivity;
-  if (!childActivities) {
+  const childActivities = wcifActivities.flatMap(
+    (act) => act.childActivities ?? []
+  );
+  if (!childActivities.length) {
     return [];
   }
 
@@ -97,56 +98,109 @@ const wcifActivityToGroups = (
     1
   );
 
-  return childActivities.map((ca, i) => {
-    const startTime = new Date(ca.startTime);
-    const endTime = new Date(ca.endTime);
-    const wcifScheduledTime = endTime.getTime() - startTime.getTime();
+  return (
+    childActivities
+      .map((ca, i) => {
+        const startTime = new Date(ca.startTime);
+        const endTime = new Date(ca.endTime);
+        const wcifScheduledTime: number =
+          endTime.getTime() - startTime.getTime();
 
-    const extension = ca.extensions.find(
-      ({ id }) => id === "competitionScheduler.GroupConfig"
-    ) as GroupExtension | undefined;
+        const extension = ca.extensions.find(
+          ({ id }) => id === "competitionScheduler.GroupConfig"
+        ) as GroupExtension | undefined;
 
-    const numCompetitorsInGroup: number =
-      extension?.data.numCompetitors ?? defaultNumCompetitors[i] ?? 0;
+        const numCompetitorsInGroup: number =
+          extension?.data.numCompetitors ?? defaultNumCompetitors[i] ?? 0;
 
-    const secondaryActivity = secondaryActivities.find((act) =>
-      isOverlappingDates(
-        {
-          startTime: new Date(act.startTime),
-          endTime: new Date(act.endTime),
-        },
-        {
-          startTime,
-          endTime,
+        const secondaryActivity = secondaryActivities.find((act) =>
+          isOverlappingDates(
+            {
+              startTime: new Date(act.startTime),
+              endTime: new Date(act.endTime),
+            },
+            {
+              startTime,
+              endTime,
+            }
+          )
+        );
+
+        let secondaryEvent:
+          | {
+              eventId: EventId;
+              roundIndex: number;
+              numCompetitors: number;
+            }
+          | undefined = undefined;
+        if (secondaryActivity) {
+          const { eventId, roundNumber } = parseActivityCode(
+            secondaryActivity.activityCode
+          );
+
+          const secondaryActExtension = secondaryActivity.extensions.find(
+            ({ id }) => id === "competitionScheduler.GroupConfig"
+          ) as GroupExtension | undefined;
+
+          if (roundNumber) {
+            secondaryEvent = {
+              eventId,
+              roundIndex: roundNumber - 1,
+              numCompetitors: secondaryActExtension?.data.numCompetitors ?? 0,
+            };
+          }
         }
-      )
-    );
 
-    let secondaryEvent: SecondaryEvent | undefined = undefined;
-    if (secondaryActivity) {
-      const { eventId, roundNumber } = parseActivityCode(
-        secondaryActivity.activityCode
-      );
-
-      const secondaryActExtension = secondaryActivity.extensions.find(
-        ({ id }) => id === "competitionScheduler.GroupConfig"
-      ) as GroupExtension | undefined;
-
-      if (roundNumber) {
-        secondaryEvent = {
-          eventId,
-          roundIndex: roundNumber - 1,
-          numCompetitors: `${secondaryActExtension?.data.numCompetitors ?? 0}`,
+        return {
+          activityCode: ca.activityCode,
+          numMainCompetitors: numCompetitorsInGroup,
+          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60)}`,
+          secondaryEvent,
         };
-      }
-    }
+      })
+      // The child activities array includes _all_ stages
+      // Merge the activities that are at the same time
+      .reduce(
+        (acc, ca) => {
+          const existingIdx = acc.findIndex(
+            (g) => g.activityCode === ca.activityCode
+          );
 
-    return {
-      numMainCompetitors: `${numCompetitorsInGroup}`,
-      scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60)}`,
-      secondaryEvent,
-    };
-  });
+          if (existingIdx === -1) {
+            acc.push(ca);
+          } else {
+            acc[existingIdx].numMainCompetitors += ca.numMainCompetitors;
+            const secondaryEvent = acc[existingIdx].secondaryEvent;
+            if (secondaryEvent) {
+              secondaryEvent.numCompetitors +=
+                ca.secondaryEvent?.numCompetitors ?? 0;
+            }
+          }
+
+          return acc;
+        },
+        [] as {
+          activityCode: string;
+          scheduledTime: string;
+          numMainCompetitors: number;
+          secondaryEvent?: {
+            eventId: EventId;
+            roundIndex: number;
+            numCompetitors: number;
+          };
+        }[]
+      )
+      .map(({ scheduledTime, numMainCompetitors, secondaryEvent }) => ({
+        scheduledTime,
+        numMainCompetitors: `${numMainCompetitors}`,
+        secondaryEvent: secondaryEvent
+          ? {
+              ...secondaryEvent,
+              numCompetitors: `${secondaryEvent.numCompetitors}`,
+            }
+          : undefined,
+      }))
+  );
 };
 
 const wcifRoundsToEventRounds = (
@@ -192,7 +246,7 @@ const wcifRoundsToEventRounds = (
 
     const scheduledTime = calcTimeForRound(eventId, numGroups);
 
-    const wcifActivity = findMatchingWcifActivity({
+    const wcifActivities = findMatchingWcifActivities({
       wcifSchedule,
       type: "event",
       eventId,
@@ -215,12 +269,24 @@ const wcifRoundsToEventRounds = (
       : [];
 
     let round: Round;
-    if (secondaryActivities.length && wcifActivity?.childActivities?.length) {
+    if (
+      secondaryActivities.length &&
+      wcifActivities.some((act) => act.childActivities?.length)
+    ) {
+      console.log(
+        "wcifActivityToGroups",
+        wcifActivityToGroups(
+          wcifActivities,
+          numCompetitors,
+          numGroups,
+          secondaryActivities
+        )
+      );
       round = {
         type: "groups",
         eventId,
         groups: wcifActivityToGroups(
-          wcifActivity,
+          wcifActivities,
           numCompetitors,
           numGroups,
           secondaryActivities
@@ -396,6 +462,29 @@ export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
   return { startAndEndTimes, overlappingChildActivities };
 };
 
+export const findMatchingWcifActivities = ({
+  wcifSchedule,
+  type,
+  eventId,
+  roundNum,
+}: {
+  wcifSchedule: WcifSchedule;
+  type: "event" | "other";
+  eventId?: string;
+  roundNum?: number;
+}) => {
+  const allActivities = getAllActivities(wcifSchedule);
+
+  const activityCode =
+    type === "event" && roundNum
+      ? `${eventId}-r${roundNum}`
+      : `other-${eventId}`;
+
+  return allActivities.filter(
+    (activity) => activity.activityCode === activityCode
+  );
+};
+
 export const findMatchingWcifActivity = ({
   wcifSchedule,
   type,
@@ -408,19 +497,15 @@ export const findMatchingWcifActivity = ({
   eventId?: string;
   roundNum?: number;
   nthOccurrence?: number;
-}) => {
-  const allActivities = getAllActivities(wcifSchedule);
+}): Activity | undefined => {
+  const matches = findMatchingWcifActivities({
+    wcifSchedule,
+    type,
+    eventId,
+    roundNum,
+  });
 
-  const activityCode =
-    type === "event" && roundNum
-      ? `${eventId}-r${roundNum}`
-      : `other-${eventId}`;
-
-  return findNthOccurrence(
-    allActivities,
-    (activity) => activity.activityCode === activityCode,
-    nthOccurrence
-  );
+  return matches[nthOccurrence];
 };
 
 const getStartTimeForEntry = (
@@ -684,11 +769,15 @@ const createChildActivities = ({
   events,
   simulGroupsWithTimes,
   getNextId,
+  numStages,
+  stageIndex,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
   events: Events;
   simulGroupsWithTimes: Array<WithTime<SimulGroup>>;
   getNextId: () => number;
+  numStages: number;
+  stageIndex: number;
 }) => {
   if (scheduleEntry.type !== "event") {
     return [];
@@ -732,7 +821,11 @@ const createChildActivities = ({
               specUrl:
                 "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md",
               data: {
-                numCompetitors: parseInt(round.groups[i].numMainCompetitors),
+                numCompetitors: splitEvenlyWithRounding(
+                  parseInt(round.groups[i].numMainCompetitors),
+                  numStages,
+                  1
+                )[stageIndex],
               },
             },
           ]
@@ -755,7 +848,11 @@ const createChildActivities = ({
             specUrl:
               "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md",
             data: {
-              numCompetitors: parseInt(numCompetitors),
+              numCompetitors: splitEvenlyWithRounding(
+                parseInt(numCompetitors),
+                numStages,
+                1
+              )[stageIndex],
             },
           },
         ]
@@ -792,12 +889,16 @@ const createWcifRoom = ({
   startingId = 1,
   stationsPerRoom,
   events,
+  numStages,
+  stageIndex,
 }: {
   scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
   startingId: number;
   stationsPerRoom: number;
   events: Events;
+  numStages: number;
+  stageIndex: number;
 }) => {
   let nextId = startingId;
   const getNextId = () => nextId++;
@@ -850,6 +951,8 @@ const createWcifRoom = ({
         simulGroupsWithTimes,
         events,
         getNextId,
+        numStages,
+        stageIndex,
       });
 
       const minStartTime = Math.min(
@@ -961,6 +1064,8 @@ export const createWcifSchedule = ({
             startingId: idx * 10000,
             stationsPerRoom: Math.floor(numStations / venueRooms.length),
             events,
+            numStages: venueRooms.length,
+            stageIndex: idx,
           })
         ),
       },
