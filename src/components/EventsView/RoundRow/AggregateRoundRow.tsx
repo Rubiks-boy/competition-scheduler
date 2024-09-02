@@ -17,6 +17,7 @@ import {
   numCompetitorsInRoundSelector,
 } from "../../../app/selectors";
 import { Error } from "@mui/icons-material";
+import { NumberTextField } from "../../NumberTextField";
 
 type Props = {
   round: Round & { type: "aggregate" };
@@ -104,10 +105,9 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
         />
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
-        <TextField
+        <NumberTextField
           hiddenLabel
           size="small"
-          type="number"
           value={numGroups}
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
           InputProps={{

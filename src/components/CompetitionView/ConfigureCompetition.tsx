@@ -8,6 +8,7 @@ import {
   startTimesSelector,
   numCompetitorsRegisteredSelector,
 } from "../../app/selectors";
+import { NumberTextField } from "../NumberTextField";
 import { TimePicker } from "../TimePicker";
 import { NumStationsTooltip } from "./NumStationsTooltip";
 
@@ -59,10 +60,9 @@ export const ConfigureCompetition = () => {
   return (
     <>
       <Grid item xs={6} sm={4} md={3}>
-        <TextField
+        <NumberTextField
           fullWidth
           label="Competitor Limit"
-          type="number"
           value={competitorLimit}
           onChange={onCompetitorLimitChanged}
           InputProps={{
@@ -79,10 +79,9 @@ export const ConfigureCompetition = () => {
         />
       </Grid>
       <Grid item xs={6} sm={4} md={2}>
-        <TextField
+        <NumberTextField
           fullWidth
           label="Stations"
-          type="number"
           value={numStations}
           onChange={onNumStationsChange}
           InputProps={{
@@ -102,7 +101,7 @@ export const ConfigureCompetition = () => {
         />
       </Grid>
       <Grid item xs={12} sm={4} md={3}>
-        <TextField
+        <NumberTextField
           fullWidth
           label="Number of days"
           InputProps={{
@@ -114,7 +113,6 @@ export const ConfigureCompetition = () => {
               </InputAdornment>
             ),
           }}
-          type="number"
           value={numberOfDays}
           onChange={onNumberOfDaysChange}
           disabled

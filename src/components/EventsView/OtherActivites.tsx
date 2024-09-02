@@ -26,6 +26,7 @@ import {
   numberOfDaysSelector,
 } from "../../app/selectors";
 import { ACTIVITIES, ACTIVITY_NAMES } from "../../constants";
+import { NumberTextField } from "../NumberTextField";
 
 type Activity = (typeof ACTIVITIES)[number];
 
@@ -58,10 +59,9 @@ const ActivityRow = ({
       </TableCell>
       <TableCell sx={{ width: "30%" }}>
         {enabled && shouldDisplayOccurrenes && (
-          <TextField
+          <NumberTextField
             hiddenLabel
             size="small"
-            type="number"
             disabled={!enabled}
             value={enabled ? numOfActivity : ""}
             onChange={(e) => onOccurrencesChange(e.target.value)}
@@ -69,10 +69,9 @@ const ActivityRow = ({
         )}
       </TableCell>
       <TableCell sx={{ width: "30%" }}>
-        <TextField
+        <NumberTextField
           hiddenLabel
           size="small"
-          type="number"
           disabled={!enabled}
           value={enabled ? time : ""}
           onChange={(e) => onTimeChange(e.target.value)}

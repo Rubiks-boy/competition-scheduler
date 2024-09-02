@@ -1,6 +1,7 @@
 import { IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 import { TimeDiffTooltip } from "./tooltips";
+import { NumberTextField } from "../../NumberTextField";
 
 export const ScheduledTimeInput = ({
   scheduledTime,
@@ -16,10 +17,9 @@ export const ScheduledTimeInput = ({
   setEditingTime: () => void;
 }) => {
   return isEditingTime ? (
-    <TextField
+    <NumberTextField
       hiddenLabel
       size="small"
-      type="number"
       value={scheduledTime}
       onChange={(e) => onChange(e.target.value)}
       inputProps={{ autoFocus: true, step: "5" }}
