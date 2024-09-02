@@ -46,13 +46,6 @@ export const RoundRow = ({
       {round.type === "aggregate" && (
         <AggregateRoundRow round={round} roundIndex={roundIndex} />
       )}
-      {round.type === "aggregate" && groupIndices.length > 1 && (
-        <TableRow>
-          <TableCell sx={{ borderBottom: 0, pb: 0 }}>
-            Simul with other rounds
-          </TableCell>
-        </TableRow>
-      )}
       {showTotalRow && round.type === "groups" && (
         <TotalRow round={round} roundIndex={roundIndex} />
       )}
