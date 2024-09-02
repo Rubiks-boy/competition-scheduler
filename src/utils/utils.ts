@@ -1,4 +1,4 @@
-import { LONG_EVENT_NAMES } from "../constants";
+import { ACTIVITIES, LONG_EVENT_NAMES } from "../constants";
 import {
   EventId,
   Events,
@@ -163,4 +163,15 @@ export const splitEvenlyWithRounding = (
   return range(numEntries).map(
     (i) => idealSplit + (i < numGroupsWithRemainder ? roundingAmount : 0)
   );
+};
+
+export const isOverlappingDates = (
+  a: { startTime: Date; endTime: Date },
+  b: { startTime: Date; endTime: Date }
+) => {
+  if (a.startTime.getTime() < b.startTime.getTime()) {
+    return a.endTime.getTime() > b.startTime.getTime();
+  } else {
+    return a.startTime.getTime() < b.endTime.getTime();
+  }
 };

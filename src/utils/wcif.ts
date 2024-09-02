@@ -1,7 +1,8 @@
-import type {
+import {
   Activity,
   AdvancementCondition,
   Cutoff,
+  parseActivityCode,
   Room,
   RoundFormat,
   TimeLimit,
@@ -36,6 +37,7 @@ import {
   WcifSchedule,
   WithTime,
   SimulGroup,
+  SecondaryEvent,
 } from "../types";
 import {
   calcExpectedNumCompetitors,
@@ -49,6 +51,7 @@ import {
   constructActivityString,
   findNthOccurrence,
   getNumCompetitorsValue,
+  isOverlappingDates,
   makeDefaultEvents,
   range,
   splitEvenlyWithRounding,
@@ -79,8 +82,9 @@ const getAdvancementForRound = (
 const wcifActivityToGroups = (
   wcifActivity: Activity,
   numCompetitors: number,
-  numGroups: number
-) => {
+  numGroups: number,
+  secondaryActivities: Activity[]
+): SimulGroup[] => {
   const { childActivities } = wcifActivity;
   if (!childActivities) {
     return [];
@@ -93,19 +97,55 @@ const wcifActivityToGroups = (
   );
 
   return childActivities.map((ca, i) => {
-    const wcifScheduledTime =
-      new Date(ca.endTime).getTime() - new Date(ca.startTime).getTime();
+    const startTime = new Date(ca.startTime);
+    const endTime = new Date(ca.endTime);
+    const wcifScheduledTime = endTime.getTime() - startTime.getTime();
 
     const extension = ca.extensions.find(
       ({ id }) => id === "competitionScheduler.GroupConfig"
     ) as RoundExtension | undefined;
 
-    const numCompetitorsInGroup =
+    const numCompetitorsInGroup: number =
       extension?.data.expectedRegistrations ?? defaultNumCompetitors[i] ?? 0;
+
+    const secondaryActivity = secondaryActivities.find((act) =>
+      isOverlappingDates(
+        {
+          startTime: new Date(act.startTime),
+          endTime: new Date(act.endTime),
+        },
+        {
+          startTime,
+          endTime,
+        }
+      )
+    );
+
+    let secondaryEvent: SecondaryEvent | undefined = undefined;
+    if (secondaryActivity) {
+      const { eventId, roundNumber } = parseActivityCode(
+        secondaryActivity.activityCode
+      );
+
+      const secondaryActExtension = secondaryActivity.extensions.find(
+        ({ id }) => id === "competitionScheduler.GroupConfig"
+      ) as RoundExtension | undefined;
+
+      if (roundNumber) {
+        secondaryEvent = {
+          eventId,
+          roundIndex: roundNumber - 1,
+          numCompetitors: `${
+            secondaryActExtension?.data.expectedRegistrations ?? 0
+          }`,
+        };
+      }
+    }
 
     return {
       numMainCompetitors: `${numCompetitorsInGroup}`,
       scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60)}`,
+      secondaryEvent,
     };
   });
 };
@@ -116,7 +156,8 @@ const wcifRoundsToEventRounds = (
   competitorLimit: number,
   numStations: number,
   wcifSchedule: WcifSchedule,
-  mainEventStartAndEndTimes: Record<string, { startTime: Date; endTime: Date }>
+  mainEventStartAndEndTimes: Record<string, { startTime: Date; endTime: Date }>,
+  overlappingChildActivities: Array<Activity>
 ): Array<Round> => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
@@ -159,14 +200,32 @@ const wcifRoundsToEventRounds = (
       roundNum,
     });
 
-    const shouldImportIndividualGroups = false;
+    const wcifStartEndTime =
+      mainEventStartAndEndTimes[`${eventId}-r${roundIndex + 1}`];
+
+    const secondaryActivities = wcifStartEndTime
+      ? overlappingChildActivities.filter((act) =>
+          isOverlappingDates(
+            {
+              startTime: new Date(act.startTime),
+              endTime: new Date(act.endTime),
+            },
+            wcifStartEndTime
+          )
+        )
+      : [];
 
     let round: Round;
-    if (shouldImportIndividualGroups && wcifActivity?.childActivities?.length) {
+    if (secondaryActivities.length && wcifActivity?.childActivities?.length) {
       round = {
         type: "groups",
         eventId,
-        groups: wcifActivityToGroups(wcifActivity, numCompetitors, numGroups),
+        groups: wcifActivityToGroups(
+          wcifActivity,
+          numCompetitors,
+          numGroups,
+          secondaryActivities
+        ),
       };
     } else {
       round = {
@@ -178,12 +237,10 @@ const wcifRoundsToEventRounds = (
         scheduledTime: scheduledTime.toString(),
       };
 
-      const wcifStartEndTime =
-        mainEventStartAndEndTimes[`${eventId}-r${roundIndex + 1}`];
       if (wcifStartEndTime) {
         const wcifScheduledTime =
-          new Date(wcifStartEndTime.endTime).getTime() -
-          new Date(wcifStartEndTime.startTime).getTime();
+          wcifStartEndTime.endTime.getTime() -
+          wcifStartEndTime.startTime.getTime();
 
         round.scheduledTime = `${Math.floor(wcifScheduledTime / 1000 / 60)}`;
       }
@@ -248,7 +305,8 @@ export const getDefaultEventsData = ({
   const { events: wcifEvents } = wcif;
 
   const events = makeDefaultEvents();
-  const mainEventStartAndEndTimes = getMainEventStartAndEndTimes(wcif.schedule);
+  const { startAndEndTimes, overlappingChildActivities } =
+    getMainEventStartAndEndTimes(wcif.schedule);
 
   wcifEvents.forEach(({ id, rounds }) => {
     // Sort based on round number
@@ -263,7 +321,8 @@ export const getDefaultEventsData = ({
       competitorLimit || 0,
       numStations,
       wcif.schedule,
-      mainEventStartAndEndTimes
+      startAndEndTimes,
+      overlappingChildActivities
     );
   });
 
@@ -279,21 +338,33 @@ export const getAllActivities = (wcifSchedule: WcifSchedule) => {
 // Excludes simul child activities
 export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
   const activities = getAllActivities(wcifSchedule);
-  const childActivities = activities.flatMap((a) => {
-    return a.childActivities?.length ? a.childActivities : a;
-  });
+  const childActivities = activities
+    .flatMap((a) => {
+      return a.childActivities?.length ? a.childActivities : a;
+    })
+    .filter((a) => a.activityCode.indexOf("other") === -1);
   childActivities.sort((a, b) => {
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
 
   const startAndEndTimes: Record<string, { startTime: Date; endTime: Date }> =
     {};
+  const overlappingChildActivities: Array<Activity> = [];
   let nextStartTime = new Date(childActivities[0].startTime);
+  let currRound = parseActivityCode(childActivities[0].activityCode);
   for (const childActivity of childActivities) {
     const start = new Date(childActivity.startTime);
+    const code = parseActivityCode(childActivity.activityCode);
     if (start < nextStartTime) {
-      // We're simul with whatever the last child activity was
-      // Skip for now
+      // We're simul with a previous child activity
+      // Save it for use as a secondaryEvent later
+      if (
+        code.eventId !== currRound.eventId ||
+        code.roundNumber !== currRound.roundNumber
+      ) {
+        overlappingChildActivities.push(childActivity);
+      }
+
       continue;
     }
 
@@ -316,9 +387,10 @@ export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
 
     // Heuristic: End time of one round is the min start time for the next round
     nextStartTime = endTime;
+    currRound = code;
   }
 
-  return startAndEndTimes;
+  return { startAndEndTimes, overlappingChildActivities };
 };
 
 export const findMatchingWcifActivity = ({
