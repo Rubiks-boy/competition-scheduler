@@ -18,13 +18,7 @@ import {
 } from "../../app/selectors";
 import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
-import {
-  EventId,
-  OtherActivity,
-  Schedule,
-  ScheduleEntry,
-  SecondaryEvent,
-} from "../../types";
+import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
 import { DraggableEvent } from "./DraggableEvent";
 import { DraggableDayDivider } from "./DraggableDayDivider";
 

@@ -17,7 +17,6 @@ import type {
   WithTime,
   ScheduleEntry,
   ScheduleWithTimes,
-  SecondaryEvent,
 } from "../../types";
 import { useSelector } from "../../app/hooks";
 import {

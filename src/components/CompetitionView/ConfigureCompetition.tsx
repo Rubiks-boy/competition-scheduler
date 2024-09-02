@@ -1,5 +1,5 @@
 import { Info } from "@mui/icons-material";
-import { Grid, InputAdornment, TextField, Tooltip } from "@mui/material";
+import { Grid, InputAdornment, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitorLimitRawSelector,

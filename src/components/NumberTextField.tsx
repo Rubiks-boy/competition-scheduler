@@ -8,10 +8,12 @@ export const NumberTextField = (props: Omit<TextFieldProps, "type">) => {
   // Disable changing the value on scroll
   useEffect(() => {
     const handleWheel = (e: any) => e.preventDefault();
-    ref.current?.addEventListener("wheel", handleWheel);
+
+    const textField = ref.current;
+    textField?.addEventListener("wheel", handleWheel);
 
     return () => {
-      ref.current?.removeEventListener("wheel", handleWheel);
+      textField?.removeEventListener("wheel", handleWheel);
     };
   }, []);
 
