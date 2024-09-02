@@ -540,12 +540,24 @@ const createChildActivities = ({
       ? round?.groups.length
       : parseInt(round?.numGroups ?? "1");
 
-  const timePerGroupMs = scheduleEntry.scheduledTimeMs / numGroups;
+  const timeMsByGroup = splitEvenlyWithRounding(
+    scheduleEntry.scheduledTimeMs,
+    numGroups,
+    // Round to nearest 5 min
+    1000 * 60 * 5
+  );
   const startTimeMs = scheduleEntry.startTime.getTime();
-  const nonSimulGroups = range(numGroups).map((i) => ({
-    startTime: new Date(startTimeMs + i * timePerGroupMs),
-    endTime: new Date(startTimeMs + (i + 1) * timePerGroupMs),
-  }));
+  let currStartTime = startTimeMs;
+  const nonSimulGroups = range(numGroups).map((i) => {
+    const startTime = currStartTime;
+    const endTime = currStartTime + timeMsByGroup[i];
+    currStartTime = endTime;
+
+    return {
+      startTime: new Date(startTime),
+      endTime: new Date(currStartTime),
+    };
+  });
 
   const allChildGroups = [...simulGroupsWithTimes, ...nonSimulGroups];
   allChildGroups.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
