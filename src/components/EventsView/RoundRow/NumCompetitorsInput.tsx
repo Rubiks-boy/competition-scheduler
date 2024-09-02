@@ -49,17 +49,15 @@ export const NumCompetitorsInput = ({
     const predictedDiffPerc =
       (estimatedCompetitors - totalInRoundWithSimul) / estimatedCompetitors;
 
-    if (predictedDiffPerc > 0.05) {
-      endAdornment = (
-        <InputAdornment position="end">
-          <PredictedRegDiffTooltip
-            numPredicted={estimatedCompetitors}
-            diffPercent={predictedDiffPerc}
-            totalInRound={totalInRoundWithSimul}
-          />
-        </InputAdornment>
-      );
-    }
+    endAdornment = (
+      <InputAdornment position="end">
+        <PredictedRegDiffTooltip
+          numPredicted={estimatedCompetitors}
+          diffPercent={predictedDiffPerc}
+          totalInRound={totalInRoundWithSimul}
+        />
+      </InputAdornment>
+    );
   }
 
   return (

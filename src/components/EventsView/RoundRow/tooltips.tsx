@@ -73,15 +73,17 @@ export const PredictedRegDiffTooltip = ({
   diffPercent: number;
 }) => {
   const title = totalInRound
-    ? `We predict ${numPredicted} competitors will register, but you've scheduled for ${totalInRound} competitors`
+    ? `We predict ${numPredicted} competitors will register, and you've scheduled for ${totalInRound} competitors`
     : `We predict ${numPredicted} competitors will register`;
 
   return (
     <Tooltip title={title}>
       {diffPercent > 0.2 ? (
         <Warning color="warning" fontSize="small" />
-      ) : (
+      ) : diffPercent > 0.05 ? (
         <Info color="info" fontSize="small" />
+      ) : (
+        <CheckCircle color="success" fontSize="small" />
       )}
     </Tooltip>
   );

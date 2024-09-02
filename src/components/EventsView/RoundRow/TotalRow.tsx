@@ -52,7 +52,7 @@ export const TotalRow = ({
         numRegistered={numRegistered}
       />
     );
-  } else if (roundIndex === 0 && predictedDiffPerc > 0.05) {
+  } else if (roundIndex === 0) {
     tooltip = (
       <PredictedRegDiffTooltip
         numPredicted={estimatedCompetitors}
