@@ -1,6 +1,6 @@
 import { InputAdornment, TextField } from "@mui/material";
 import classNames from "classnames";
-import { RegDiffTooltip } from "./tooltips";
+import { PredictedRegDiffTooltip, RegDiffTooltip } from "./tooltips";
 import { Error } from "@mui/icons-material";
 
 export const NumCompetitorsInput = ({
@@ -9,12 +9,16 @@ export const NumCompetitorsInput = ({
   onChange,
   numRegistered,
   regDiffPercent,
+  estimatedCompetitors,
+  totalInRoundWithSimul,
 }: {
   numCompetitors: string;
   roundIndex: number;
   onChange: (value: string) => void;
   numRegistered?: number;
   regDiffPercent?: number;
+  estimatedCompetitors?: number;
+  totalInRoundWithSimul?: number;
 }) => {
   let endAdornment = null;
   if (!parseInt(numCompetitors)) {
@@ -37,6 +41,25 @@ export const NumCompetitorsInput = ({
         />
       </InputAdornment>
     );
+  } else if (
+    roundIndex === 0 &&
+    estimatedCompetitors &&
+    totalInRoundWithSimul
+  ) {
+    const predictedDiffPerc =
+      (estimatedCompetitors - totalInRoundWithSimul) / estimatedCompetitors;
+
+    if (predictedDiffPerc > 0.05) {
+      endAdornment = (
+        <InputAdornment position="end">
+          <PredictedRegDiffTooltip
+            numPredicted={estimatedCompetitors}
+            diffPercent={predictedDiffPerc}
+            totalInRound={totalInRoundWithSimul}
+          />
+        </InputAdornment>
+      );
+    }
   }
 
   return (

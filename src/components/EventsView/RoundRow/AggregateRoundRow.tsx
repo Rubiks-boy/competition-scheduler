@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { InputAdornment, TableCell, TableRow } from "@mui/material";
 import {
+  calcExpectedNumCompetitors,
   calcTimeForRound,
   compPerStationsRatio,
 } from "../../../utils/calculators";
@@ -15,6 +16,8 @@ import {
   groupIndexSelector,
   getSimulGroupsForEventSelector,
   numCompetitorsInRoundSelector,
+  competitorLimitSelector,
+  totalNumCompetitorsSelector,
 } from "../../../app/selectors";
 import { Error } from "@mui/icons-material";
 import { NumberTextField } from "../../NumberTextField";
@@ -72,6 +75,17 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
     numStations,
   });
 
+  const competitorLimit = useSelector(competitorLimitSelector);
+  const estimatedCompetitors = calcExpectedNumCompetitors(
+    eventId,
+    competitorLimit
+  );
+
+  const totalInRoundWithSimul = useSelector(totalNumCompetitorsSelector)({
+    eventId,
+    roundIndex,
+  });
+
   const onUpdateRound = (
     field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
     value: string
@@ -102,6 +116,8 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           onChange={(value) => onUpdateRound("totalNumCompetitors", value)}
           numRegistered={numRegistered}
           regDiffPercent={regDiffPercent}
+          estimatedCompetitors={estimatedCompetitors}
+          totalInRoundWithSimul={totalInRoundWithSimul}
         />
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>

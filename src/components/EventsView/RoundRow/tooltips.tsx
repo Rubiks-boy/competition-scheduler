@@ -61,6 +61,30 @@ export const RegDiffTooltip = ({
   );
 };
 
+export const PredictedRegDiffTooltip = ({
+  numPredicted,
+  totalInRound,
+  diffPercent,
+}: {
+  numPredicted: number;
+  totalInRound?: number;
+  diffPercent: number;
+}) => {
+  const title = totalInRound
+    ? `We predict ${numPredicted} competitors will register, but you've scheduled for ${totalInRound} competitors`
+    : `We predict ${numPredicted} competitors will register`;
+
+  return (
+    <Tooltip title={title}>
+      {diffPercent > 0.2 ? (
+        <Warning color="warning" fontSize="small" />
+      ) : (
+        <Info color="info" fontSize="small" />
+      )}
+    </Tooltip>
+  );
+};
+
 export const SimulRatioTooltip = ({
   roundName,
   numCompetitors,
