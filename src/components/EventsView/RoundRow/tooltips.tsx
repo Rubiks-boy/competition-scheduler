@@ -1,5 +1,5 @@
 import { InputAdornment, Tooltip } from "@mui/material";
-import { Info, Warning, Error } from "@mui/icons-material";
+import { Info, CheckCircle, Warning, Error } from "@mui/icons-material";
 
 export const TimeDiffTooltip = ({
   scheduledTime,
@@ -54,8 +54,10 @@ export const RegDiffTooltip = ({
     <Tooltip title={`Number of competitors registered: ${numRegistered}`}>
       {regDiffPercent > 0.2 ? (
         <Warning color="warning" fontSize="small" />
-      ) : (
+      ) : regDiffPercent > 0.05 ? (
         <Info color="info" fontSize="small" />
+      ) : (
+        <CheckCircle color="success" fontSize="small" />
       )}
     </Tooltip>
   );

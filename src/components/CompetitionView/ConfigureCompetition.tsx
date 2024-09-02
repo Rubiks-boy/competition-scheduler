@@ -1,4 +1,4 @@
-import { Info } from "@mui/icons-material";
+import { Info, CheckCircle, Error } from "@mui/icons-material";
 import { Grid, InputAdornment, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
@@ -57,6 +57,18 @@ export const ConfigureCompetition = () => {
     });
   };
 
+  let compLimitTooltipIcon;
+  if (numRegistered > parseInt(competitorLimit)) {
+    compLimitTooltipIcon = <Error color="info" fontSize="small" />;
+  } else if (
+    (numRegistered - parseInt(competitorLimit)) / numRegistered <
+    0.05
+  ) {
+    compLimitTooltipIcon = <CheckCircle color="success" fontSize="small" />;
+  } else {
+    compLimitTooltipIcon = <Info color="info" fontSize="small" />;
+  }
+
   return (
     <>
       <Grid item xs={6} sm={4} md={3}>
@@ -71,7 +83,7 @@ export const ConfigureCompetition = () => {
                 <Tooltip
                   title={`Number of competitors registered: ${numRegistered}`}
                 >
-                  <Info color="info" fontSize="small" />
+                  {compLimitTooltipIcon}
                 </Tooltip>
               </InputAdornment>
             ),
