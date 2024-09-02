@@ -7,6 +7,7 @@ import type {
   OtherActivity,
   Stage,
   CustomStage,
+  SecondaryEvent,
 } from "../types";
 
 // These properties existed prior to export functionality being initially implemented and can always be exported
@@ -195,6 +196,15 @@ export type Action =
       type: "CREATE_SIMUL_GROUP";
       sourceIndex: number;
       destinationIndex: number;
+    }
+  | {
+      type: "DUPLICATE_SIMUL_GROUP";
+      mainEvent: {
+        eventId: EventId;
+        roundNum: number;
+        groupIndex: number;
+      };
+      numCompetitors: string;
     }
   | {
       type: "UPDATE_SIMUL_GROUP";

@@ -4,7 +4,7 @@ import { IconButton, ListItem } from "@mui/material";
 import { Draggable } from "react-beautiful-dnd";
 import { useSelector } from "../../app/hooks";
 import { groupIndexSelector } from "../../app/selectors";
-import { Clear } from "@mui/icons-material";
+import { Clear, ContentCopy } from "@mui/icons-material";
 
 export const DraggableSimulGroup = ({
   eventId,
@@ -15,6 +15,8 @@ export const DraggableSimulGroup = ({
   getEventColor,
   index,
   id,
+  canDuplicateSimulGroups,
+  onDuplicateSimulGroup,
   onDeleteSimulGroup,
 }: {
   eventId: EventId;
@@ -29,6 +31,8 @@ export const DraggableSimulGroup = ({
   getEventColor: (eventId: EventId | OtherActivity) => string;
   index: number;
   id: string;
+  canDuplicateSimulGroups: boolean;
+  onDuplicateSimulGroup: () => void;
   onDeleteSimulGroup: () => void;
 }) => {
   const groupIndex =
@@ -63,9 +67,16 @@ export const DraggableSimulGroup = ({
             {getEventName(eventId)}{" "}
             {getRoundNumStr(eventId, roundIndex, scheduleWithTimes)}{" "}
             {groupString}
-            <IconButton size="small" onClick={onDeleteSimulGroup}>
-              <Clear fontSize="small" />
-            </IconButton>
+            <div>
+              {canDuplicateSimulGroups && (
+                <IconButton size="small" onClick={onDuplicateSimulGroup}>
+                  <ContentCopy fontSize="small" />
+                </IconButton>
+              )}
+              <IconButton size="small" onClick={onDeleteSimulGroup}>
+                <Clear fontSize="small" />
+              </IconButton>
+            </div>
           </ListItem>
         );
       }}

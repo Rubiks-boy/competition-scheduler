@@ -18,7 +18,13 @@ import {
 } from "../../app/selectors";
 import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
-import { EventId, OtherActivity, Schedule, ScheduleEntry } from "../../types";
+import {
+  EventId,
+  OtherActivity,
+  Schedule,
+  ScheduleEntry,
+  SecondaryEvent,
+} from "../../types";
 import { DraggableEvent } from "./DraggableEvent";
 import { DraggableDayDivider } from "./DraggableDayDivider";
 
@@ -166,6 +172,20 @@ export const ReorderEvents = () => {
     });
   };
 
+  const onDuplicateSimulGroup = ({
+    mainEvent,
+    numCompetitors,
+  }: {
+    mainEvent: { eventId: EventId; roundNum: number; groupIndex: number };
+    numCompetitors: string;
+  }) => {
+    dispatch({
+      type: "DUPLICATE_SIMUL_GROUP",
+      mainEvent,
+      numCompetitors,
+    });
+  };
+
   const onDeleteSimulGroup = (
     eventId: EventId,
     roundIndex: number,
@@ -240,6 +260,7 @@ export const ReorderEvents = () => {
                     colors={colors}
                     scheduleWithTimes={scheduleWithTimes}
                     isBeingCombinedWith={id === idBeingCombinedWith}
+                    onDuplicateSimulGroup={onDuplicateSimulGroup}
                     onDeleteSimulGroup={onDeleteSimulGroup}
                   />
                 );

@@ -14,6 +14,7 @@ import {
 } from "../selectors";
 import {
   createSimulRound,
+  duplicateSimulRound,
   updateSimulRound,
   reorderSimulGroup,
   deleteSimulGroup,
@@ -242,6 +243,9 @@ export const roundsReducer: Reducer = (state, action) => {
 
     case "CREATE_SIMUL_GROUP":
       return createSimulRound(state, action);
+
+    case "DUPLICATE_SIMUL_GROUP":
+      return duplicateSimulRound(state, action);
 
     case "UPDATE_SIMUL_GROUP":
       return updateSimulRound(state, action);

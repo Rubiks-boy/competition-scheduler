@@ -16,6 +16,7 @@ import type {
   WithTime,
   ScheduleEntry,
   ScheduleWithTimes,
+  SecondaryEvent,
 } from "../../types";
 import { useSelector } from "../../app/hooks";
 import {
@@ -40,6 +41,7 @@ export const DraggableEvent = ({
   scheduleWithTimes,
   id,
   isBeingCombinedWith,
+  onDuplicateSimulGroup,
   onDeleteSimulGroup,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
@@ -48,6 +50,10 @@ export const DraggableEvent = ({
   scheduleWithTimes: ScheduleWithTimes;
   id: string;
   isBeingCombinedWith: boolean;
+  onDuplicateSimulGroup: (args: {
+    mainEvent: { eventId: EventId; roundNum: number; groupIndex: number };
+    numCompetitors: string;
+  }) => void;
   onDeleteSimulGroup: (
     eventId: EventId,
     roundNum: number,
@@ -69,6 +75,10 @@ export const DraggableEvent = ({
       eventId: scheduleEntry.eventId,
       roundIndex: scheduleEntry.roundNum,
     }).length;
+  const canDuplicateSimulGroups =
+    !!round &&
+    round.type === "groups" &&
+    round.groups.some((g) => !g.secondaryEvent);
 
   const hasGroupsSimulWithCurrRound =
     round?.type === "groups" &&
@@ -235,6 +245,19 @@ export const DraggableEvent = ({
                             heightPerGroup={heightPerGroup}
                             scheduleWithTimes={scheduleWithTimes}
                             getEventColor={getEventColor}
+                            canDuplicateSimulGroups={canDuplicateSimulGroups}
+                            onDuplicateSimulGroup={() => {
+                              group.secondaryEvent &&
+                                onDuplicateSimulGroup({
+                                  mainEvent: {
+                                    eventId: scheduleEntry.eventId,
+                                    roundNum: scheduleEntry.roundNum,
+                                    groupIndex: i,
+                                  },
+                                  numCompetitors:
+                                    group.secondaryEvent.numCompetitors,
+                                });
+                            }}
                             onDeleteSimulGroup={() =>
                               onDeleteSimulGroup(
                                 round.eventId,

@@ -147,6 +147,50 @@ export const createSimulRound: StateModifier<"CREATE_SIMUL_GROUP"> = (
   );
 };
 
+export const duplicateSimulRound: StateModifier<"DUPLICATE_SIMUL_GROUP"> = (
+  state,
+  action
+) => {
+  const currMainRound = getRoundSelector(state)(action.mainEvent);
+
+  if (!currMainRound || currMainRound.type !== "groups") {
+    return state;
+  }
+
+  const mainGroup = currMainRound.groups[action.mainEvent.groupIndex];
+  if (!mainGroup || !mainGroup.secondaryEvent) {
+    return state;
+  }
+
+  const maybeNextGroup = currMainRound.groups[action.mainEvent.groupIndex + 1];
+
+  let groupNum: number;
+  if (maybeNextGroup && !maybeNextGroup.secondaryEvent) {
+    // Next group has a spot available for a simul event
+    groupNum = action.mainEvent.groupIndex + 1;
+  } else {
+    // Next group isn't available or doesn't exist
+    // Use the first available spot within the round
+    groupNum =
+      currMainRound.type === "groups"
+        ? currMainRound.groups.findIndex((g) => !g.secondaryEvent)
+        : 0;
+
+    if (groupNum === -1) {
+      // All groups have a simul event already :/
+      return state;
+    }
+  }
+
+  return addSimulGroup(
+    state,
+    action.mainEvent.eventId,
+    action.mainEvent.roundNum,
+    groupNum,
+    mainGroup.secondaryEvent
+  );
+};
+
 export const updateSimulRound: StateModifier<"UPDATE_SIMUL_GROUP"> = (
   state,
   action
