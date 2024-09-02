@@ -1,4 +1,5 @@
-.schedule--evenlySpaced .schedule-draggableEvent {
+.schedule--evenlySpaced
+  .schedule-draggableEvent:not(.schedule-draggableEvent--withSimul) {
   height: 4em;
 }
 

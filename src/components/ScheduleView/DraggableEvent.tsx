@@ -6,6 +6,7 @@ import {
   useMediaQuery,
   List,
 } from "@mui/material";
+import cn from "classnames";
 import { grey } from "@mui/material/colors";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { formatTime } from "../../utils/formatTime";
@@ -75,10 +76,6 @@ export const DraggableEvent = ({
       eventId: scheduleEntry.eventId,
       roundIndex: scheduleEntry.roundNum,
     }).length;
-  const canDuplicateSimulGroups =
-    !!round &&
-    round.type === "groups" &&
-    round.groups.some((g) => !g.secondaryEvent);
 
   const hasGroupsSimulWithCurrRound =
     round?.type === "groups" &&
@@ -159,7 +156,9 @@ export const DraggableEvent = ({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="schedule-draggableEvent"
+          className={cn("schedule-draggableEvent", {
+            "schedule-draggableEvent--withSimul": hasGroupsSimulWithCurrRound,
+          })}
         >
           <Box
             sx={{
@@ -245,7 +244,9 @@ export const DraggableEvent = ({
                             heightPerGroup={heightPerGroup}
                             scheduleWithTimes={scheduleWithTimes}
                             getEventColor={getEventColor}
-                            canDuplicateSimulGroups={canDuplicateSimulGroups}
+                            canDuplicateSimulGroups={
+                              lastGroupNumWithoutSimulEvent !== -1
+                            }
                             onDuplicateSimulGroup={() => {
                               group.secondaryEvent &&
                                 onDuplicateSimulGroup({
