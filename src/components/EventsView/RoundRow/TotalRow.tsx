@@ -1,6 +1,6 @@
-import { Box, TableCell, TableRow } from "@mui/material";
+import { Box, IconButton, TableCell, TableRow } from "@mui/material";
 import type { Round } from "../../../types";
-import { useSelector } from "../../../app/hooks";
+import { useDispatch, useSelector } from "../../../app/hooks";
 import {
   competitorLimitSelector,
   getNumGroupsSelector,
@@ -11,6 +11,7 @@ import {
 } from "../../../app/selectors";
 import { calcExpectedNumCompetitors } from "../../../utils/calculators";
 import { PredictedRegDiffTooltip, RegDiffTooltip } from "./tooltips";
+import { AddCircle, Clear } from "@mui/icons-material";
 
 export const TotalRow = ({
   round,
@@ -19,6 +20,8 @@ export const TotalRow = ({
   round: Round & { type: "groups" };
   roundIndex: number;
 }) => {
+  const dispatch = useDispatch();
+
   const { eventId } = round;
   const roundName = useSelector(getRoundNameSelector)({ eventId, roundIndex });
   const numCompetitors = useSelector(totalNumCompetitorsSelector)({
@@ -43,6 +46,13 @@ export const TotalRow = ({
   );
   const predictedDiffPerc =
     (estimatedCompetitors - numCompetitors) / estimatedCompetitors;
+
+  const onAddGroup = () => {
+    dispatch({ type: "ADD_GROUP", eventId, roundNum: roundIndex });
+  };
+  const onRemoveGroup = () => {
+    dispatch({ type: "REMOVE_GROUP", eventId, roundNum: roundIndex });
+  };
 
   let tooltip = null;
   if (numRegistered) {
@@ -85,8 +95,22 @@ export const TotalRow = ({
           {tooltip}
         </Box>
       </TableCell>
-      <TableCell sx={{ minWidth: "8em", width: "20%", borderBottom: 0 }}>
-        {numGroups}
+      <TableCell
+        sx={{
+          minWidth: "8em",
+          width: "20%",
+          borderBottom: 0,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <Box sx={{ pr: "1em" }}>{numGroups}</Box>
+        <IconButton size="small" onClick={onAddGroup}>
+          <AddCircle fontSize="small" color="info" />
+        </IconButton>
+        <IconButton size="small" onClick={onRemoveGroup}>
+          <Clear fontSize="small" color="error" />
+        </IconButton>
       </TableCell>
       <TableCell
         sx={{ minWidth: "6em", width: "10%", borderBottom: 0 }}

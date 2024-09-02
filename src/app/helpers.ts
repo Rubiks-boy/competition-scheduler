@@ -291,6 +291,86 @@ export const deleteSimulGroup: StateModifier<"DELETE_SIMUL_GROUP"> = (
   );
 };
 
+export const addGroup: StateModifier<"ADD_GROUP"> = (state, action) => {
+  const oldRounds = state.events[action.eventId];
+
+  if (!oldRounds) {
+    return state;
+  }
+
+  const oldRound = oldRounds[action.roundNum];
+
+  if (oldRound.type !== "groups") {
+    return state;
+  }
+
+  const groups: Array<SimulGroup> = [
+    ...oldRound.groups,
+    {
+      numMainCompetitors: "0",
+      scheduledTime: oldRound.groups[0]?.scheduledTime ?? "0",
+    },
+  ];
+
+  const updatedRound = {
+    ...oldRound,
+    groups,
+  };
+
+  const updatedRounds = [...(oldRounds ?? [])];
+  updatedRounds[action.roundNum] = updatedRound;
+
+  return {
+    ...state,
+    isShowingDefaultInfo: false,
+    events: {
+      ...state.events,
+      [action.eventId]: updatedRounds,
+    },
+    isExported: false,
+  };
+};
+
+export const removeGroup: StateModifier<"REMOVE_GROUP"> = (state, action) => {
+  const oldRounds = state.events[action.eventId];
+
+  if (!oldRounds) {
+    return state;
+  }
+
+  const oldRound = oldRounds[action.roundNum];
+
+  if (oldRound.type !== "groups") {
+    return state;
+  }
+
+  // Try to remove a group without a simul event
+  const lastIdxWithoutSimul = oldRound.groups.reduce(
+    (acc, g, i) => (!g.secondaryEvent ? i : acc),
+    // fallback: remove last
+    oldRound.groups.length - 1
+  );
+  const groups = oldRound.groups.filter((_, i) => i !== lastIdxWithoutSimul);
+
+  const updatedRound = {
+    ...oldRound,
+    groups,
+  };
+
+  const updatedRounds = [...(oldRounds ?? [])];
+  updatedRounds[action.roundNum] = updatedRound;
+
+  return {
+    ...state,
+    isShowingDefaultInfo: false,
+    events: {
+      ...state.events,
+      [action.eventId]: updatedRounds,
+    },
+    isExported: false,
+  };
+};
+
 export const getRoundName = (
   eventId: EventId,
   roundNum: number,

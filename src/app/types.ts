@@ -109,6 +109,16 @@ export type Action =
       scheduledTime?: string;
     }
   | {
+      type: "ADD_GROUP";
+      eventId: EventId;
+      roundNum: number;
+    }
+  | {
+      type: "REMOVE_GROUP";
+      eventId: EventId;
+      roundNum: number;
+    }
+  | {
       type: "REMOVE_ROUND";
       eventId: EventId;
     }

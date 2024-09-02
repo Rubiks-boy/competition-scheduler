@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, TableCell, TableRow } from "@mui/material";
+import { Box, IconButton, TableCell, TableRow } from "@mui/material";
 import {
   calcTimeForRound,
   compPerStationsRatio,
@@ -12,6 +12,7 @@ import {
   getGroupNameSelector,
   numStationsSelector,
 } from "../../../app/selectors";
+import { Close } from "@mui/icons-material";
 
 export const GroupRow = ({
   group,
@@ -83,6 +84,15 @@ export const GroupRow = ({
     });
   };
 
+  const onRemoveSimulGroup = () => {
+    dispatch({
+      type: "DELETE_SIMUL_GROUP",
+      eventId,
+      roundIndex,
+      groupIndex,
+    });
+  };
+
   return (
     <TableRow key={`${eventId}-${roundIndex}`}>
       <TableCell
@@ -117,8 +127,17 @@ export const GroupRow = ({
               }}
             ></Box>
           )}
-          <span>{mainGroupName}</span>
-          {secondaryEvent && <span>{secondaryGroupName}</span>}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {mainGroupName}
+          </Box>
+          {secondaryEvent && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {secondaryGroupName}
+              <IconButton size="small" onClick={onRemoveSimulGroup}>
+                <Close color="error" fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
         </Box>
       </TableCell>
       <TableCell
