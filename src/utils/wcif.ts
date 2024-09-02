@@ -337,6 +337,10 @@ export const getAllActivities = (wcifSchedule: WcifSchedule) => {
 // Excludes simul child activities
 export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
   const activities = getAllActivities(wcifSchedule);
+  if (!activities.length) {
+    return { startAndEndTimes: {}, overlappingChildActivities: [] };
+  }
+
   const childActivities = activities
     .flatMap((a) => {
       return a.childActivities?.length ? a.childActivities : a;
