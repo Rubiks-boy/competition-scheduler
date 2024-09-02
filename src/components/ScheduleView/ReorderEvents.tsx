@@ -14,7 +14,6 @@ import {
   otherActivitiesSelector,
   scheduleSelector,
   startTimesSelector,
-  enableExperimentalFeaturesSelector,
 } from "../../app/selectors";
 import { EVENT_COLORS } from "../../constants";
 import { calcScheduleTimes } from "../../utils/calculators";
@@ -53,9 +52,6 @@ const getColorsForActivities = (schedule: Schedule) => {
 export const ReorderEvents = () => {
   const dispatch = useDispatch();
 
-  const enableExperimentalFeatures = useSelector(
-    enableExperimentalFeaturesSelector
-  );
   const schedule = useSelector(scheduleSelector);
   const events = useSelector(eventsSelector);
   const startTimes = useSelector(startTimesSelector);
@@ -211,11 +207,7 @@ export const ReorderEvents = () => {
 
   return (
     <DragDropContext onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
-      <Droppable
-        droppableId="round"
-        type="round"
-        isCombineEnabled={enableExperimentalFeatures}
-      >
+      <Droppable droppableId="round" type="round" isCombineEnabled>
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             <List>
