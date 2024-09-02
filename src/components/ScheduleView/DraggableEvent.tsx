@@ -62,7 +62,6 @@ export const DraggableEvent = ({
 }) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const round = useSelector(getRoundSelector)(scheduleEntry);
-  const showAdvanced = useSelector(showAdvancedSelector);
   const numGroups =
     round?.type === "groups"
       ? round?.groups.length
@@ -75,6 +74,7 @@ export const DraggableEvent = ({
       eventId: scheduleEntry.eventId,
       roundIndex: scheduleEntry.roundNum,
     }).length;
+  const showAdvanced = useSelector(showAdvancedSelector) || hasOtherSimulGroups;
 
   const hasGroupsSimulWithCurrRound =
     round?.type === "groups" &&
