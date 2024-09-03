@@ -113,7 +113,8 @@ const wcifActivityToGroups = (
         const numCompetitorsInGroup: number =
           extension?.data.numCompetitors ?? defaultNumCompetitors[i] ?? 0;
 
-        const secondaryActivity = secondaryActivities.find((act) =>
+        // Find all matches secondary activities, across all stages
+        const matchingSecondaryActivities = secondaryActivities.filter((act) =>
           isOverlappingDates(
             {
               startTime: new Date(act.startTime),
@@ -126,27 +127,28 @@ const wcifActivityToGroups = (
           )
         );
 
-        let secondaryEvent:
-          | {
-              eventId: EventId;
-              roundIndex: number;
-              numCompetitors: number;
-            }
-          | undefined = undefined;
-        if (secondaryActivity) {
+        let secondaryEvent: SecondaryEvent | undefined = undefined;
+        if (matchingSecondaryActivities.length) {
           const { eventId, roundNumber } = parseActivityCode(
-            secondaryActivity.activityCode
+            matchingSecondaryActivities[0].activityCode
           );
 
-          const secondaryActExtension = secondaryActivity.extensions.find(
-            ({ id }) => id === "competitionScheduler.GroupConfig"
-          ) as GroupExtension | undefined;
+          const numCompetitors = matchingSecondaryActivities.reduce(
+            (sum, act) => {
+              const secondaryActExtension = act.extensions.find(
+                ({ id }) => id === "competitionScheduler.GroupConfig"
+              ) as GroupExtension | undefined;
+
+              return sum + (secondaryActExtension?.data.numCompetitors ?? 0);
+            },
+            0
+          );
 
           if (roundNumber) {
             secondaryEvent = {
               eventId,
               roundIndex: roundNumber - 1,
-              numCompetitors: secondaryActExtension?.data.numCompetitors ?? 0,
+              numCompetitors: `${numCompetitors}`,
             };
           }
         }
@@ -169,12 +171,10 @@ const wcifActivityToGroups = (
           if (existingIdx === -1) {
             acc.push(ca);
           } else {
+            // Jankness alert: the secondaryEvent's numCompetitors is already merged!
+            // So we don't need to merge here, and instead can just
+            // choose whichever one we came across first.
             acc[existingIdx].numMainCompetitors += ca.numMainCompetitors;
-            const secondaryEvent = acc[existingIdx].secondaryEvent;
-            if (secondaryEvent) {
-              secondaryEvent.numCompetitors +=
-                ca.secondaryEvent?.numCompetitors ?? 0;
-            }
           }
 
           return acc;
@@ -183,22 +183,13 @@ const wcifActivityToGroups = (
           activityCode: string;
           scheduledTime: string;
           numMainCompetitors: number;
-          secondaryEvent?: {
-            eventId: EventId;
-            roundIndex: number;
-            numCompetitors: number;
-          };
+          secondaryEvent?: SecondaryEvent;
         }[]
       )
       .map(({ scheduledTime, numMainCompetitors, secondaryEvent }) => ({
         scheduledTime,
         numMainCompetitors: `${numMainCompetitors}`,
-        secondaryEvent: secondaryEvent
-          ? {
-              ...secondaryEvent,
-              numCompetitors: `${secondaryEvent.numCompetitors}`,
-            }
-          : undefined,
+        secondaryEvent,
       }))
   );
 };
