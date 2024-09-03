@@ -94,9 +94,29 @@ export const getScheduledTimeMs = (round: Round) => {
   }
 };
 
-export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
+export const eventsToSecondaryEvents = (events: Events) => {
+  return Object.entries(events).flatMap(([e, rs]) => {
+    return (
+      rs?.flatMap((r) => {
+        if (r.type === "aggregate") {
+          return [];
+        }
+
+        return r.groups.flatMap((g) => {
+          return g.secondaryEvent ? [g.secondaryEvent] : [];
+        });
+      }) ?? []
+    );
+  });
+};
+
+export const calcNumCompetitorsPerRound = (
+  rounds: Array<Round>,
+  events: Events
+) => {
   const numCompetitorsValue = rounds.map(getNumCompetitorsValue);
 
+  // Non-simul
   const numCompetitorsPerRound: Array<number> = [];
   numCompetitorsValue.forEach(({ isPercent, value }, roundNum) => {
     const numCopetitorsInt = isPercent
@@ -104,6 +124,16 @@ export const calcNumCompetitorsPerRound = (rounds: Array<Round>) => {
       : value;
 
     numCompetitorsPerRound.push(numCopetitorsInt);
+  });
+
+  // Simul case
+  const secondaryEvents = eventsToSecondaryEvents(events);
+  secondaryEvents.forEach((secondaryEvent) => {
+    if (rounds[0] && secondaryEvent.eventId === rounds[0].eventId) {
+      const { roundIndex } = secondaryEvent;
+      numCompetitorsPerRound[roundIndex] +=
+        parseInt(secondaryEvent.numCompetitors) || 0;
+    }
   });
 
   return numCompetitorsPerRound;

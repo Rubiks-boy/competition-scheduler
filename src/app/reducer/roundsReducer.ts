@@ -212,7 +212,10 @@ export const roundsReducer: Reducer = (state, action) => {
           return null;
         }
 
-        const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
+        const numCompetitorsPerRound = calcNumCompetitorsPerRound(
+          rounds,
+          state.events
+        );
         // Reset only the first round's number of competitors with the expected
         // number of competitors.
         // For subsequent rounds, we reuse whatever custom value they set,

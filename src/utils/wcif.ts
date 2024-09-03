@@ -49,6 +49,7 @@ import {
 } from "./calculators";
 import {
   calcNumCompetitorsPerRound,
+  eventsToSecondaryEvents,
   getNumCompetitorsValue,
   isOverlappingDates,
   makeDefaultEvents,
@@ -97,11 +98,34 @@ const wcifActivityToGroups = (
     return [];
   }
 
-  const defaultNumCompetitors = splitEvenlyWithRounding(
-    numCompetitors,
-    numGroups,
-    1
-  );
+  // `numCompetitors` represents the _total_ number of expected registrations for the round
+  // Some of our child activities may also have a number of competitors
+  // For the child activities that don't have numCompetitors listed,
+  // split up whatever remains after subtracting the values that're explicitly declared
+  const groupsWithExtension: string[] = [];
+  let numCompetitorsInExtension = 0;
+  childActivities.forEach((ca) => {
+    const extension = ca.extensions.find(
+      ({ id }) => id === "competitionScheduler.GroupConfig"
+    ) as GroupExtension | undefined;
+
+    if (extension?.data.numCompetitors) {
+      groupsWithExtension.push(ca.activityCode);
+      numCompetitorsInExtension += extension.data.numCompetitors;
+    }
+  }, 0);
+
+  const numGroupsWithExtension = new Set(groupsWithExtension).size;
+
+  const defaultNumCompetitors =
+    numCompetitors - numCompetitorsInExtension > 0
+      ? splitEvenlyWithRounding(
+          numCompetitors - numCompetitorsInExtension,
+          numGroups - numGroupsWithExtension,
+          1
+        )
+      : [];
+  let numCompetitorsIdx = 0;
 
   return (
     childActivities
@@ -116,7 +140,9 @@ const wcifActivityToGroups = (
         ) as GroupExtension | undefined;
 
         const numCompetitorsInGroup: number =
-          extension?.data.numCompetitors ?? defaultNumCompetitors[i] ?? 0;
+          extension?.data.numCompetitors ??
+          defaultNumCompetitors[numCompetitorsIdx++] ??
+          0;
 
         // Find all matches secondary activities, across all stages
         const matchingSecondaryActivities = secondaryActivities.filter((act) =>
@@ -701,7 +727,9 @@ const createWcifEvent = (
     return null;
   }
 
-  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds);
+  const secondaryEvents = eventsToSecondaryEvents(events);
+
+  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds, events);
   const allRounds = Object.values(events).flatMap((rounds) =>
     rounds ? rounds : []
   );
@@ -729,22 +757,6 @@ const createWcifEvent = (
           ? round.groups.length
           : parseInt(round.numGroups);
 
-      const extension: RoundExtension = {
-        id: "competitionScheduler.RoundConfig",
-        specUrl: EXTENSIONS_SPEC_URL,
-        data: {
-          expectedRegistrations: numCompetitorsPerRound[index] ?? null,
-          groupCount: numGroups,
-        },
-      };
-
-      const extensions = [
-        ...(originalRound?.extensions ? originalRound?.extensions : []).filter(
-          ({ id }) => id !== "competitionScheduler.RoundConfig"
-        ),
-        extension,
-      ];
-
       const simulGroupsAttachedToOtherEvents: SimulGroup[] = allRounds.flatMap(
         (r) =>
           r.type === "groups"
@@ -757,6 +769,22 @@ const createWcifEvent = (
             : []
       );
       const numSimulGroups = simulGroupsAttachedToOtherEvents.length;
+
+      const extension: RoundExtension = {
+        id: "competitionScheduler.RoundConfig",
+        specUrl: EXTENSIONS_SPEC_URL,
+        data: {
+          expectedRegistrations: numCompetitorsPerRound[index] ?? null,
+          groupCount: numGroups + numSimulGroups,
+        },
+      };
+
+      const extensions = [
+        ...(originalRound?.extensions ? originalRound?.extensions : []).filter(
+          ({ id }) => id !== "competitionScheduler.RoundConfig"
+        ),
+        extension,
+      ];
 
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
