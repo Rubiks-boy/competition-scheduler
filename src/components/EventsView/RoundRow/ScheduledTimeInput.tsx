@@ -22,7 +22,7 @@ export const ScheduledTimeInput = ({
       size="small"
       value={scheduledTime}
       onChange={(e) => onChange(e.target.value)}
-      inputProps={{ autoFocus: true, step: "5" }}
+      inputProps={{ step: "5" }}
       InputProps={{
         endAdornment: scheduledTime && (
           <TimeDiffTooltip

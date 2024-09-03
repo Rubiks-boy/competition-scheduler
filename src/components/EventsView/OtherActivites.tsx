@@ -74,7 +74,7 @@ const ActivityRow = ({
           disabled={!enabled}
           value={enabled ? time : ""}
           onChange={(e) => onTimeChange(e.target.value)}
-          inputProps={{ autoFocus: true, step: "5" }}
+          inputProps={{ step: "5" }}
           fullWidth
           InputProps={{
             endAdornment: (
