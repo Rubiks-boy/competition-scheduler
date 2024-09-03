@@ -394,6 +394,62 @@ export const getDefaultNumStations = (
   return 8;
 };
 
+// Edge case: if we have 0 groups, and there's supposed
+// to be competitors assigned, try to move them to simul
+// groups if there are groups available
+const assignRoundsWithOnlySimul = (events: Events) => {
+  const zeroGroupRounds = Object.values(events).flatMap((rounds) => {
+    return (rounds
+      ?.map((round, i) => ({ round, roundIndex: i }))
+      .filter(
+        ({ round }) => round.type === "aggregate" && !parseInt(round.numGroups)
+      ) ?? []) as Array<{
+      round: Round & { type: "aggregate" };
+      roundIndex: number;
+    }>;
+  });
+
+  const groupsWithSecondaryEvent = Object.values(events).flatMap((rs) => {
+    return (
+      rs?.flatMap((r) =>
+        r.type === "groups" ? r.groups.filter((g) => !!g.secondaryEvent) : []
+      ) ?? []
+    );
+  });
+
+  zeroGroupRounds.forEach(({ round, roundIndex }) => {
+    const numCompetitors = parseInt(round.totalNumCompetitors);
+
+    const simulGroupsWithoutCompetitors = groupsWithSecondaryEvent.filter(
+      (g) =>
+        g.secondaryEvent &&
+        g.secondaryEvent.eventId === round.eventId &&
+        g.secondaryEvent.roundIndex === roundIndex &&
+        !parseInt(g.secondaryEvent.numCompetitors)
+    );
+
+    if (!simulGroupsWithoutCompetitors.length) {
+      return;
+    }
+
+    round.totalNumCompetitors = "0";
+
+    const numPerGroup = splitEvenlyWithRounding(
+      numCompetitors,
+      simulGroupsWithoutCompetitors.length,
+      1
+    );
+
+    simulGroupsWithoutCompetitors.forEach((g, i) => {
+      if (g.secondaryEvent) {
+        g.secondaryEvent.numCompetitors = `${numPerGroup[i]}`;
+      }
+    });
+  });
+
+  return events;
+};
+
 export const getDefaultEventsData = ({
   wcif,
   numStations,
@@ -427,7 +483,7 @@ export const getDefaultEventsData = ({
     );
   });
 
-  return events;
+  return assignRoundsWithOnlySimul(events);
 };
 
 export const getAllActivities = (wcifSchedule: WcifSchedule) => {
