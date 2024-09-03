@@ -17,6 +17,8 @@ const EventsView = () => {
   const events = useSelector(eventsSelector);
   const addableEventIds = useSelector(addableEventIdsSelector);
 
+  const defaultExpanded = addableEventIds.length > 10;
+
   const addEvents = (eventIds: Array<EventId>) => {
     dispatch({
       type: "ADD_EVENTS",
@@ -64,6 +66,7 @@ const EventsView = () => {
             rounds={rounds}
             onAddRound={onAddRound}
             onRemoveRound={onRemoveRound}
+            defaultExpanded={defaultExpanded}
           />
         );
       })}

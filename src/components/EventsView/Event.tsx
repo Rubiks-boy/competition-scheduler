@@ -1,12 +1,15 @@
 import {
   Paper,
   TableContainer,
-  IconButton,
-  Toolbar,
+  Button,
+  Box,
   Typography,
   Tooltip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
-import { AddCircle, Close } from "@mui/icons-material";
+import { AddCircle, Close, ExpandMore } from "@mui/icons-material";
 import { EVENT_NAMES } from "../../constants";
 import { EventId } from "@wca/helpers";
 import { Round } from "../../types";
@@ -18,6 +21,7 @@ type EventProps = {
   rounds: Array<Round>;
   onAddRound: () => void;
   onRemoveRound: () => void;
+  defaultExpanded?: boolean;
 };
 
 export const Event = ({
@@ -25,6 +29,7 @@ export const Event = ({
   rounds,
   onAddRound,
   onRemoveRound,
+  defaultExpanded,
 }: EventProps) => {
   const eventName = EVENT_NAMES[eventId];
   const roundRows = rounds.map((round, roundIndex) => (
@@ -37,37 +42,51 @@ export const Event = ({
 
   return (
     <Paper elevation={3} sx={{ mb: 3 }}>
-      <Toolbar
-        sx={{
-          pl: { sm: 2 },
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography variant="h6">{eventName}</Typography>
-        <div className="event-add-remove-btns">
-          <IconButton onClick={onAddRound} disabled={rounds.length >= 4}>
-            <Tooltip title="Add round">
-              <AddCircle
-                color={rounds.length < 4 ? "primary" : "disabled"}
-                fontSize="medium"
-              />
-            </Tooltip>
-          </IconButton>
-          <IconButton onClick={onRemoveRound} disabled={!rounds.length}>
-            <Tooltip title="Remove round">
-              <Close
-                color={rounds.length ? "error" : "disabled"}
-                fontSize="small"
-              />
-            </Tooltip>
-          </IconButton>
-        </div>
-      </Toolbar>
-      {rounds.length > 0 && (
-        <TableContainer>
-          <EventTable>{roundRows}</EventTable>
-        </TableContainer>
-      )}
+      <Accordion defaultExpanded={defaultExpanded}>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          sx={{
+            pl: { sm: 2 },
+          }}
+        >
+          <Typography variant="h6">{eventName}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {rounds.length > 0 && (
+            <TableContainer>
+              <EventTable>{roundRows}</EventTable>
+            </TableContainer>
+          )}
+          <Box
+            sx={{ display: "flex", gap: "2em", pt: 2, justifyContent: "right" }}
+          >
+            <Button
+              onClick={onAddRound}
+              startIcon={
+                <AddCircle
+                  color={rounds.length < 4 ? "primary" : "disabled"}
+                  fontSize="medium"
+                />
+              }
+              disabled={rounds.length >= 4}
+            >
+              Add round
+            </Button>
+            <Button
+              onClick={onRemoveRound}
+              startIcon={
+                <Close
+                  color={rounds.length ? "error" : "disabled"}
+                  fontSize="small"
+                />
+              }
+              disabled={!rounds.length}
+            >
+              Remove round
+            </Button>
+          </Box>
+        </AccordionDetails>
+      </Accordion>
     </Paper>
   );
 };

@@ -3,10 +3,6 @@
   align-items: center;
 }
 
-.event-add-remove-btns {
-  justify-content: right;
-}
-
 .events-scheduledTime {
   display: flex;
   gap: 0.5em;
