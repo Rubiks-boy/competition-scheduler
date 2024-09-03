@@ -46,8 +46,9 @@ export const NumCompetitorsInput = ({
     estimatedCompetitors &&
     totalInRoundWithSimul
   ) {
-    const predictedDiffPerc =
-      (estimatedCompetitors - totalInRoundWithSimul) / estimatedCompetitors;
+    const predictedDiffPerc = Math.abs(
+      (estimatedCompetitors - totalInRoundWithSimul) / estimatedCompetitors
+    );
 
     endAdornment = (
       <InputAdornment position="end">

@@ -44,8 +44,9 @@ export const TotalRow = ({
     round.eventId,
     competitorLimit
   );
-  const predictedDiffPerc =
-    (estimatedCompetitors - numCompetitors) / estimatedCompetitors;
+  const predictedDiffPerc = Math.abs(
+    (estimatedCompetitors - numCompetitors) / estimatedCompetitors
+  );
 
   const onAddGroup = () => {
     dispatch({ type: "ADD_GROUP", eventId, roundNum: roundIndex });
