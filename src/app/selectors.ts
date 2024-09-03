@@ -171,7 +171,6 @@ const isVenuePageValid = (state: State) => {
 };
 
 export const canAdvanceToNext = (state: State, activeStep: number) => {
-  return true;
   if (activeStep === 1) {
     return isEventsPageValidSelector(state);
   } else if (activeStep === 3) {
