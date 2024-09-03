@@ -30,7 +30,7 @@ export const NumCompetitorsInput = ({
       </InputAdornment>
     );
   } else if (
-    !!regDiffPercent &&
+    regDiffPercent != null &&
     !!numRegistered &&
     roundIndex === 0 &&
     numRegistered > 0
