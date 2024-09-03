@@ -1212,8 +1212,7 @@ export const createWcifSchedule = ({
 
 export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
   const defaultVenue: Venue | undefined = wcifSchedule.venues?.[0];
-  const defaultRoom: Room | undefined = defaultVenue?.rooms?.[0];
-  const defaultActivities = defaultRoom?.activities;
+  const defaultActivities = defaultVenue?.rooms?.flatMap((r) => r.activities);
 
   const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
   const allActivities = rooms?.flatMap((room) => room.activities);
@@ -1223,8 +1222,10 @@ export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
     numOtherActivities[activity] = "0";
 
     if (defaultActivities) {
-      const numDefault = defaultActivities.filter(({ activityCode }) =>
-        activityCode.startsWith(`other-${activity}`)
+      const numDefault = defaultActivities.filter(
+        ({ activityCode, startTime }, idx) =>
+          activityCode.startsWith(`other-${activity}`) &&
+          defaultActivities.findIndex((v) => v.startTime === startTime) === idx
       ).length;
 
       if (numDefault > 0) {
