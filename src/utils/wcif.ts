@@ -388,6 +388,30 @@ export const getAllActivities = (wcifSchedule: WcifSchedule) => {
   return rooms?.flatMap((room) => room.activities);
 };
 
+const getNumGroupsAfter = (
+  childActivity: Activity,
+  childActivities: Activity[]
+) => {
+  const { eventId, roundNumber } = parseActivityCode(
+    childActivity.activityCode
+  );
+
+  if (!roundNumber) {
+    return 0;
+  }
+
+  return childActivities.filter((ca) => {
+    // Filter to activities in the round
+    const code = parseActivityCode(ca.activityCode);
+    return (
+      code.eventId === eventId &&
+      code.roundNumber === roundNumber &&
+      new Date(ca.startTime).getTime() >
+        new Date(childActivity.startTime).getTime()
+    );
+  }).length;
+};
+
 // Gets the start and end times for main events
 // Excludes simul child activities
 export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
@@ -402,7 +426,25 @@ export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
     })
     .filter((a) => a.activityCode.indexOf("other") === -1);
   childActivities.sort((a, b) => {
-    return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+    const startTimeDiff =
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+    if (startTimeDiff) {
+      return startTimeDiff;
+    }
+
+    // If there's the same start time, most of the time it doesn't matter which is considered
+    // the "main" event vs. the "secondary" event.
+    // The one edge case is if there's a simul group that isn't contiguous with the rest of the round:
+    // choosing the non-contiguous one as our main event would result in needing two separate main
+    // rounds, which isn't really supported
+    // Get around this by finding which has the most child activities after the current one,
+    // and making that one first.
+    // This isn't perfect (especially if someone edits the schedule manually on the WCA site)
+    // but is "good enough" for now
+    return (
+      getNumGroupsAfter(a, childActivities) -
+      getNumGroupsAfter(b, childActivities)
+    );
   });
 
   const startAndEndTimes: Record<string, { startTime: Date; endTime: Date }> =
