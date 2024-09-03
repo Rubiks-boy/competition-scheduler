@@ -310,12 +310,21 @@ const wcifRoundsToEventRounds = (
         ),
       };
     } else {
+      const simulGroupsWithOtherEvents: string[] = [];
+      overlappingChildActivities.forEach(({ activityCode }) => {
+        const code = parseActivityCode(activityCode);
+        if (eventId === code.eventId && roundIndex + 1 === code.roundNumber) {
+          simulGroupsWithOtherEvents.push(activityCode);
+        }
+      });
+      const numSimulGroups = new Set(simulGroupsWithOtherEvents).size;
+
       round = {
         type: "aggregate",
         eventId,
         totalNumCompetitors:
           type === "percent" ? `${level}%` : numCompetitors.toString(),
-        numGroups: numGroups.toString(),
+        numGroups: (numGroups - numSimulGroups).toString(),
         scheduledTime: scheduledTime.toString(),
       };
 
