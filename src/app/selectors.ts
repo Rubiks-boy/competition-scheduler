@@ -123,9 +123,9 @@ const allEventFieldsFilledInSelector = (state: State) => {
     if (round.type === "aggregate") {
       // Successfully able to parse number of groups and num competitors,
       // and it's a non-zero value
-      return (
-        !!parseInt(round.numGroups) && !!parseInt(round.totalNumCompetitors)
-      );
+      return !parseInt(round.numGroups)
+        ? !parseInt(round.totalNumCompetitors)
+        : !!parseInt(round.totalNumCompetitors);
     } else {
       return round.groups.every((group) => parseInt(group.numMainCompetitors));
     }

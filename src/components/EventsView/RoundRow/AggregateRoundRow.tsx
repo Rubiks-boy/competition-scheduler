@@ -49,12 +49,14 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
         roundIndex,
       })
     ) ?? 0;
-  const groupString =
-    parseInt(numGroups) > 1
-      ? ` Groups ${startingGroupIndex + 1}-${
-          startingGroupIndex + parseInt(numGroups)
-        }`
-      : ` Group ${startingGroupIndex + 1}`;
+  let groupString = "";
+  if (parseInt(numGroups) > 1) {
+    groupString = ` Groups ${startingGroupIndex + 1}-${
+      startingGroupIndex + parseInt(numGroups)
+    }`;
+  } else if (parseInt(numGroups) === 1) {
+    groupString = ` Group ${startingGroupIndex + 1}`;
+  }
 
   const numStations = useSelector(numStationsSelector);
   const numRegisteredByEvent = useSelector(numRegisteredByEventSelector);
@@ -118,6 +120,10 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           regDiffPercent={regDiffPercent}
           estimatedCompetitors={estimatedCompetitors}
           totalInRoundWithSimul={totalInRoundWithSimul}
+          disabled={
+            !parseInt(numGroups) &&
+            !!(totalInRoundWithSimul - parseInt(totalNumCompetitors))
+          }
         />
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
@@ -127,11 +133,12 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           value={numGroups}
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
           InputProps={{
-            endAdornment: !parseInt(numGroups) && (
-              <InputAdornment position="end">
-                <Error color="error" fontSize="small" />
-              </InputAdornment>
-            ),
+            endAdornment: !parseInt(numGroups) &&
+              !(totalInRoundWithSimul - parseInt(totalNumCompetitors)) && (
+                <InputAdornment position="end">
+                  <Error color="error" fontSize="small" />
+                </InputAdornment>
+              ),
           }}
         />
       </TableCell>

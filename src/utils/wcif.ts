@@ -261,6 +261,20 @@ const wcifRoundsToEventRounds = (
       numCompetitors = level;
     }
 
+    const simulGroupsWithOtherEvents: string[] = [];
+    let numSimulCompetitors = 0;
+    overlappingChildActivities.forEach(({ activityCode, extensions }) => {
+      const code = parseActivityCode(activityCode);
+      if (eventId === code.eventId && roundIndex + 1 === code.roundNumber) {
+        simulGroupsWithOtherEvents.push(activityCode);
+        const extension = extensions?.find(
+          ({ id }) => id === "competitionScheduler.GroupConfig"
+        ) as GroupExtension | undefined;
+        numSimulCompetitors += extension?.data.numCompetitors ?? 0;
+      }
+    });
+    const numSimulGroups = new Set(simulGroupsWithOtherEvents).size;
+
     const numGroups =
       extension?.data.groupCount ??
       calcNumGroups({
@@ -269,7 +283,7 @@ const wcifRoundsToEventRounds = (
         numStations,
       });
 
-    const scheduledTime = calcTimeForRound(eventId, numGroups);
+    const scheduledTime = calcTimeForRound(eventId, numGroups - numSimulGroups);
 
     const wcifActivities = findMatchingWcifActivities({
       wcifSchedule,
@@ -310,20 +324,13 @@ const wcifRoundsToEventRounds = (
         ),
       };
     } else {
-      const simulGroupsWithOtherEvents: string[] = [];
-      overlappingChildActivities.forEach(({ activityCode }) => {
-        const code = parseActivityCode(activityCode);
-        if (eventId === code.eventId && roundIndex + 1 === code.roundNumber) {
-          simulGroupsWithOtherEvents.push(activityCode);
-        }
-      });
-      const numSimulGroups = new Set(simulGroupsWithOtherEvents).size;
-
       round = {
         type: "aggregate",
         eventId,
         totalNumCompetitors:
-          type === "percent" ? `${level}%` : numCompetitors.toString(),
+          type === "percent"
+            ? `${level}%`
+            : (numCompetitors - numSimulCompetitors).toString(),
         numGroups: (numGroups - numSimulGroups).toString(),
         scheduledTime: scheduledTime.toString(),
       };

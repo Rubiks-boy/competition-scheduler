@@ -237,6 +237,10 @@ export const ReorderEvents = () => {
                         "index" in scheduleEntry ? scheduleEntry.index : "0"
                       }`;
 
+                if (!scheduleEntry.scheduledTimeMs) {
+                  return null;
+                }
+
                 return (
                   <DraggableEvent
                     key={id}

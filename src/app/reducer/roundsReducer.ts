@@ -47,6 +47,10 @@ export const roundsReducer: Reducer = (state, action) => {
         scheduledTime: action.scheduledTime ?? oldRound.scheduledTime,
       };
 
+      if (action.numGroups && parseInt(action.numGroups) === 0) {
+        updatedRound.totalNumCompetitors = "0";
+      }
+
       if (!action.isEditingTime && !action.scheduledTime) {
         updatedRound.scheduledTime = calcTimeForRound(
           action.eventId,

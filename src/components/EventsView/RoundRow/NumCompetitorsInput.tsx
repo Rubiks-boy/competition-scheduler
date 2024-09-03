@@ -11,6 +11,7 @@ export const NumCompetitorsInput = ({
   regDiffPercent,
   estimatedCompetitors,
   totalInRoundWithSimul,
+  disabled,
 }: {
   numCompetitors: string;
   roundIndex: number;
@@ -19,6 +20,7 @@ export const NumCompetitorsInput = ({
   regDiffPercent?: number;
   estimatedCompetitors?: number;
   totalInRoundWithSimul?: number;
+  disabled?: boolean;
 }) => {
   let endAdornment = null;
   if (!parseInt(numCompetitors)) {
@@ -78,9 +80,8 @@ export const NumCompetitorsInput = ({
           const value = `${numCompetitors}${isPercent ? "%" : ""}`;
           onChange(value);
         }}
-        InputProps={{
-          endAdornment,
-        }}
+        InputProps={disabled ? {} : { endAdornment }}
+        disabled={disabled}
       />
     </div>
   );
