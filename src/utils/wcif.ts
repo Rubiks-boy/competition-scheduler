@@ -283,7 +283,10 @@ const wcifRoundsToEventRounds = (
         numStations,
       });
 
-    const scheduledTime = calcTimeForRound(eventId, numGroups - numSimulGroups);
+    const scheduledTime = calcTimeForRound(
+      eventId,
+      Math.max(numGroups - numSimulGroups, 0)
+    );
 
     const wcifActivities = findMatchingWcifActivities({
       wcifSchedule,
@@ -331,7 +334,7 @@ const wcifRoundsToEventRounds = (
           type === "percent"
             ? `${level}%`
             : (numCompetitors - numSimulCompetitors).toString(),
-        numGroups: (numGroups - numSimulGroups).toString(),
+        numGroups: Math.max(numGroups - numSimulGroups, 0).toString(),
         scheduledTime: scheduledTime.toString(),
       };
 

@@ -2,7 +2,10 @@ import React, { useEffect, useRef } from "react";
 import { TextField } from "@mui/material";
 import type { TextFieldProps } from "@mui/material";
 
-export const NumberTextField = (props: Omit<TextFieldProps, "type">) => {
+export const NumberTextField = ({
+  onChange: _onChange,
+  ...props
+}: Omit<TextFieldProps, "type">) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   // Disable changing the value on scroll
@@ -17,5 +20,12 @@ export const NumberTextField = (props: Omit<TextFieldProps, "type">) => {
     };
   }, []);
 
-  return <TextField type="number" ref={ref} {...props} />;
+  const onChange: TextFieldProps["onChange"] = (e) => {
+    if (parseInt(e.target.value) < 0) {
+      return;
+    }
+    _onChange?.(e);
+  };
+
+  return <TextField type="number" ref={ref} onChange={onChange} {...props} />;
 };

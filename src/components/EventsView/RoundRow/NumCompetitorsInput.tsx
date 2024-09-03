@@ -75,6 +75,10 @@ export const NumCompetitorsInput = ({
         size="small"
         value={numCompetitors}
         onChange={(e) => {
+          if (parseInt(e.target.value) < 0) {
+            return;
+          }
+
           const isPercent = roundIndex > 0 && e.target.value.endsWith("%");
           const numCompetitors = `${parseInt(e.target.value) || ""}`;
           const value = `${numCompetitors}${isPercent ? "%" : ""}`;
