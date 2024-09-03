@@ -83,11 +83,17 @@ const wcifActivityToGroups = (
   wcifActivities: Activity[],
   numCompetitors: number,
   numGroups: number,
-  secondaryActivities: Activity[]
+  secondaryActivities: Activity[],
+  overlappingChildActivities: Activity[]
 ): SimulGroup[] => {
-  const childActivities = wcifActivities.flatMap(
-    (act) => act.childActivities ?? []
-  );
+  const childActivities = wcifActivities
+    .flatMap((act) => act.childActivities ?? [])
+    .filter(
+      // If it's simul with a separate event, we'll already
+      // include the child activity under that other event
+      // Exclude it here so we don't duplicate groups
+      (ca) => !overlappingChildActivities.includes(ca)
+    );
   if (!childActivities.length) {
     return [];
   }
@@ -264,15 +270,6 @@ const wcifRoundsToEventRounds = (
       secondaryActivities.length &&
       wcifActivities.some((act) => act.childActivities?.length)
     ) {
-      console.log(
-        "wcifActivityToGroups",
-        wcifActivityToGroups(
-          wcifActivities,
-          numCompetitors,
-          numGroups,
-          secondaryActivities
-        )
-      );
       round = {
         type: "groups",
         eventId,
@@ -280,7 +277,8 @@ const wcifRoundsToEventRounds = (
           wcifActivities,
           numCompetitors,
           numGroups,
-          secondaryActivities
+          secondaryActivities,
+          overlappingChildActivities
         ),
       };
     } else {
