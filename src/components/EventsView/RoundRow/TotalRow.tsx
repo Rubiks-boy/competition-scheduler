@@ -56,20 +56,22 @@ export const TotalRow = ({
   };
 
   let tooltip = null;
-  if (numRegistered) {
-    tooltip = (
-      <RegDiffTooltip
-        regDiffPercent={regDiffPercent}
-        numRegistered={numRegistered}
-      />
-    );
-  } else if (roundIndex === 0) {
-    tooltip = (
-      <PredictedRegDiffTooltip
-        numPredicted={estimatedCompetitors}
-        diffPercent={predictedDiffPerc}
-      />
-    );
+  if (roundIndex === 0) {
+    if (numRegistered) {
+      tooltip = (
+        <RegDiffTooltip
+          regDiffPercent={regDiffPercent}
+          numRegistered={numRegistered}
+        />
+      );
+    } else {
+      tooltip = (
+        <PredictedRegDiffTooltip
+          numPredicted={estimatedCompetitors}
+          diffPercent={predictedDiffPerc}
+        />
+      );
+    }
   }
 
   return (
