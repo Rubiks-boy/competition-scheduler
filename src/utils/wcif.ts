@@ -641,7 +641,7 @@ export const findMatchingWcifActivity = ({
     roundNum,
   });
 
-  return matches[nthOccurrence];
+  return matches[nthOccurrence - 1];
 };
 
 const getStartTimeForEntry = (
