@@ -4,7 +4,6 @@ import {
   Button,
   Box,
   Typography,
-  Tooltip,
   Accordion,
   AccordionSummary,
   AccordionDetails,
