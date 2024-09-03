@@ -13,11 +13,8 @@ import {
   numRegisteredByEventSelector,
   numStationsSelector,
   getRoundNameSelector,
-  groupIndexSelector,
-  getSimulGroupsForEventSelector,
   numCompetitorsInRoundSelector,
   competitorLimitSelector,
-  totalNumCompetitorsSelector,
 } from "../../../app/selectors";
 import { Error } from "@mui/icons-material";
 import { NumberTextField } from "../../NumberTextField";
@@ -37,26 +34,7 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
   });
 
   const getRoundName = useSelector(getRoundNameSelector);
-  const hasOtherSimulGroups = !!useSelector(getSimulGroupsForEventSelector)({
-    eventId,
-    roundIndex,
-  }).length;
   const roundName = getRoundName({ eventId, roundIndex });
-  const startingGroupIndex =
-    useSelector((state) =>
-      groupIndexSelector(state, {
-        eventId,
-        roundIndex,
-      })
-    ) ?? 0;
-  let groupString = "";
-  if (parseInt(numGroups) > 1) {
-    groupString = ` Groups ${startingGroupIndex + 1}-${
-      startingGroupIndex + parseInt(numGroups)
-    }`;
-  } else if (parseInt(numGroups) === 1) {
-    groupString = ` Group ${startingGroupIndex + 1}`;
-  }
 
   const numStations = useSelector(numStationsSelector);
   const numRegisteredByEvent = useSelector(numRegisteredByEventSelector);
@@ -83,11 +61,6 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
     competitorLimit
   );
 
-  const totalInRoundWithSimul = useSelector(totalNumCompetitorsSelector)({
-    eventId,
-    roundIndex,
-  });
-
   const onUpdateRound = (
     field: "totalNumCompetitors" | "numGroups" | "scheduledTime",
     value: string
@@ -109,7 +82,6 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
         sx={{ borderBottom: 0, minWidth: "10em" }}
       >
         {roundName}
-        {hasOtherSimulGroups && groupString}
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
         <NumCompetitorsInput
@@ -119,11 +91,6 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           numRegistered={numRegistered}
           regDiffPercent={regDiffPercent}
           estimatedCompetitors={estimatedCompetitors}
-          totalInRoundWithSimul={totalInRoundWithSimul}
-          disabled={
-            !parseInt(numGroups) &&
-            !!(totalInRoundWithSimul - parseInt(totalNumCompetitors))
-          }
         />
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
@@ -133,12 +100,11 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           value={numGroups}
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
           InputProps={{
-            endAdornment: !parseInt(numGroups) &&
-              !(totalInRoundWithSimul - parseInt(totalNumCompetitors)) && (
-                <InputAdornment position="end">
-                  <Error color="error" fontSize="small" />
-                </InputAdornment>
-              ),
+            endAdornment: !parseInt(numGroups) && (
+              <InputAdornment position="end">
+                <Error color="error" fontSize="small" />
+              </InputAdornment>
+            ),
           }}
         />
       </TableCell>

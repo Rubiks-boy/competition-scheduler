@@ -10,8 +10,6 @@ export const NumCompetitorsInput = ({
   numRegistered,
   regDiffPercent,
   estimatedCompetitors,
-  totalInRoundWithSimul,
-  disabled,
 }: {
   numCompetitors: string;
   roundIndex: number;
@@ -19,8 +17,6 @@ export const NumCompetitorsInput = ({
   numRegistered?: number;
   regDiffPercent?: number;
   estimatedCompetitors?: number;
-  totalInRoundWithSimul?: number;
-  disabled?: boolean;
 }) => {
   let endAdornment = null;
   if (!parseInt(numCompetitors)) {
@@ -43,13 +39,9 @@ export const NumCompetitorsInput = ({
         />
       </InputAdornment>
     );
-  } else if (
-    roundIndex === 0 &&
-    estimatedCompetitors &&
-    totalInRoundWithSimul
-  ) {
+  } else if (roundIndex === 0 && estimatedCompetitors && estimatedCompetitors) {
     const predictedDiffPerc = Math.abs(
-      (estimatedCompetitors - totalInRoundWithSimul) / estimatedCompetitors
+      (estimatedCompetitors - parseInt(numCompetitors)) / estimatedCompetitors
     );
 
     endAdornment = (
@@ -57,7 +49,7 @@ export const NumCompetitorsInput = ({
         <PredictedRegDiffTooltip
           numPredicted={estimatedCompetitors}
           diffPercent={predictedDiffPerc}
-          totalInRound={totalInRoundWithSimul}
+          totalInRound={parseInt(numCompetitors)}
         />
       </InputAdornment>
     );
@@ -84,8 +76,7 @@ export const NumCompetitorsInput = ({
           const value = `${numCompetitors}${isPercent ? "%" : ""}`;
           onChange(value);
         }}
-        InputProps={disabled ? {} : { endAdornment }}
-        disabled={disabled}
+        InputProps={{ endAdornment }}
       />
     </div>
   );

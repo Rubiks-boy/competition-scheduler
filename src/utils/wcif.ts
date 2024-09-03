@@ -237,7 +237,7 @@ const wcifRoundsToEventRounds = (
   wcifSchedule: WcifSchedule,
   mainEventStartAndEndTimes: Record<string, { startTime: Date; endTime: Date }>,
   overlappingChildActivities: Array<Activity>
-): Array<Round> => {
+): { rounds: Array<Round>; numCompetitorsPerRound: Array<number> } => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
   wcifRounds.forEach(({ extensions }, roundIndex) => {
@@ -263,15 +263,10 @@ const wcifRoundsToEventRounds = (
     }
 
     const simulGroupsWithOtherEvents: string[] = [];
-    let numSimulCompetitors = 0;
     overlappingChildActivities.forEach(({ activityCode, extensions }) => {
       const code = parseActivityCode(activityCode);
       if (eventId === code.eventId && roundIndex + 1 === code.roundNumber) {
         simulGroupsWithOtherEvents.push(activityCode);
-        const extension = extensions?.find(
-          ({ id }) => id === "competitionScheduler.GroupConfig"
-        ) as GroupExtension | undefined;
-        numSimulCompetitors += extension?.data.numCompetitors ?? 0;
       }
     });
     const numSimulGroups = new Set(simulGroupsWithOtherEvents).size;
@@ -313,7 +308,7 @@ const wcifRoundsToEventRounds = (
 
     let round: Round;
     if (
-      secondaryActivities.length &&
+      (secondaryActivities.length || numSimulGroups) &&
       wcifActivities.some((act) => act.childActivities?.length)
     ) {
       round = {
@@ -332,10 +327,8 @@ const wcifRoundsToEventRounds = (
         type: "aggregate",
         eventId,
         totalNumCompetitors:
-          type === "percent"
-            ? `${level}%`
-            : (numCompetitors - numSimulCompetitors).toString(),
-        numGroups: Math.max(numGroups - numSimulGroups, 0).toString(),
+          type === "percent" ? `${level}%` : numCompetitors.toString(),
+        numGroups: numGroups.toString(),
         scheduledTime: scheduledTime.toString(),
       };
 
@@ -354,7 +347,7 @@ const wcifRoundsToEventRounds = (
     numCompetitorsPerRound.push(numCompetitors);
     rounds.push(round);
   });
-  return rounds;
+  return { rounds, numCompetitorsPerRound };
 };
 
 export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
@@ -398,16 +391,18 @@ export const getDefaultNumStations = (
   return 8;
 };
 
-// Edge case: if we have 0 groups, and there's supposed
-// to be competitors assigned, try to move them to simul
-// groups if there are groups available
-const assignRoundsWithOnlySimul = (events: Events) => {
+// Edge case: If there's supposed to be competitors assigned,
+// but there's zero non-simul groups that were assigned to,
+// try to assign a number of competitors to simul groups
+const assignRoundsWithOnlySimul = (
+  events: Events,
+  numCompetitorsByEventAndRound: Record<EventId, number[]>
+) => {
   const zeroGroupRounds = Object.values(events).flatMap((rounds) => {
     return (rounds
       ?.map((round, i) => ({ round, roundIndex: i }))
-      .filter(
-        ({ round }) => round.type === "aggregate" && !parseInt(round.numGroups)
-      ) ?? []) as Array<{
+      .filter(({ round }) => round.type === "groups" && !round.groups.length) ??
+      []) as Array<{
       round: Round & { type: "aggregate" };
       roundIndex: number;
     }>;
@@ -422,7 +417,8 @@ const assignRoundsWithOnlySimul = (events: Events) => {
   });
 
   zeroGroupRounds.forEach(({ round, roundIndex }) => {
-    const numCompetitors = parseInt(round.totalNumCompetitors);
+    const numCompetitors =
+      numCompetitorsByEventAndRound[round.eventId]?.[roundIndex] ?? 0;
 
     const simulGroupsWithoutCompetitors = groupsWithSecondaryEvent.filter(
       (g) =>
@@ -432,7 +428,7 @@ const assignRoundsWithOnlySimul = (events: Events) => {
         !parseInt(g.secondaryEvent.numCompetitors)
     );
 
-    if (!simulGroupsWithoutCompetitors.length) {
+    if (!numCompetitors || !simulGroupsWithoutCompetitors.length) {
       return;
     }
 
@@ -466,6 +462,8 @@ export const getDefaultEventsData = ({
   const { events: wcifEvents } = wcif;
 
   const events = makeDefaultEvents();
+  const numCompetitorsByEventAndRound = {} as Record<EventId, Array<number>>;
+
   const { startAndEndTimes, overlappingChildActivities } =
     getMainEventStartAndEndTimes(wcif.schedule);
 
@@ -476,7 +474,7 @@ export const getDefaultEventsData = ({
         (parseActivityCode(a.id).roundNumber ?? 0) -
         (parseActivityCode(b.id).roundNumber ?? 0)
     );
-    events[id] = wcifRoundsToEventRounds(
+    const result = wcifRoundsToEventRounds(
       sortedRounds,
       id,
       competitorLimit || 0,
@@ -485,9 +483,12 @@ export const getDefaultEventsData = ({
       startAndEndTimes,
       overlappingChildActivities
     );
+
+    events[id] = result.rounds;
+    numCompetitorsByEventAndRound[id] = result.numCompetitorsPerRound;
   });
 
-  return assignRoundsWithOnlySimul(events);
+  return assignRoundsWithOnlySimul(events, numCompetitorsByEventAndRound);
 };
 
 export const getAllActivities = (wcifSchedule: WcifSchedule) => {

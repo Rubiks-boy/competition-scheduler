@@ -37,16 +37,12 @@ export const RoundRow = ({
     return null;
   }
 
-  const showTotalRow = groupIndices.some(
-    (entry) => entry.correspondingMainEvent == null
-  );
-
   return (
     <>
       {round.type === "aggregate" && (
         <AggregateRoundRow round={round} roundIndex={roundIndex} />
       )}
-      {showTotalRow && round.type === "groups" && (
+      {round.type === "groups" && (
         <TotalRow round={round} roundIndex={roundIndex} />
       )}
       {groupIndices.map((entry) => {

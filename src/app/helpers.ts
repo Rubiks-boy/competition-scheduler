@@ -63,6 +63,16 @@ const addSimulGroup = (
   const newRounds = [...prevRounds];
   newRounds[roundNum] = newRound;
 
+  // Convert secondary event to group-based
+  const prev2ndRounds = state.events[secondaryEvent.eventId];
+  const new2ndRounds = [...(prev2ndRounds ?? [])];
+  if (prev2ndRounds) {
+    const new2ndRound = convertToGroupBased(
+      prev2ndRounds[secondaryEvent.roundIndex]
+    );
+    new2ndRounds[secondaryEvent.roundIndex] = new2ndRound;
+  }
+
   return {
     ...state,
     isShowingDefaultInfo: false,
@@ -70,6 +80,7 @@ const addSimulGroup = (
     events: {
       ...state.events,
       [eventId]: newRounds,
+      [secondaryEvent.eventId]: new2ndRounds,
     },
   };
 };
