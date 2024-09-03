@@ -1,12 +1,4 @@
-import { LONG_EVENT_NAMES } from "../constants";
-import {
-  EventId,
-  Events,
-  EVENT_IDS,
-  Round,
-  ScheduleEntry,
-  WcifPerson,
-} from "../types";
+import { EventId, Events, EVENT_IDS, Round, WcifPerson } from "../types";
 
 export const pick = (obj: { [key: string]: any }, keys: Array<string>) =>
   keys.reduce((newObj, key) => ({ ...newObj, [key]: obj[key] }), {});
@@ -45,18 +37,6 @@ export const makeDefaultEvents = () =>
     (events, eventId) => ({ ...events, [eventId]: null }),
     {} as Events
   );
-
-export const constructActivityString = (scheduleEntry: ScheduleEntry) => {
-  if (scheduleEntry.type === "event") {
-    const { eventId, roundNum } = scheduleEntry;
-    return `${LONG_EVENT_NAMES[eventId]}, Round ${roundNum + 1}`;
-  }
-
-  return (
-    scheduleEntry.eventId.charAt(0).toUpperCase() +
-    scheduleEntry.eventId.slice(1)
-  );
-};
 
 export const deepEquals = (a: unknown, b: unknown) => {
   // null or undefined

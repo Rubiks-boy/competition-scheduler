@@ -1,5 +1,6 @@
 import {
   Activity,
+  activityCodeToName,
   AdvancementCondition,
   Cutoff,
   parseActivityCode,
@@ -15,7 +16,6 @@ import {
   EXTENSIONS_SPEC_URL,
   OTHER_ACTIVITES,
   ONE_DAY_MS,
-  LONG_EVENT_NAMES,
 } from "../constants";
 import {
   CustomStage,
@@ -49,7 +49,6 @@ import {
 } from "./calculators";
 import {
   calcNumCompetitorsPerRound,
-  constructActivityString,
   getNumCompetitorsValue,
   isOverlappingDates,
   makeDefaultEvents,
@@ -366,8 +365,8 @@ export const getDefaultEventsData = ({
     // Sort based on round number
     const sortedRounds = [...rounds].sort(
       (a, b) =>
-        parseInt(a.id[a.id.indexOf("-r") + 2]) -
-        parseInt(b.id[b.id.indexOf("-r") + 2])
+        (parseActivityCode(a.id).roundNumber ?? 0) -
+        (parseActivityCode(b.id).roundNumber ?? 0)
     );
     events[id] = wcifRoundsToEventRounds(
       sortedRounds,
@@ -470,10 +469,8 @@ export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
 
     // New main activity
     const { activityCode } = childActivity;
-    const eventRoundTuple = activityCode.substring(
-      0,
-      activityCode.indexOf("-r") + 3
-    );
+    const { eventId, roundNumber } = parseActivityCode(activityCode);
+    const eventRoundTuple = `${eventId}-r${roundNumber}`;
 
     // If there's already a start time, that one will be earlier
     const startTime =
@@ -897,14 +894,14 @@ const createChildActivities = ({
 
   const allChildGroups = [...simulGroups, ...nonSimulGroups];
   return allChildGroups.map((childGroup, i) => {
+    const activityCode = `${scheduleEntry.eventId}-r${
+      scheduleEntry.roundNum + 1
+    }-g${i + 1}`;
+
     return {
       id: getNextId(),
-      name: `${LONG_EVENT_NAMES[scheduleEntry.eventId]}, Round ${
-        scheduleEntry.roundNum + 1
-      }, Group ${i + 1}`,
-      activityCode: `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}-g${
-        i + 1
-      }`,
+      name: activityCodeToName(activityCode),
+      activityCode,
       startTime: childGroup.startTime.toISOString(),
       endTime: childGroup.endTime.toISOString(),
       childActivities: [],
@@ -999,7 +996,7 @@ const createWcifRoom = ({
         ...(originalActivity
           ? originalActivity
           : {
-              name: constructActivityString(scheduleEntry),
+              name: activityCodeToName(activityCode),
               activityCode,
               scrambleSetId: null,
               extensions: [],
