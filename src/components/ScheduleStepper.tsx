@@ -17,6 +17,7 @@ import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
 import VenueView from "./VenueView";
+import { NotSignedInView } from "./NotSignedInView";
 
 const steps = [
   "Configure competition",
@@ -65,7 +66,7 @@ export const ScheduleStepper = () => {
   };
 
   if (!isSignedIn) {
-    return <SignIn />;
+    return <NotSignedInView />;
   }
 
   const backButton = (
