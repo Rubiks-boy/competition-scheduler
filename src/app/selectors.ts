@@ -152,6 +152,10 @@ const areScheduledTimesValidSelector = (state: State) => {
   return scheduledTimes.every((time) => parseInt(time) % 5 === 0);
 };
 
+export const isAddEventsPageValidSelector = (state: State) => {
+  return Object.values(eventsSelector(state)).filter((v) => !!v).length;
+};
+
 export const isEventsPageValidSelector = (state: State) => {
   return (
     areScheduledTimesValidSelector(state) &&
@@ -172,8 +176,10 @@ const isVenuePageValid = (state: State) => {
 
 export const canAdvanceToNext = (state: State, activeStep: number) => {
   if (activeStep === 1) {
+    return isAddEventsPageValidSelector(state);
+  } else if (activeStep === 2) {
     return isEventsPageValidSelector(state);
-  } else if (activeStep === 3) {
+  } else if (activeStep === 4) {
     return isVenuePageValid(state);
   } else {
     return true;

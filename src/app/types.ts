@@ -127,6 +127,10 @@ export type Action =
       eventIds: Array<EventId>;
     }
   | {
+      type: "REMOVE_EVENT";
+      eventId: EventId;
+    }
+  | {
       type: "ADD_ROUND";
       eventId: EventId;
     }

@@ -34,7 +34,7 @@ const EventsView = () => {
         }}
       >
         <Typography sx={{ mb: 3 }} variant="h6">
-          Events
+          Rounds
         </Typography>
         <ResetEventsButton />
       </Box>

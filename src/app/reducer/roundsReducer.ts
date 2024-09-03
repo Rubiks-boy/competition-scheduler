@@ -141,6 +141,19 @@ export const roundsReducer: Reducer = (state, action) => {
         isExported: false,
       };
 
+    case "REMOVE_EVENT":
+      return {
+        ...state,
+        events: {
+          ...state.events,
+          [action.eventId]: null,
+        },
+        schedule: state.schedule.filter(
+          (v) => v.type !== "event" || v.eventId !== action.eventId
+        ),
+        isExported: false,
+      };
+
     case "ADD_ROUND":
       const withAddedRound = [...(state.events[action.eventId] ?? [])];
 

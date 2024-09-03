@@ -97,7 +97,11 @@ const ActivityRow = ({
   );
 };
 
-export const OtherActivities = () => {
+export const OtherActivities = ({
+  defaultExpanded,
+}: {
+  defaultExpanded?: boolean;
+}) => {
   const dispatch = useDispatch();
   const otherActivities = useSelector(otherActivitiesSelector);
   const numOtherActivities = useSelector(numOtherActivitiesSelector);
@@ -106,7 +110,7 @@ export const OtherActivities = () => {
 
   return (
     <Paper elevation={3} sx={{ mb: 3 }}>
-      <Accordion>
+      <Accordion defaultExpanded={defaultExpanded}>
         <AccordionSummary expandIcon={<ExpandMore />}>
           <Typography variant="h6">Other activities</Typography>
         </AccordionSummary>

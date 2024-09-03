@@ -12,6 +12,7 @@ import {
   canAdvanceToNext,
   isSignedInSelector,
 } from "../app/selectors";
+import AddEventsView from "./AddEventsView";
 import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
@@ -20,6 +21,7 @@ import VenueView from "./VenueView";
 const steps = [
   "Configure competition",
   "Events",
+  "Rounds",
   "Schedule",
   "Venue",
   "Export",
@@ -27,6 +29,7 @@ const steps = [
 
 const stepComponents = [
   CompetitionView,
+  AddEventsView,
   EventsView,
   ScheduleView,
   VenueView,
