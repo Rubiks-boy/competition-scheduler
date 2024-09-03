@@ -186,7 +186,8 @@ const wcifActivityToGroups = (
         return {
           activityCode: ca.activityCode,
           numMainCompetitors: numCompetitorsInGroup,
-          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60)}`,
+          // Round to the nearest 5 minutes
+          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60 / 5) * 5}`,
           secondaryEvent,
           startTime,
         };
@@ -343,7 +344,10 @@ const wcifRoundsToEventRounds = (
           wcifStartEndTime.endTime.getTime() -
           wcifStartEndTime.startTime.getTime();
 
-        round.scheduledTime = `${Math.floor(wcifScheduledTime / 1000 / 60)}`;
+        round.scheduledTime = `${
+          // Round to the nearest 5 minutes
+          Math.floor(wcifScheduledTime / 1000 / 60 / 5) * 5
+        }`;
       }
     }
 
@@ -1259,9 +1263,12 @@ export const getOtherActivityLengths = (
         new Date(wcifActivity.endTime).getTime() -
         new Date(wcifActivity.startTime).getTime();
 
-      otherActivities[otherActivity] = `${Math.floor(
-        wcifScheduledTime / 1000 / 60
-      )}`;
+      otherActivities[otherActivity] = `${
+        Math.floor(
+          // Round to the nearest 5 minutes
+          wcifScheduledTime / 1000 / 60 / 5
+        ) * 5
+      }`;
     }
   });
 

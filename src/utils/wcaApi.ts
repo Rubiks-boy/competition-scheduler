@@ -24,7 +24,7 @@ const wcaApiFetch = (
 export const fetchUpcomingManageableCompetitions = (
   wcaAccessToken: string
 ): Promise<Array<ManageableCompetition>> => {
-  const oneWeekAgo = new Date(Date.now() - 30 * 7 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const params = new URLSearchParams({
     managed_by_me: "true",
     start: oneWeekAgo.toISOString(),
