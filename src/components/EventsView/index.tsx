@@ -66,7 +66,7 @@ const EventsView = () => {
             rounds={rounds}
             onAddRound={onAddRound}
             onRemoveRound={onRemoveRound}
-            defaultExpanded={defaultExpanded}
+            defaultExpanded={defaultExpanded || eventId === "333"}
           />
         );
       })}
