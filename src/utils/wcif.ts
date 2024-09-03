@@ -49,7 +49,6 @@ import {
 } from "./calculators";
 import {
   calcNumCompetitorsPerRound,
-  eventsToSecondaryEvents,
   getNumCompetitorsValue,
   isOverlappingDates,
   makeDefaultEvents,
@@ -129,7 +128,7 @@ const wcifActivityToGroups = (
 
   return (
     childActivities
-      .map((ca, i) => {
+      .map((ca) => {
         const startTime = new Date(ca.startTime);
         const endTime = new Date(ca.endTime);
         const wcifScheduledTime: number =
@@ -189,6 +188,7 @@ const wcifActivityToGroups = (
           numMainCompetitors: numCompetitorsInGroup,
           scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60)}`,
           secondaryEvent,
+          startTime,
         };
       })
       // The child activities array includes _all_ stages
@@ -211,12 +211,15 @@ const wcifActivityToGroups = (
           return acc;
         },
         [] as {
+          startTime: Date;
           activityCode: string;
           scheduledTime: string;
           numMainCompetitors: number;
           secondaryEvent?: SecondaryEvent;
         }[]
       )
+      // Sort the groups by start time
+      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
       .map(({ scheduledTime, numMainCompetitors, secondaryEvent }) => ({
         scheduledTime,
         numMainCompetitors: `${numMainCompetitors}`,
@@ -726,8 +729,6 @@ const createWcifEvent = (
   if (!rounds || !rounds.length) {
     return null;
   }
-
-  const secondaryEvents = eventsToSecondaryEvents(events);
 
   const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds, events);
   const allRounds = Object.values(events).flatMap((rounds) =>
