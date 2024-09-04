@@ -16,6 +16,7 @@ import {
   EXTENSIONS_SPEC_URL,
   OTHER_ACTIVITES,
   ONE_DAY_MS,
+  ACTIVITY_NAMES,
 } from "../constants";
 import {
   CustomStage,
@@ -1111,7 +1112,10 @@ const createWcifRoom = ({
         ...(originalActivity
           ? originalActivity
           : {
-              name: activityCodeToName(activityCode),
+              name:
+                scheduleEntry.type === "event"
+                  ? activityCodeToName(activityCode)
+                  : ACTIVITY_NAMES[scheduleEntry.eventId],
               activityCode,
               scrambleSetId: null,
               extensions: [],
