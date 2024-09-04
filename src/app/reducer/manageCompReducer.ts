@@ -44,6 +44,7 @@ export const manageCompReducer: Reducer = (state, action) => {
         wcif: state.wcif,
         numStations: newNumStations,
         competitorLimit: parseInt(competitorLimit),
+        speedOffset: state.speedSlider,
       });
 
       return {
@@ -74,6 +75,7 @@ export const manageCompReducer: Reducer = (state, action) => {
         wcif: state.wcif,
         numStations: parseInt(numStations || "0"),
         competitorLimit: competitorLimitSelector(state),
+        speedOffset: state.speedSlider,
       });
 
       return {

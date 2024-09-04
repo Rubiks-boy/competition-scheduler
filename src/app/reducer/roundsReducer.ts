@@ -54,7 +54,9 @@ export const roundsReducer: Reducer = (state, action) => {
       if (!action.isEditingTime && !action.scheduledTime) {
         updatedRound.scheduledTime = calcTimeForRound(
           action.eventId,
-          parseInt(updatedRound.numGroups || "0")
+          parseInt(updatedRound.numGroups || "0"),
+          true,
+          state.speedSlider
         ).toString();
       }
 
@@ -116,7 +118,12 @@ export const roundsReducer: Reducer = (state, action) => {
           eventId,
           totalNumCompetitors: numCompetitors.toString(),
           numGroups: numGroups.toString(),
-          scheduledTime: calcTimeForRound(eventId, numGroups).toString(),
+          scheduledTime: calcTimeForRound(
+            eventId,
+            numGroups,
+            true,
+            state.speedSlider
+          ).toString(),
         };
 
         return {
@@ -175,7 +182,12 @@ export const roundsReducer: Reducer = (state, action) => {
         eventId: action.eventId,
         totalNumCompetitors: numCompetitors.toString(),
         numGroups: numGroups.toString(),
-        scheduledTime: calcTimeForRound(action.eventId, numGroups).toString(),
+        scheduledTime: calcTimeForRound(
+          action.eventId,
+          numGroups,
+          true,
+          state.speedSlider
+        ).toString(),
       };
 
       withAddedRound.push(roundToAdd);
@@ -207,6 +219,7 @@ export const roundsReducer: Reducer = (state, action) => {
         wcif: state.wcif,
         numStations: numStationsSelector(state),
         competitorLimit: competitorLimitSelector(state),
+        speedOffset: state.speedSlider,
       });
 
       return {
@@ -250,7 +263,9 @@ export const roundsReducer: Reducer = (state, action) => {
           });
           const defaultScheduledTime = calcTimeForRound(
             eventId,
-            defaultNumGroups
+            defaultNumGroups,
+            true,
+            state.speedSlider
           );
           return {
             type: "aggregate" as const,

@@ -236,7 +236,8 @@ const wcifRoundsToEventRounds = (
   numStations: number,
   wcifSchedule: WcifSchedule,
   mainEventStartAndEndTimes: Record<string, { startTime: Date; endTime: Date }>,
-  overlappingChildActivities: Array<Activity>
+  overlappingChildActivities: Array<Activity>,
+  speedOffset: number
 ): { rounds: Array<Round>; numCompetitorsPerRound: Array<number> } => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
@@ -281,7 +282,9 @@ const wcifRoundsToEventRounds = (
 
     const scheduledTime = calcTimeForRound(
       eventId,
-      Math.max(numGroups - numSimulGroups, 0)
+      Math.max(numGroups - numSimulGroups, 0),
+      true,
+      speedOffset
     );
 
     const wcifActivities = findMatchingWcifActivities({
@@ -454,10 +457,12 @@ export const getDefaultEventsData = ({
   wcif,
   numStations,
   competitorLimit,
+  speedOffset,
 }: {
   wcif: Wcif;
   numStations: number;
   competitorLimit: number;
+  speedOffset: number;
 }): Events => {
   const { events: wcifEvents } = wcif;
 
@@ -481,7 +486,8 @@ export const getDefaultEventsData = ({
       numStations,
       wcif.schedule,
       startAndEndTimes,
-      overlappingChildActivities
+      overlappingChildActivities,
+      speedOffset
     );
 
     events[id] = result.rounds;

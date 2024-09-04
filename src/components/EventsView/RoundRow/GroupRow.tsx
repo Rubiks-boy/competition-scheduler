@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "../../../app/hooks";
 import {
   getGroupNameSelector,
   numStationsSelector,
+  speedSeletor,
 } from "../../../app/selectors";
 import { Close } from "@mui/icons-material";
 
@@ -29,6 +30,7 @@ export const GroupRow = ({
 
   const { secondaryEvent, numMainCompetitors, scheduledTime } = group;
 
+  const speedOffset = useSelector(speedSeletor);
   const numStations = useSelector(numStationsSelector);
   const getGroupName = useSelector(getGroupNameSelector);
   const mainGroupName = getGroupName({
@@ -51,9 +53,9 @@ export const GroupRow = ({
       })
     : "";
 
-  const calculatedMainTime = calcTimeForRound(eventId, 1, false);
+  const calculatedMainTime = calcTimeForRound(eventId, 1, false, speedOffset);
   const calculatedSecondaryTime = secondaryEvent
-    ? calcTimeForRound(secondaryEvent.eventId, 1, false)
+    ? calcTimeForRound(secondaryEvent.eventId, 1, false, speedOffset)
     : 0;
   const calculatedTime = Math.max(calculatedMainTime, calculatedSecondaryTime);
 

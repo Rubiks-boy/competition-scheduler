@@ -190,6 +190,7 @@ export const canAdvanceToNext = (state: State, activeStep: number) => {
 
 export const shareableAppStateSelector = (state: State): ShareableState => {
   const {
+    speedSlider,
     selectedCompId,
     numStations,
     startTimes,
@@ -209,6 +210,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
   } = state;
 
   return {
+    speedSlider,
     selectedCompId,
     numStations,
     startTimes,
@@ -264,6 +266,8 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
       });
       const defaultScheduledTime = calcTimeForRound(
         eventId as EventId,
+        null,
+        true,
         defaultNumGroups
       );
 
@@ -295,6 +299,7 @@ export const isEventsSameAsWcifSelector = (state: State) => {
     wcif,
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
+    speedOffset: state.speedSlider,
   });
 
   const events = eventsSelector(state);
@@ -314,6 +319,7 @@ export const isNumRoundsPerEventSameAsWcifSelector = (state: State) => {
     wcif,
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
+    speedOffset: state.speedSlider,
   });
 
   const events = eventsSelector(state);
@@ -336,6 +342,7 @@ export const isScheduleSameAsWcifSelector = (state: State) => {
     wcif,
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
+    speedOffset: state.speedSlider,
   });
 
   const startTimes = startTimesSelector(state);
@@ -738,3 +745,5 @@ export const numCompetitorsInRoundSelector =
       return parseInt(totalNumCompetitors);
     }
   };
+
+export const speedSeletor = (state: State) => state.speedSlider;

@@ -26,6 +26,7 @@ export type AlwaysImportableAppState = {
 
 // These properties are included on new schedule exports
 export type ShareableState = AlwaysImportableAppState & {
+  speedSlider: number;
   startTimes: Array<Date>;
   competitorLimit: string | null;
   customStages: Array<CustomStage>;
@@ -255,6 +256,10 @@ export type Action =
     }
   | {
       type: "LEAVE_HOMEPAGE";
+    }
+  | {
+      type: "SET_SPEED";
+      value: number;
     };
 
 export type Reducer = (state: State, action: Action) => State;

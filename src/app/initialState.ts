@@ -44,4 +44,5 @@ export const initialState: State = {
   experimentalFeaturesEnabled:
     localStorage.getItem("ENABLE_EXPERIMENTAL") === "true",
   showAdvanced: false,
+  speedSlider: 0,
 };

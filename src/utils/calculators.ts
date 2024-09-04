@@ -3,7 +3,7 @@ import {
   EVENT_NAMES,
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
-  TIME_PER_GROUP,
+  DEFAULT_TIME_PER_GROUP,
 } from "../constants";
 import {
   EventId,
@@ -36,9 +36,13 @@ export const compPerStationsRatio = ({
 export const calcTimeForRound = (
   eventId: EventId,
   numGroups: number | null,
-  shouldRound: boolean = true
+  shouldRound: boolean = true,
+  speedOffset: number
 ) => {
-  const calculatedTime = TIME_PER_GROUP[eventId] * (numGroups || 0);
+  const offset =
+    (DEFAULT_TIME_PER_GROUP[333] + speedOffset) / DEFAULT_TIME_PER_GROUP[333];
+  const timePerGroup = DEFAULT_TIME_PER_GROUP[eventId] * offset;
+  const calculatedTime = timePerGroup * (numGroups || 0);
 
   // round up to the nearest 5 mins
   return shouldRound ? Math.ceil(calculatedTime / 5) * 5 : calculatedTime;

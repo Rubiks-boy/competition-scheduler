@@ -28,6 +28,7 @@ export const appReducer: Reducer = (state, action) => {
         stages: appState.stages,
 
         // From ShareableState
+        speedSlider: appState.speedSlider ?? 0,
         competitorLimit: appState.competitorLimit ?? state.competitorLimit,
         customStages: appState.customStages ?? state.customStages,
         isUsingCustomStages:
@@ -74,6 +75,12 @@ export const appReducer: Reducer = (state, action) => {
       return {
         ...state,
         isOnHomePage: false,
+      };
+
+    case "SET_SPEED":
+      return {
+        ...state,
+        speedSlider: action.value,
       };
 
     default:

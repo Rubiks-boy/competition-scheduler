@@ -11,6 +11,7 @@ import {
 import { NumberTextField } from "../NumberTextField";
 import { TimePicker } from "../TimePicker";
 import { NumStationsTooltip } from "./NumStationsTooltip";
+import { TimingsSlider } from "./TimingsSlider";
 
 export const ConfigureCompetition = () => {
   const dispatch = useDispatch();
@@ -129,6 +130,9 @@ export const ConfigureCompetition = () => {
           onChange={onNumberOfDaysChange}
           disabled
         />
+      </Grid>
+      <Grid item xs={12}>
+        <TimingsSlider />
       </Grid>
     </>
   );

@@ -52,9 +52,9 @@ export const EVENT_NAMES = {
   "333ft": "333ft",
 };
 
-export const TIME_PER_GROUP = {
-  "333": 21,
-  "222": 20,
+export const DEFAULT_TIME_PER_GROUP = {
+  "333": 20,
+  "222": 19,
   "444": 25,
   "555": 30,
   "666": 30,
@@ -63,9 +63,9 @@ export const TIME_PER_GROUP = {
   "333fm": 0,
   "333oh": 20,
   clock: 25,
-  pyram: 20,
+  pyram: 19,
   minx: 30,
-  skewb: 20,
+  skewb: 19,
   sq1: 20,
   "444bf": 0,
   "555bf": 0,

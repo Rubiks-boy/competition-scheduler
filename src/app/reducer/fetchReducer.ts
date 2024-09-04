@@ -51,6 +51,7 @@ export const fetchReducer: Reducer = (state, action) => {
         wcif,
         numStations: defaultNumStations,
         competitorLimit: defaultCompetitorLimit,
+        speedOffset: state.speedSlider,
       });
 
       const startTimes = getWcifStartTimes(wcif);
