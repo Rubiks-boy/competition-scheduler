@@ -14,6 +14,8 @@ export const accessTokenSelector = (state: State) => state.accessToken;
 
 export const isSignedInSelector = (state: State) => !!state.accessToken;
 
+export const isOnHomePageSelector = (state: State) => !!state.isOnHomePage;
+
 export const manageableCompsSelector = (state: State) => state.manageableComps;
 
 export const selectedCompIdSelector = (state: State) => state.selectedCompId;

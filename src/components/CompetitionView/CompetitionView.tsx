@@ -18,7 +18,11 @@ export const CompetitionView = () => {
         Configure Competition
       </Typography>
       <Grid container spacing={2}>
-        <ChooseCompetition />
+        <Grid container item xs={12}>
+          <Grid item xs={12} md={8}>
+            <ChooseCompetition />
+          </Grid>
+        </Grid>
         <ConfigureCompetition />
       </Grid>
     </>

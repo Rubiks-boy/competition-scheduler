@@ -1,0 +1,235 @@
+.FakeReorderView-events {
+  position: relative;
+  height: 15em;
+}
+
+.FakeReorderView-event {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transition: transform ease-in-out 500ms;
+}
+
+.FakeReorderView-event--1 {
+  transition: transform ease-in-out 1000ms;
+}
+
+.FakeReorderView-event--big {
+  top: -0.25em;
+  zoom: 1.05;
+}
+
+.Preview {
+  display: flex;
+  padding-inline: 1em;
+  height: 350px;
+  margin-top: 1.5em;
+  margin-bottom: 3em;
+  pointer-events: none;
+}
+
+.Preview-steps {
+  flex-basis: 35%;
+  display: flex;
+  gap: 1em;
+  flex-direction: column;
+  margin-block: auto;
+  font-size: 1.1em;
+  padding-left: 1em;
+}
+
+.Preview-step {
+  opacity: 0.5;
+  transition: opacity 500ms ease-in-out;
+}
+.Preview-step--active {
+  opacity: 1;
+}
+
+.Preview-animation {
+  flex-basis: 65%;
+  border: 1px solid #333;
+  border-radius: 1em;
+  padding: 2em;
+}
+
+.Preview-animation > * {
+  animation: fadeInAnimation ease 1s;
+}
+
+.ChooseCompetitionView {
+  /* Lock in height to prevent glitching once fetching is complete */
+  height: 6em;
+}
+
+.SignIn,
+.ChooseCompetitionView {
+  max-width: 500px;
+  opacity: 0;
+  animation: fadeInAnimation 750ms normal forwards ease-in-out;
+}
+
+.ChooseCompetitionView button {
+  margin-top: 1em;
+}
+
+.FakeExport-alert {
+  visibility: hidden;
+  margin-top: 1em;
+}
+.FakeExport--exported .FakeExport-alert {
+  animation: show 500ms normal forwards ease-in-out;
+}
+
+.FakeExport-button {
+  display: flex;
+  align-items: center;
+  margin-top: 0.4em;
+  color: #333;
+}
+
+.FakeExport--loading .FakeExport-button button {
+  opacity: 0.7;
+  color: #333;
+  transition: opacity 250ms ease 500ms, color 250ms ease 500ms;
+  animation: click 750ms normal forwards ease-in-out;
+}
+
+.FakeExport-button svg {
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.FakeExport--loading .FakeExport-button svg {
+  animation: spin 1.5s infinite ease-in-out;
+  opacity: 1;
+  transition: opacity 250ms ease 750ms;
+}
+
+.FakeAddEvents {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.FakeAddEvents-event {
+  display: flex;
+  align-items: center;
+  margin-inline: 2em;
+}
+
+.FakeAddEvents-event span {
+  margin-right: 0.5em;
+  width: 60px;
+}
+
+.FakeAddEvents-event--clicked button:first-of-type,
+.FakeAddEvents-event:not(.FakeAddEvents-event--clicked)
+  button:not(:first-of-type) {
+  color: #bbb;
+}
+
+.FakeAddEvents-event--clicked button {
+  transition: opacity 250ms ease 500ms, color 250ms ease 500ms;
+}
+.FakeAddEvents-event--clicked button:first-of-type {
+  animation: click 750ms normal forwards ease-in-out;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes show {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
+  }
+}
+
+@keyframes click {
+  from {
+    box-shadow: none;
+    background-color: unset;
+  }
+
+  50% {
+    box-shadow: 0 0 0 1px #ccc;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  to {
+    box-shadow: none;
+    background-color: unset;
+  }
+}
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  @keyframes click {
+    from {
+      border: unset;
+      background-color: unset;
+    }
+
+    50% {
+      box-shadow: 0 0 0 1px #aaa;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    to {
+      border: unset;
+      background-color: unset;
+    }
+  }
+
+  .FakeExport--loading .FakeExport-button button {
+    opacity: 0.7;
+    color: #bbb;
+  }
+
+  .FakeExport-button {
+    color: #bbb;
+  }
+
+  .Preview-animation {
+    border: 1px solid white;
+  }
+
+  .FakeAddEvents-event--clicked button:first-of-type,
+  .FakeAddEvents-event:not(.FakeAddEvents-event--clicked)
+    button:not(:first-of-type) {
+    color: #888;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .Preview-steps {
+    display: none;
+  }
+
+  .Preview-animation {
+    flex-basis: 100%;
+  }
+
+  .ChooseCompetitionView {
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+}

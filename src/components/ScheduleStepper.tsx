@@ -6,10 +6,10 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import CompetitionView from "./CompetitionView";
 import { useDispatch, useSelector } from "../app/hooks";
-import { SignIn } from "./Header/SignIn";
 import {
   activeStepSelector,
   canAdvanceToNext,
+  isOnHomePageSelector,
   isSignedInSelector,
 } from "../app/selectors";
 import AddEventsView from "./AddEventsView";
@@ -17,7 +17,7 @@ import EventsView from "./EventsView";
 import ScheduleView from "./ScheduleView";
 import ExportView from "./ExportView";
 import VenueView from "./VenueView";
-import { NotSignedInView } from "./NotSignedInView";
+import { HomePageView } from "./HomePageView";
 
 const steps = [
   "Configure competition",
@@ -46,6 +46,7 @@ export const ScheduleStepper = () => {
   const dispatch = useDispatch();
   const activeStep = useSelector(activeStepSelector);
   const isSignedIn = useSelector(isSignedInSelector);
+  const isOnHomePage = useSelector(isOnHomePageSelector);
   const isNextDisabled = !useSelector((state) =>
     canAdvanceToNext(state, activeStep)
   );
@@ -65,8 +66,8 @@ export const ScheduleStepper = () => {
     setActiveStep(0);
   };
 
-  if (!isSignedIn) {
-    return <NotSignedInView />;
+  if (!isSignedIn || isOnHomePage) {
+    return <HomePageView />;
   }
 
   const backButton = (

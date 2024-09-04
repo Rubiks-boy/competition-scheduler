@@ -3,6 +3,7 @@ import type { State } from "./types";
 import { STAGE_NAMES_AND_COLORS } from "../constants";
 
 export const initialState: State = {
+  isOnHomePage: true,
   accessToken: null,
   manageableCompsPending: false,
   manageableComps: [],

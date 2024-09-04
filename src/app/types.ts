@@ -40,6 +40,7 @@ export type ImportableAppState = AlwaysImportableAppState &
   Partial<ShareableState>;
 
 export type State = ShareableState & {
+  isOnHomePage: boolean;
   accessToken: string | null;
   manageableCompsPending: boolean;
   manageableComps: Array<ManageableCompetition>;
@@ -251,6 +252,9 @@ export type Action =
   | {
       type: "SHOW_ADVANCED";
       showAdvanced: boolean;
+    }
+  | {
+      type: "LEAVE_HOMEPAGE";
     };
 
 export type Reducer = (state: State, action: Action) => State;

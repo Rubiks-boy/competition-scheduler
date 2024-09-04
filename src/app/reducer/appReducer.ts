@@ -10,6 +10,7 @@ export const appReducer: Reducer = (state, action) => {
       }
 
       const stateAfterImport: State = {
+        isOnHomePage: false,
         importSource: source,
 
         // From AlwaysImportableAppState
@@ -67,6 +68,12 @@ export const appReducer: Reducer = (state, action) => {
       return {
         ...state,
         showAdvanced: action.showAdvanced,
+      };
+
+    case "LEAVE_HOMEPAGE":
+      return {
+        ...state,
+        isOnHomePage: false,
       };
 
     default:

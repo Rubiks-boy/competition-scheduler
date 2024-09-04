@@ -32,9 +32,7 @@ export const Header = () => {
               fontWeight: "500",
             }}
           >
-            {activeStep === 0
-              ? "Schedule generator"
-              : `Schedule generator – ${competitionName}`}
+            {activeStep === 0 ? "Competition Scheduler" : competitionName}
           </Typography>
           <SignIn />
         </Toolbar>
