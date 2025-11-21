@@ -108,6 +108,8 @@ export const OtherActivities = ({
   const enabledOtherActivities = useSelector(enabledOtherActivitiesSelector);
   const numberOfDays = useSelector(numberOfDaysSelector);
 
+  console.log(111, otherActivities);
+
   return (
     <Paper elevation={3} sx={{ mb: 3 }}>
       <Accordion defaultExpanded={defaultExpanded}>
@@ -121,7 +123,6 @@ export const OtherActivities = ({
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell>Activity</TableCell>
-                  <TableCell>Occurrences</TableCell>
                   <TableCell>Time</TableCell>
                 </TableRow>
               </TableHead>

@@ -68,7 +68,9 @@ export type OtherActivity =
   | "checkin"
   | "lunch"
   | "tutorial"
-  | "awards";
+  | "awards"
+  | "doorsOpen"
+  | "doorsClose";
 
 export type ScheduleEntry =
   | { type: "event"; eventId: EventId; roundNum: number }

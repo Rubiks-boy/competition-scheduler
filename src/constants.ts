@@ -176,8 +176,8 @@ export const OTHER_ACTIVITES = [
   "tutorial",
   "lunch",
   "awards",
-  "doors-open",
-  "doors-close"
+  "doorsOpen",
+  "doorsClose",
 ] as const;
 
 export const EVENT_COLORS = [
@@ -228,6 +228,8 @@ export const ACTIVITIES = [
   "tutorial",
   "lunch",
   "awards",
+  "doorsOpen",
+  "doorsClose",
 ] as const;
 
 export const ACTIVITY_NAMES = {
@@ -236,6 +238,8 @@ export const ACTIVITY_NAMES = {
   tutorial: "Tutorial",
   lunch: "Lunch",
   awards: "Awards",
+  doorsOpen: "Doors Open",
+  doorsClose: "Doors Close",
 };
 
 export const STAGE_NAMES_AND_COLORS = [
