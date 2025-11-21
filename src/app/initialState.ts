@@ -11,6 +11,7 @@ export const initialState: State = {
   competitorLimit: null,
   isNumStationsTouched: false,
   numStations: "8",
+  isStationaryCompetition: false,
   startTimes: [new Date(0)],
   wcifPending: false,
   wcif: null,

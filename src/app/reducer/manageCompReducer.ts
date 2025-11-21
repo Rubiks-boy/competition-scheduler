@@ -30,7 +30,9 @@ export const manageCompReducer: Reducer = (state, action) => {
         return { ...state, competitorLimit };
       }
 
-      const newNumStations = getDefaultNumStations(parseInt(competitorLimit));
+      const newNumStations = state.isStationaryCompetition
+        ? Math.ceil(parseInt(competitorLimit || "0") * 0.2)
+        : getDefaultNumStations(parseInt(competitorLimit));
 
       if (!state.isShowingDefaultInfo) {
         return {
@@ -45,6 +47,7 @@ export const manageCompReducer: Reducer = (state, action) => {
         numStations: newNumStations,
         competitorLimit: parseInt(competitorLimit),
         speedOffset: state.speedSlider,
+        isStationaryCompetition: state.isStationaryCompetition,
       });
 
       return {
@@ -76,6 +79,7 @@ export const manageCompReducer: Reducer = (state, action) => {
         numStations: parseInt(numStations || "0"),
         competitorLimit: competitorLimitSelector(state),
         speedOffset: state.speedSlider,
+        isStationaryCompetition: state.isStationaryCompetition,
       });
 
       return {
@@ -88,6 +92,55 @@ export const manageCompReducer: Reducer = (state, action) => {
           numberOfDaysSelector(state),
           state.numOtherActivities
         ),
+        isExported: false,
+      };
+
+    case "STATIONARY_COMPETITION_CHANGED":
+      const { isStationaryCompetition } = action;
+
+      // When changing to stationary mode, update stations based on competitor limit
+      if (
+        isStationaryCompetition &&
+        !state.isNumStationsTouched &&
+        state.competitorLimit
+      ) {
+        const stationaryNumStations = Math.ceil(
+          parseInt(state.competitorLimit) * 0.2
+        );
+
+        if (!state.isShowingDefaultInfo || !state.wcif) {
+          return {
+            ...state,
+            isStationaryCompetition,
+            numStations: `${stationaryNumStations}`,
+          };
+        }
+
+        const updatedEvents = getDefaultEventsData({
+          wcif: state.wcif,
+          numStations: stationaryNumStations,
+          competitorLimit: competitorLimitSelector(state),
+          speedOffset: state.speedSlider,
+          isStationaryCompetition: true,
+        });
+
+        return {
+          ...state,
+          isStationaryCompetition,
+          numStations: `${stationaryNumStations}`,
+          events: updatedEvents,
+          schedule: getDefaultSchedule(
+            updatedEvents,
+            numberOfDaysSelector(state),
+            state.numOtherActivities
+          ),
+          isExported: false,
+        };
+      }
+
+      return {
+        ...state,
+        isStationaryCompetition,
         isExported: false,
       };
 

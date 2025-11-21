@@ -15,6 +15,7 @@ export type AlwaysImportableAppState = {
   selectedCompId: string | null;
   isNumStationsTouched: boolean;
   numStations: string;
+  isStationaryCompetition: boolean;
   isShowingDefaultInfo: boolean;
   hasReorderedEvents: boolean;
   events: Events;
@@ -91,6 +92,10 @@ export type Action =
   | {
       type: "NUM_STATIONS_CHANGED";
       numStations: string;
+    }
+  | {
+      type: "STATIONARY_COMPETITION_CHANGED";
+      isStationaryCompetition: boolean;
     }
   | {
       type: "START_TIME_CHANGED";

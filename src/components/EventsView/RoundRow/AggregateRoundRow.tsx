@@ -16,6 +16,7 @@ import {
   numCompetitorsInRoundSelector,
   competitorLimitSelector,
   speedSeletor,
+  isStationaryCompetitionSelector,
 } from "../../../app/selectors";
 import { Error } from "@mui/icons-material";
 import { NumberTextField } from "../../NumberTextField";
@@ -29,6 +30,7 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
   const dispatch = useDispatch();
 
   const speedOffset = useSelector(speedSeletor);
+  const isStationaryCompetition = useSelector(isStationaryCompetitionSelector);
   const { eventId, totalNumCompetitors, numGroups, scheduledTime } = round;
   const numCompetitorsInt = useSelector(numCompetitorsInRoundSelector)({
     eventId,
@@ -46,7 +48,8 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
     eventId,
     parseInt(numGroups),
     undefined,
-    speedOffset
+    speedOffset,
+    isStationaryCompetition
   );
   const regDiffPercent = Math.abs(
     (numRegistered - numCompetitorsInt) / numRegistered
