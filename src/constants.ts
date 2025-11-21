@@ -176,6 +176,8 @@ export const OTHER_ACTIVITES = [
   "tutorial",
   "lunch",
   "awards",
+  "doors-open",
+  "doors-close"
 ] as const;
 
 export const EVENT_COLORS = [
