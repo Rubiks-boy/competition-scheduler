@@ -43,12 +43,14 @@ export const autoReorder = (schedule: Schedule): Schedule => {
   };
 
   const reorderedSchedule: Schedule = [
+    ...findActivity("doorsOpen"),
     ...findActivity("registration"),
     ...findActivity("checkin"),
     ...findActivity("tutorial"),
     ...sortEventsInRound(0, schedule),
     ...[1, 2, 3].flatMap((i) => sortEventsInRound(i, schedule)),
     ...findActivity("awards"),
+    ...findActivity("doorsClose"),
   ];
 
   const numActivities = reorderedSchedule.length;

@@ -24,6 +24,8 @@ export const initialState: State = {
     tutorial: "20",
     lunch: "60",
     awards: "15",
+    doorsOpen: "30",
+    doorsClose: "15",
   },
   numOtherActivities: {
     registration: "1",
@@ -31,6 +33,8 @@ export const initialState: State = {
     tutorial: "1",
     lunch: "1",
     awards: "1",
+    doorsOpen: "1",
+    doorsClose: "1",
   },
   venueName: "",
   stages: ["Red", "Blue"],

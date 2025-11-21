@@ -121,7 +121,6 @@ export const OtherActivities = ({
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell>Activity</TableCell>
-                  <TableCell>Occurrences</TableCell>
                   <TableCell>Time</TableCell>
                 </TableRow>
               </TableHead>
