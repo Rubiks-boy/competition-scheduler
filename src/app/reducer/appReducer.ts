@@ -48,6 +48,7 @@ export const appReducer: Reducer = (state, action) => {
         isDebugging: state.isDebugging,
         experimentalFeaturesEnabled: state.experimentalFeaturesEnabled,
         showAdvanced: state.showAdvanced,
+        isStationaryCompetition: state.isStationaryCompetition,
       };
 
       return stateAfterImport;

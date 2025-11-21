@@ -41,6 +41,9 @@ export const numStationsRawSelector = (state: State) =>
 export const numStationsSelector = (state: State) =>
   parseInt(numStationsRawSelector(state));
 
+export const isStationaryCompetitionSelector = (state: State) =>
+  state.isStationaryCompetition;
+
 export const numberOfDaysRawSelector = (state: State) =>
   state.numberOfDays ?? "1";
 export const numberOfDaysSelector = (state: State) =>
@@ -193,6 +196,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     speedSlider,
     selectedCompId,
     numStations,
+    isStationaryCompetition,
     startTimes,
     isShowingDefaultInfo,
     hasReorderedEvents,
@@ -213,6 +217,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
     speedSlider,
     selectedCompId,
     numStations,
+    isStationaryCompetition,
     startTimes,
     isShowingDefaultInfo,
     hasReorderedEvents,
@@ -268,7 +273,8 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
         eventId as EventId,
         null,
         true,
-        defaultNumGroups
+        defaultNumGroups,
+        state.isStationaryCompetition
       );
 
       if (
@@ -300,6 +306,7 @@ export const isEventsSameAsWcifSelector = (state: State) => {
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
     speedOffset: state.speedSlider,
+    isStationaryCompetition: state.isStationaryCompetition,
   });
 
   const events = eventsSelector(state);
@@ -320,6 +327,7 @@ export const isNumRoundsPerEventSameAsWcifSelector = (state: State) => {
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
     speedOffset: state.speedSlider,
+    isStationaryCompetition: state.isStationaryCompetition,
   });
 
   const events = eventsSelector(state);
@@ -343,6 +351,7 @@ export const isScheduleSameAsWcifSelector = (state: State) => {
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
     speedOffset: state.speedSlider,
+    isStationaryCompetition: state.isStationaryCompetition,
   });
 
   const startTimes = startTimesSelector(state);

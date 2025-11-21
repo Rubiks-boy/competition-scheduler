@@ -52,6 +52,7 @@ export const fetchReducer: Reducer = (state, action) => {
         numStations: defaultNumStations,
         competitorLimit: defaultCompetitorLimit,
         speedOffset: state.speedSlider,
+        isStationaryCompetition: state.isStationaryCompetition,
       });
 
       const startTimes = getWcifStartTimes(wcif);

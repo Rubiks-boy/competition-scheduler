@@ -56,7 +56,8 @@ export const roundsReducer: Reducer = (state, action) => {
           action.eventId,
           parseInt(updatedRound.numGroups || "0"),
           true,
-          state.speedSlider
+          state.speedSlider,
+          state.isStationaryCompetition
         ).toString();
       }
 
@@ -122,7 +123,8 @@ export const roundsReducer: Reducer = (state, action) => {
             eventId,
             numGroups,
             true,
-            state.speedSlider
+            state.speedSlider,
+            state.isStationaryCompetition
           ).toString(),
         };
 
@@ -186,7 +188,8 @@ export const roundsReducer: Reducer = (state, action) => {
           action.eventId,
           numGroups,
           true,
-          state.speedSlider
+          state.speedSlider,
+          state.isStationaryCompetition
         ).toString(),
       };
 
@@ -220,6 +223,7 @@ export const roundsReducer: Reducer = (state, action) => {
         numStations: numStationsSelector(state),
         competitorLimit: competitorLimitSelector(state),
         speedOffset: state.speedSlider,
+        isStationaryCompetition: state.isStationaryCompetition,
       });
 
       return {
@@ -265,7 +269,8 @@ export const roundsReducer: Reducer = (state, action) => {
             eventId,
             defaultNumGroups,
             true,
-            state.speedSlider
+            state.speedSlider,
+            state.isStationaryCompetition
           );
           return {
             type: "aggregate" as const,

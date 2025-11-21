@@ -4,6 +4,7 @@ import {
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
   DEFAULT_TIME_PER_GROUP,
+  DEFAULT_TIME_PER_GROUP_STATIONARY,
 } from "../constants";
 import {
   EventId,
@@ -37,11 +38,16 @@ export const calcTimeForRound = (
   eventId: EventId,
   numGroups: number | null,
   shouldRound: boolean = true,
-  speedOffset: number
+  speedOffset: number,
+  isStationaryCompetition: boolean = false
 ) => {
+  const baseTimePerGroup = isStationaryCompetition
+    ? DEFAULT_TIME_PER_GROUP_STATIONARY[eventId]
+    : DEFAULT_TIME_PER_GROUP[eventId];
+
   const offset =
     (DEFAULT_TIME_PER_GROUP[333] + speedOffset) / DEFAULT_TIME_PER_GROUP[333];
-  const timePerGroup = DEFAULT_TIME_PER_GROUP[eventId] * offset;
+  const timePerGroup = baseTimePerGroup * offset;
   const calculatedTime = timePerGroup * (numGroups || 0);
 
   // round up to the nearest 5 mins
