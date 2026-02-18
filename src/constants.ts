@@ -1,4 +1,5 @@
-import type { EventId, Stage, RoundFormat } from "./types";
+import type { RoundFormat } from "@wca/helpers";
+import type { EventId, Stage } from "./types";
 import { colors } from "@mui/material";
 
 export const SHORT_EVENT_NAMES = {
