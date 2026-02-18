@@ -1,5 +1,4 @@
-import { RoundFormat } from "@wca/helpers";
-import type { EventId, Stage } from "./types";
+import type { EventId, Stage, RoundFormat } from "./types";
 import { colors } from "@mui/material";
 
 export const SHORT_EVENT_NAMES = {
@@ -152,7 +151,7 @@ export const ROUND_FORMAT: Record<EventId, RoundFormat> = {
   "555": "a",
   "666": "m",
   "777": "m",
-  "333bf": "3",
+  "333bf": "5",
   "333fm": "1",
   "333oh": "a",
   clock: "a",

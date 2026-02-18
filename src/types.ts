@@ -1,4 +1,15 @@
-import { EventId } from "@wca/helpers";
+import { 
+  EventId, 
+  RoundFormat as WcaRoundFormat,
+  TimeLimit as WcaTimeLimit,
+  Cutoff as WcaCutoff,
+  AdvancementCondition as WcaAdvancementCondition,
+  Result as WcaResult,
+  ScrambleSet as WcaScrambleSet
+} from "@wca/helpers";
+
+// Extend WCA RoundFormat to include "5" for Best of 5 (WCIF v1.1)
+export type RoundFormat = WcaRoundFormat | "5";
 
 export const EVENT_IDS: Array<EventId> = [
   "333",
@@ -98,13 +109,57 @@ export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
 // to denote project-specific types from the WCA's types
 export type {
   EventId,
-  Round as WcifRound,
-  Competition as Wcif,
-  Event as WcifEvent,
   Schedule as WcifSchedule,
   Room as WcifRoom,
   Person as WcifPerson,
 } from "@wca/helpers";
+
+// Extension interface (not exported from @wca/helpers)
+interface Extension {
+  id: string;
+  specUrl: string;
+  data: object;
+}
+
+// ActivityCode type (not exported from @wca/helpers, but used in Round)
+type ActivityCode = string;
+
+// Extended Round type that supports the new "5" format (Best of 5)
+export interface WcifRound {
+  id: ActivityCode;
+  format: RoundFormat;
+  timeLimit: WcaTimeLimit | null;
+  cutoff: WcaCutoff | null;
+  advancementCondition: WcaAdvancementCondition | null;
+  results: WcaResult[];
+  scrambleSetCount?: number;
+  scrambleSets?: WcaScrambleSet[];
+  extensions: Extension[];
+}
+
+// Extended Event type that uses our extended WcifRound
+export interface WcifEvent {
+  id: EventId;
+  rounds: WcifRound[];
+  competitorLimit?: number | null;
+  qualification?: import("@wca/helpers").Qualification | null;
+  extensions: Extension[];
+}
+
+// Extended Competition (Wcif) type that uses our extended WcifEvent
+export interface Wcif {
+  formatVersion: string;
+  id: string;
+  name: string;
+  shortName: string;
+  persons: import("@wca/helpers").Person[];
+  events: WcifEvent[];
+  schedule: import("@wca/helpers").Schedule;
+  series: import("@wca/helpers").Series[];
+  competitorLimit: number | null;
+  extensions: Extension[];
+  registrationInfo: import("@wca/helpers").RegistrationInfo;
+}
 
 export type Stage = "Red" | "Blue" | "Green " | "Orange" | "Purple";
 
