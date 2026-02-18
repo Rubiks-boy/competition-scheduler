@@ -1,18 +1,4 @@
-import type {
-  Competition as WcaCompetition,
-  Event as WcaEvent,
-  EventId,
-  Round as WcaRound,
-  RoundFormat as WcaRoundFormat,
-} from "@wca/helpers";
-
-// Extend WCA RoundFormat to include "5" for Best of 5 (WCIF v1.1)
-export type RoundFormat = WcaRoundFormat | "5";
-
-// Minimal overrides so WCIF types accept the new format code.
-export type WcifRound = Omit<WcaRound, "format"> & { format: RoundFormat };
-export type WcifEvent = Omit<WcaEvent, "rounds"> & { rounds: WcifRound[] };
-export type Wcif = Omit<WcaCompetition, "events"> & { events: WcifEvent[] };
+import type { EventId, RoundFormat } from "@wca/helpers";
 
 export const EVENT_IDS: Array<EventId> = [
   "333",
@@ -112,6 +98,10 @@ export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
 // to denote project-specific types from the WCA's types
 export type {
   EventId,
+  RoundFormat,
+  Round as WcifRound,
+  Competition as Wcif,
+  Event as WcifEvent,
   Schedule as WcifSchedule,
   Room as WcifRoom,
   Person as WcifPerson,
