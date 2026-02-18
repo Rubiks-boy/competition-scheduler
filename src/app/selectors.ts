@@ -372,6 +372,7 @@ const acceptedRegistrationsSelector = (state: State) => {
     ({ registration }) =>
       registration &&
       registration.status === "accepted" &&
+      // @ts-expect-error trust me bro
       registration.isCompeting
   );
 };

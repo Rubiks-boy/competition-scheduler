@@ -1,4 +1,4 @@
-import type { EventId, RoundFormat } from "@wca/helpers";
+import { EventId } from "@wca/helpers";
 
 export const EVENT_IDS: Array<EventId> = [
   "333",
@@ -68,9 +68,7 @@ export type OtherActivity =
   | "checkin"
   | "lunch"
   | "tutorial"
-  | "awards"
-  | "doorsOpen"
-  | "doorsClose";
+  | "awards";
 
 export type ScheduleEntry =
   | { type: "event"; eventId: EventId; roundNum: number }
@@ -98,7 +96,6 @@ export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
 // to denote project-specific types from the WCA's types
 export type {
   EventId,
-  RoundFormat,
   Round as WcifRound,
   Competition as Wcif,
   Event as WcifEvent,
