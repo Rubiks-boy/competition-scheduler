@@ -5,6 +5,7 @@ import {
   Cutoff,
   parseActivityCode,
   Room,
+  RoundFormat,
   TimeLimit,
   Venue,
 } from "@wca/helpers";
@@ -17,7 +18,6 @@ import {
   ONE_DAY_MS,
   ACTIVITY_NAMES,
 } from "../constants";
-import type { RoundFormat } from "../types";
 import {
   CustomStage,
   DayDivider,
