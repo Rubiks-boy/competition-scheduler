@@ -59,7 +59,7 @@ export const DEFAULT_TIME_PER_GROUP = {
   "555": 30,
   "666": 30,
   "777": 30,
-  "333bf": 22.5,
+  "333bf": 25,
   "333fm": 0,
   "333oh": 20,
   clock: 25,
