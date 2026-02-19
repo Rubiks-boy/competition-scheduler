@@ -1030,7 +1030,7 @@ const createChildActivities = ({
 const createWcifRoom = ({
   scheduleWithTimes,
   originalWcifRoom,
-  startingId = 1,
+  getNextId,
   stationsPerRoom,
   events,
   numStages,
@@ -1038,15 +1038,12 @@ const createWcifRoom = ({
 }: {
   scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
-  startingId: number;
+  getNextId: () => number;
   stationsPerRoom: number;
   events: Events;
   numStages: number;
   stageIndex: number;
 }) => {
-  let nextId = startingId;
-  const getNextId = () => nextId++;
-
   const groupifierRoomConfig = {
     id: "groupifier.RoomConfig",
     specUrl:
@@ -1129,6 +1126,19 @@ const createWcifRoom = ({
   };
 };
 
+const getMaxActivityId = (wcifSchedule: WcifSchedule) => {
+  const rooms = wcifSchedule.venues?.flatMap((venue) => venue.rooms) || [];
+  const activities = rooms.flatMap((room) => room.activities);
+
+  return activities.reduce((maxId, activity) => {
+    const maxChildId = (activity.childActivities || []).reduce(
+      (currMax, childActivity) => Math.max(currMax, childActivity.id),
+      maxId
+    );
+    return Math.max(maxChildId, activity.id);
+  }, 0);
+};
+
 export const createWcifSchedule = ({
   schedule,
   startTimes,
@@ -1193,6 +1203,8 @@ export const createWcifSchedule = ({
     events,
     otherActivities
   );
+  let nextActivityId = getMaxActivityId(originalWcifSchedule) + 1;
+  const getNextActivityId = () => nextActivityId++;
 
   return {
     ...originalWcifSchedule,
@@ -1208,7 +1220,7 @@ export const createWcifSchedule = ({
           createWcifRoom({
             scheduleWithTimes,
             originalWcifRoom,
-            startingId: idx * 10000,
+            getNextId: getNextActivityId,
             stationsPerRoom: Math.floor(numStations / venueRooms.length),
             events,
             numStages: venueRooms.length,
