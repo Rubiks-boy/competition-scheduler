@@ -67,5 +67,6 @@ export const saveWcifChanges = (
     (key) => previousWcif[key] !== newWcif[key]
   );
   if (keysDiff.length === 0) return Promise.resolve();
-  return updateWcif(newWcif.id, pick(newWcif, keysDiff), wcaAccessToken);
+  const keysForPatch = ["formatVersion", ...keysDiff];
+  return updateWcif(newWcif.id, pick(newWcif, keysForPatch), wcaAccessToken);
 };
