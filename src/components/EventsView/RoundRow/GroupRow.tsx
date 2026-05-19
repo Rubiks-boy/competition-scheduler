@@ -12,6 +12,7 @@ import {
   getGroupNameSelector,
   numStationsSelector,
   speedSeletor,
+  isStationaryCompetitionSelector,
 } from "../../../app/selectors";
 import { Close } from "@mui/icons-material";
 
@@ -31,6 +32,7 @@ export const GroupRow = ({
   const { secondaryEvent, numMainCompetitors, scheduledTime } = group;
 
   const speedOffset = useSelector(speedSeletor);
+  const isStationaryCompetition = useSelector(isStationaryCompetitionSelector);
   const numStations = useSelector(numStationsSelector);
   const getGroupName = useSelector(getGroupNameSelector);
   const mainGroupName = getGroupName({
@@ -53,9 +55,21 @@ export const GroupRow = ({
       })
     : "";
 
-  const calculatedMainTime = calcTimeForRound(eventId, 1, false, speedOffset);
+  const calculatedMainTime = calcTimeForRound(
+    eventId,
+    1,
+    false,
+    speedOffset,
+    isStationaryCompetition
+  );
   const calculatedSecondaryTime = secondaryEvent
-    ? calcTimeForRound(secondaryEvent.eventId, 1, false, speedOffset)
+    ? calcTimeForRound(
+        secondaryEvent.eventId,
+        1,
+        false,
+        speedOffset,
+        isStationaryCompetition
+      )
     : 0;
   const calculatedTime = Math.max(calculatedMainTime, calculatedSecondaryTime);
 

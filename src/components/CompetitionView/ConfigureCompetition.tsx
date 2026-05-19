@@ -1,5 +1,11 @@
 import { Info, CheckCircle, Error } from "@mui/icons-material";
-import { Grid, InputAdornment, Tooltip } from "@mui/material";
+import {
+  Grid,
+  InputAdornment,
+  Tooltip,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitorLimitRawSelector,
@@ -7,6 +13,7 @@ import {
   numStationsRawSelector,
   startTimesSelector,
   numCompetitorsRegisteredSelector,
+  isStationaryCompetitionSelector,
 } from "../../app/selectors";
 import { NumberTextField } from "../NumberTextField";
 import { TimePicker } from "../TimePicker";
@@ -19,6 +26,7 @@ export const ConfigureCompetition = () => {
   const numStations = useSelector(numStationsRawSelector);
   const numberOfDays = useSelector(numberOfDaysRawSelector);
   const startTimes = useSelector(startTimesSelector);
+  const isStationaryCompetition = useSelector(isStationaryCompetitionSelector);
   const competitorsPerStation =
     parseInt(competitorLimit) / parseInt(numStations);
   const numRegistered = useSelector(numCompetitorsRegisteredSelector);
@@ -58,6 +66,15 @@ export const ConfigureCompetition = () => {
     });
   };
 
+  const onStationaryCompetitionChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    dispatch({
+      type: "STATIONARY_COMPETITION_CHANGED",
+      isStationaryCompetition: e.target.checked,
+    });
+  };
+
   let compLimitTooltipIcon;
   if (numRegistered > parseInt(competitorLimit)) {
     compLimitTooltipIcon = <Error color="info" fontSize="small" />;
@@ -91,6 +108,28 @@ export const ConfigureCompetition = () => {
           }}
         />
       </Grid>
+      <Grid item xs={12} sm={8} md={3}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isStationaryCompetition}
+              onChange={onStationaryCompetitionChange}
+            />
+          }
+          label={
+            <span>
+              Use Stationary{" "}
+              <Tooltip title="Station count will be approximately 20% of competitor limit.">
+                <Info
+                  color="info"
+                  fontSize="small"
+                  style={{ verticalAlign: "middle" }}
+                />
+              </Tooltip>
+            </span>
+          }
+        />
+      </Grid>
       <Grid item xs={6} sm={4} md={2}>
         <NumberTextField
           fullWidth
@@ -101,6 +140,7 @@ export const ConfigureCompetition = () => {
             endAdornment: (
               <NumStationsTooltip
                 competitorsPerStation={competitorsPerStation}
+                useStationary={isStationaryCompetition}
               />
             ),
           }}

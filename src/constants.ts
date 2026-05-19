@@ -77,6 +77,31 @@ export const DEFAULT_TIME_PER_GROUP = {
   "333ft": 0,
 };
 
+export const DEFAULT_TIME_PER_GROUP_STATIONARY = {
+  "333": 18,
+  "222": 15,
+  "444": 22,
+  "555": 27,
+  "666": 27,
+  "777": 27,
+  "333bf": 22.5,
+  "333fm": 0,
+  "333oh": 16,
+  clock: 18,
+  pyram: 15,
+  minx: 30,
+  skewb: 15,
+  sq1: 20,
+  "444bf": 0,
+  "555bf": 0,
+  "333mbf": 0,
+  // Deprecated events
+  magic: 0,
+  mmagic: 0,
+  "333mbo": 0,
+  "333ft": 0,
+};
+
 export const HISTORICAL_PNW_REGISTRATION = {
   // Pulled from PNW registration data 9/22-9/23
   "333": 0.978,
