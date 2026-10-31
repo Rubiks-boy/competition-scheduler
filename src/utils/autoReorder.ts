@@ -22,35 +22,23 @@ const sortEventsInRound = (roundNum: number, schedule: Schedule): Schedule => {
 };
 
 export const autoReorder = (schedule: Schedule): Schedule => {
-  const findActivity = (activity: OtherActivity, index?: number) => {
-    const scheduleEntry = schedule.find((scheduleEntry) => {
-      if (scheduleEntry.type !== "other") {
-        return false;
-      }
-
-      if (
-        scheduleEntry.eventId === "lunch" &&
-        activity === "lunch" &&
-        !!index
-      ) {
-        return scheduleEntry.index === index;
-      }
-
-      return scheduleEntry.eventId === activity;
-    });
-
-    return scheduleEntry ? [scheduleEntry] : [];
-  };
+  const findActivities = (activity: OtherActivity, index?: number) =>
+    schedule.filter(
+      (scheduleEntry) =>
+        scheduleEntry.type === "other" &&
+        scheduleEntry.eventId === activity &&
+        (index === undefined || scheduleEntry.index === index)
+    );
 
   const reorderedSchedule: Schedule = [
-    ...findActivity("doorsOpen"),
-    ...findActivity("registration"),
-    ...findActivity("checkin"),
-    ...findActivity("tutorial"),
+    ...findActivities("doorsOpen"),
+    ...findActivities("registration"),
+    ...findActivities("checkin"),
+    ...findActivities("tutorial"),
     ...sortEventsInRound(0, schedule),
     ...[1, 2, 3].flatMap((i) => sortEventsInRound(i, schedule)),
-    ...findActivity("awards"),
-    ...findActivity("doorsClose"),
+    ...findActivities("awards"),
+    ...findActivities("doorsClose"),
   ];
 
   const numActivities = reorderedSchedule.length;
@@ -72,7 +60,7 @@ export const autoReorder = (schedule: Schedule): Schedule => {
     reorderedSchedule.splice(
       dividerLoc + Math.floor(activitiesPerDay / 2),
       0,
-      ...findActivity("lunch", dayIndex)
+      ...findActivities("lunch", dayIndex)
     );
     reorderedSchedule.splice(dividerLoc, 0, {
       type: "day-divider",
