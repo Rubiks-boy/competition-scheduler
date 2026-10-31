@@ -1374,7 +1374,8 @@ export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
 
   const numOtherActivities = {} as Record<OtherActivity, string>;
   OTHER_ACTIVITES.forEach((activity) => {
-    numOtherActivities[activity] = "0";
+    numOtherActivities[activity] =
+      activity === "doorsOpen" && !allActivities?.length ? "1" : "0";
 
     if (defaultActivities) {
       const numDefault = defaultActivities.filter(

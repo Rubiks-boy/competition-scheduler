@@ -19,7 +19,7 @@ export const initialState: State = {
   events: makeDefaultEvents(),
   dualRounds: {},
   competitionStyle: "standard",
-  schedule: [],
+  schedule: [{ type: "other", eventId: "doorsOpen", index: 0 }],
   otherActivities: {
     registration: "30",
     checkin: "30",
