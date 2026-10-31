@@ -628,6 +628,16 @@ export const getMainEventStartAndEndTimes = (wcifSchedule: WcifSchedule) => {
   return { startAndEndTimes, overlappingChildActivities };
 };
 
+const getOtherActivityCode = (activity?: string) =>
+  activity === "doorsOpen" || activity === "doorsClose"
+    ? `other-misc-${activity}`
+    : `other-${activity}`;
+
+const matchesOtherActivityCode = (activityCode: string, activity?: string) =>
+  [getOtherActivityCode(activity), `other-${activity}`].some(
+    (code) => activityCode === code || activityCode.startsWith(`${code}-`)
+  );
+
 export const findMatchingWcifActivities = ({
   wcifSchedule,
   type,
@@ -644,10 +654,12 @@ export const findMatchingWcifActivities = ({
   const activityCode =
     type === "event" && roundNum
       ? `${eventId}-r${roundNum}`
-      : `other-${eventId}`;
+      : getOtherActivityCode(eventId);
 
-  return allActivities.filter(
-    (activity) => activity.activityCode === activityCode
+  return allActivities.filter((activity) =>
+    type === "other"
+      ? matchesOtherActivityCode(activity.activityCode, eventId)
+      : activity.activityCode === activityCode
   );
 };
 
@@ -1130,10 +1142,12 @@ const createWcifRoom = ({
       const activityCode =
         type === "event"
           ? `${scheduleEntry.eventId}-r${scheduleEntry.roundNum + 1}`
-          : `other-${scheduleEntry.eventId}`;
+          : getOtherActivityCode(scheduleEntry.eventId);
 
-      const originalActivity = originalWcifRoom.activities.find(
-        (activity) => activity.activityCode === activityCode
+      const originalActivity = originalWcifRoom.activities.find((activity) =>
+        type === "other"
+          ? matchesOtherActivityCode(activity.activityCode, scheduleEntry.eventId)
+          : activity.activityCode === activityCode
       );
 
       const simulGroupsWithTimes =
@@ -1172,10 +1186,10 @@ const createWcifRoom = ({
                 scheduleEntry.type === "event"
                   ? activityCodeToName(activityCode)
                   : ACTIVITY_NAMES[scheduleEntry.eventId],
-              activityCode,
               scrambleSetId: null,
               extensions: [],
             }),
+        activityCode,
         id: getNextId(),
         startTime: new Date(minStartTime).toISOString(),
         endTime: new Date(maxEndTime).toISOString(),
@@ -1306,7 +1320,7 @@ export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
     if (defaultActivities) {
       const numDefault = defaultActivities.filter(
         ({ activityCode, startTime }, idx) =>
-          activityCode.startsWith(`other-${activity}`) &&
+          matchesOtherActivityCode(activityCode, activity) &&
           defaultActivities.findIndex((v) => v.startTime === startTime) === idx
       ).length;
 
@@ -1319,7 +1333,7 @@ export const getNumberOfActivities = (wcifSchedule: WcifSchedule) => {
     if (allActivities) {
       const hasActivity =
         allActivities.findIndex(({ activityCode }) =>
-          activityCode.startsWith(`other-${activity}`)
+          matchesOtherActivityCode(activityCode, activity)
         ) > -1;
       hasActivity && (numOtherActivities[activity] = "1");
     }
