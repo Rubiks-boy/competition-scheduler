@@ -68,7 +68,7 @@ export const getRoundSelector =
 
 export const addableEventIdsSelector = (state: State) => {
   const events = eventsSelector(state);
-  return EVENT_IDS.filter((eventId) => events[eventId] === null);
+  return EVENT_IDS.filter((eventId) => events[eventId] == null);
 };
 
 export const scheduleSelector = (state: State) => state.schedule;

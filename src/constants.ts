@@ -1,4 +1,4 @@
-import type { RoundFormat } from "@wca/helpers";
+import type { Cutoff, RoundFormat } from "@wca/helpers";
 import type { EventId, Stage } from "./types";
 import { colors } from "@mui/material";
 
@@ -20,6 +20,7 @@ export const SHORT_EVENT_NAMES = {
   "444bf": "4BLD",
   "555bf": "5BLD",
   "333mbf": "MBLD",
+  fto: "FTO",
   // Deprecated events
   magic: "magic",
   mmagic: "mmagic",
@@ -45,6 +46,7 @@ export const EVENT_NAMES = {
   "444bf": "4x4 Blindfolded",
   "555bf": "5x5 Blindfolded",
   "333mbf": "Multi-Blind",
+  fto: "Face-Turning Octahedron",
   // Deprecated events
   magic: "magic",
   mmagic: "mmagic",
@@ -59,7 +61,7 @@ export const DEFAULT_TIME_PER_GROUP = {
   "555": 30,
   "666": 30,
   "777": 30,
-  "333bf": 25,
+  "333bf": 30,
   "333fm": 0,
   "333oh": 20,
   clock: 25,
@@ -70,6 +72,7 @@ export const DEFAULT_TIME_PER_GROUP = {
   "444bf": 0,
   "555bf": 0,
   "333mbf": 0,
+  fto: 30,
   // Deprecated events
   magic: 0,
   mmagic: 0,
@@ -112,6 +115,8 @@ export const HISTORICAL_PNW_REGISTRATION = {
   "444bf": 0.106,
   "555bf": 0.089,
   "333mbf": 0.141,
+  // Initial FTO estimate until historical registration data is available.
+  fto: 0.4,
 
   // Deprecated events
   magic: 0,
@@ -138,6 +143,7 @@ export const IDEAL_COMPETITORS_PER_STATION = {
   "444bf": 9999,
   "555bf": 9999,
   "333mbf": 9999,
+  fto: 1.5,
   // Deprecated events
   magic: 0,
   mmagic: 0,
@@ -163,6 +169,7 @@ export const ROUND_FORMAT: Record<EventId, RoundFormat> = {
   "444bf": "3",
   "555bf": "3",
   "333mbf": "1",
+  fto: "a",
   // Deprecated events
   magic: "a",
   mmagic: "a",
@@ -212,6 +219,7 @@ export const IDEAL_EVENT_ORDERING: Array<EventId> = [
   "555",
   "333oh",
   "sq1",
+  "fto",
   "pyram",
   "skewb",
   "clock",
@@ -271,24 +279,25 @@ export const getColorForStage = (stage: Stage) => {
   );
 };
 
-export const DEFAULT_CUTOFFS = {
+export const DEFAULT_CUTOFFS: Record<EventId, Cutoff | null> = {
   "333": null,
   "222": null,
-  "444": { attemptResult: 9000, numberOfAttempts: 2 },
-  "555": { attemptResult: 15000, numberOfAttempts: 2 },
-  "666": { attemptResult: 25500, numberOfAttempts: 1 },
-  "777": { attemptResult: 36000, numberOfAttempts: 1 },
+  "444": { resultValue: 9000, numberOfAttempts: 2 },
+  "555": { resultValue: 15000, numberOfAttempts: 2 },
+  "666": { resultValue: 25500, numberOfAttempts: 1 },
+  "777": { resultValue: 36000, numberOfAttempts: 1 },
   "333bf": null,
   "333fm": null,
-  "333oh": { attemptResult: 4500, numberOfAttempts: 2 },
-  clock: { attemptResult: 3000, numberOfAttempts: 2 },
+  "333oh": { resultValue: 4500, numberOfAttempts: 2 },
+  clock: { resultValue: 3000, numberOfAttempts: 2 },
   pyram: null,
-  minx: { attemptResult: 15000, numberOfAttempts: 2 },
+  minx: { resultValue: 15000, numberOfAttempts: 2 },
   skewb: null,
-  sq1: { attemptResult: 4000, numberOfAttempts: 2 },
+  sq1: { resultValue: 4000, numberOfAttempts: 2 },
   "444bf": null,
   "555bf": null,
   "333mbf": null,
+  fto: { resultValue: 12000, numberOfAttempts: 2 },
   // Deprecated events
   magic: null,
   mmagic: null,
@@ -303,7 +312,7 @@ export const DEFAULT_TIME_LIMITS = {
   "555": { centiseconds: 39000, cumulativeRoundIds: [] },
   "666": { centiseconds: 60000, cumulativeRoundIds: [] },
   "777": { centiseconds: 60000, cumulativeRoundIds: [] },
-  "333bf": { centiseconds: 60000, cumulativeRoundIds: ["333bf-r1"] },
+  "333bf": { centiseconds: 90000, cumulativeRoundIds: ["333bf-r1"] },
   "333fm": null,
   "333oh": { centiseconds: 12000, cumulativeRoundIds: [] },
   clock: { centiseconds: 9000, cumulativeRoundIds: [] },
@@ -314,6 +323,7 @@ export const DEFAULT_TIME_LIMITS = {
   "444bf": null,
   "555bf": null,
   "333mbf": null,
+  fto: { centiseconds: 24000, cumulativeRoundIds: [] },
   // Deprecated events
   magic: null,
   mmagic: null,

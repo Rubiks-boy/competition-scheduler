@@ -1,4 +1,4 @@
-import { EventId } from "@wca/helpers";
+import type { EventId } from "@wca/helpers";
 
 export const EVENT_IDS: Array<EventId> = [
   "333",
@@ -18,6 +18,7 @@ export const EVENT_IDS: Array<EventId> = [
   "444bf",
   "555bf",
   "333mbf",
+  "fto",
   // Deprecated events
   // "magic",
   // "mmagic",
@@ -98,12 +99,12 @@ export type ScheduleWithTimes = Array<WithTime<ScheduleEntry | DayDivider>>;
 // to denote project-specific types from the WCA's types
 export type {
   EventId,
-  Round as WcifRound,
   Competition as Wcif,
   Event as WcifEvent,
+  Person as WcifPerson,
+  Round as WcifRound,
   Schedule as WcifSchedule,
   Room as WcifRoom,
-  Person as WcifPerson,
 } from "@wca/helpers";
 
 export type Stage = "Red" | "Blue" | "Green " | "Orange" | "Purple";

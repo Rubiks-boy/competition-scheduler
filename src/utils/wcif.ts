@@ -1,11 +1,12 @@
 import {
   Activity,
-  activityCodeToName,
-  AdvancementCondition,
+  activityCodeToName as wcaActivityCodeToName,
+  ParticipationRuleset,
   Cutoff,
   parseActivityCode,
   Room,
   RoundFormat,
+  ResultCondition,
   TimeLimit,
   Venue,
 } from "@wca/helpers";
@@ -17,6 +18,7 @@ import {
   OTHER_ACTIVITES,
   ONE_DAY_MS,
   ACTIVITY_NAMES,
+  EVENT_NAMES,
 } from "../constants";
 import {
   CustomStage,
@@ -57,26 +59,29 @@ import {
   splitEvenlyWithRounding,
 } from "./utils";
 
-const getAdvancementForRound = (
-  wcifRounds: Array<WcifRound>,
-  roundNum: number
-) => {
-  // ex. if roundNum is 2, will find the event with 'eventId-r2'
-  const round = wcifRounds.find(({ id }) => id.includes(`-r${roundNum}`));
-
-  if (
-    !round?.advancementCondition?.type ||
-    round.advancementCondition.type === "attemptResult"
-  ) {
-    // Attempt results-based advancements are currently not supported.
-    // Return a dummy value
-    return { level: 0, type: "ranking" };
+// @wca/helpers 2.0.0 includes FTO types but still lacks its display name.
+const activityCodeToName = (activityCode: string): string => {
+  if (activityCode.split("-")[0] !== "fto") {
+    return wcaActivityCodeToName(activityCode);
   }
 
-  return {
-    level: round.advancementCondition.level,
-    type: round.advancementCondition.type,
-  };
+  const { roundNumber, groupNumber, attemptNumber } =
+    parseActivityCode(activityCode);
+  return [
+    EVENT_NAMES.fto,
+    roundNumber && `Round ${roundNumber}`,
+    groupNumber && `Group ${groupNumber}`,
+    attemptNumber && `Attempt ${attemptNumber}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+};
+
+const getParticipationCondition = (round: WcifRound) => {
+  const source = round.participationRuleset?.participationSource;
+  return source && source.type !== "registrations"
+    ? source.resultCondition
+    : null;
 };
 
 const wcifActivityToGroups = (
@@ -242,26 +247,43 @@ const wcifRoundsToEventRounds = (
 ): { rounds: Array<Round>; numCompetitorsPerRound: Array<number> } => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
-  wcifRounds.forEach(({ extensions }, roundIndex) => {
+  wcifRounds.forEach((wcifRound, roundIndex) => {
+    const { extensions } = wcifRound;
     const roundNum = roundIndex + 1;
 
     const extension = extensions.find(
       ({ id }) => id === "competitionScheduler.RoundConfig"
     ) as RoundExtension | undefined;
 
-    const { level, type } = getAdvancementForRound(wcifRounds, roundNum - 1);
+    const source = wcifRound.participationRuleset?.participationSource;
+    const condition = getParticipationCondition(wcifRound);
+    // Percentage inputs in the scheduler refer to the immediately preceding round.
+    const usesPreviousRound =
+      source?.type === "round" &&
+      source.roundId === wcifRounds[roundIndex - 1]?.id;
+    const isPercent = condition?.type === "percent" && usesPreviousRound;
+    const isRegistrationRound =
+      roundNum === 1 || source?.type === "registrations";
 
     let numCompetitors: number;
-    if (type === "percent") {
+    if (isPercent && condition?.type === "percent") {
       numCompetitors = Math.floor(
-        (numCompetitorsPerRound[roundIndex - 1] * level) / 100
+        (numCompetitorsPerRound[roundIndex - 1] * condition.value) / 100
       );
-    } else if (extension?.data.expectedRegistrations) {
+    } else if (extension?.data.expectedRegistrations != null) {
       numCompetitors = extension?.data.expectedRegistrations;
-    } else if (roundNum === 1) {
+    } else if (isRegistrationRound) {
       numCompetitors = calcExpectedNumCompetitors(eventId, competitorLimit);
+    } else if (condition?.type === "ranking") {
+      numCompetitors = condition.value;
+    } else if (condition?.type === "percent" && source?.type === "round") {
+      const sourceIndex = wcifRounds.findIndex(({ id }) => id === source.roundId);
+      numCompetitors = Math.floor(
+        ((numCompetitorsPerRound[sourceIndex] ?? 0) * condition.value) / 100
+      );
     } else {
-      numCompetitors = level;
+      // Result-based and linked-round estimates can be supplied by our extension.
+      numCompetitors = wcifRound.results.length;
     }
 
     const simulGroupsWithOtherEvents: string[] = [];
@@ -331,7 +353,7 @@ const wcifRoundsToEventRounds = (
         type: "aggregate",
         eventId,
         totalNumCompetitors:
-          type === "percent" ? `${level}%` : numCompetitors.toString(),
+          isPercent ? `${condition?.value}%` : numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: scheduledTime.toString(),
       };
@@ -795,13 +817,14 @@ const getDefaultWcifRound = (
   eventId: EventId,
   roundNum: number,
   format: RoundFormat
-) => {
+): WcifRound => {
   return {
     id: `${eventId}-r${roundNum}`,
     format,
     timeLimit: getDefaultTimeLimit(eventId, roundNum),
     cutoff: getDefaultCutoff(eventId, roundNum),
-    advancementCondition: null,
+    linkedRounds: null,
+    participationRuleset: null,
     results: [],
     extensions: [],
   };
@@ -826,19 +849,55 @@ const createWcifEvent = (
     ...getDefaultWcifEvent(eventId),
     ...originalWcifEvent,
     rounds: rounds.map((round, index) => {
-      let advancementCondition: AdvancementCondition | null = null;
-      const nextRound = rounds[index + 1];
-      if (nextRound) {
-        const { value, isPercent } = getNumCompetitorsValue(nextRound);
-        advancementCondition = {
-          type: isPercent ? "percent" : "ranking",
-          level: value,
-        };
-      }
-
       const originalRound = originalWcifEvent?.rounds.find(
         ({ id }) => id === `${eventId}-r${index + 1}`
       );
+      const originalRuleset = originalRound?.participationRuleset;
+      const originalSource = originalRuleset?.participationSource;
+      const previousRoundId = `${eventId}-r${index}`;
+      let participationRuleset: ParticipationRuleset | null =
+        originalRuleset ?? null;
+
+      // Preserve rules the scheduler cannot edit, including dual rounds,
+      // result thresholds, and rounds drawing entrants directly from registrations.
+      const condition = originalRound && getParticipationCondition(originalRound);
+      const canUpdateCondition =
+        !originalRound || (
+          originalSource?.type === "round" &&
+          originalSource.roundId === previousRoundId &&
+          (condition?.type === "ranking" || condition?.type === "percent")
+        );
+      if (canUpdateCondition) {
+        if (index === 0) {
+          participationRuleset = {
+            participationSource: { type: "registrations" },
+            reservedPlaces: originalRuleset?.reservedPlaces ?? null,
+          };
+        } else {
+          const { value, isPercent } = getNumCompetitorsValue(round);
+          const previousRound = originalWcifEvent?.rounds.find(
+            ({ id }) => id === previousRoundId
+          );
+          const previousFormat = previousRound?.format ?? ROUND_FORMAT[eventId];
+          const resultCondition: ResultCondition = {
+            type: isPercent ? "percent" : "ranking",
+            scope: condition?.scope ??
+              (previousFormat === "a" || previousFormat === "m" ? "average" : "single"),
+            value: round.type === "aggregate"
+              ? value : numCompetitorsPerRound[index],
+          };
+          participationRuleset = {
+            participationSource: previousRound?.linkedRounds?.length
+              ? {
+                  type: "linkedRounds",
+                  roundIds: previousRound.linkedRounds,
+                  resultCondition,
+                }
+              : { type: "round", roundId: previousRoundId, resultCondition },
+            reservedPlaces: originalRuleset?.reservedPlaces ?? null,
+          };
+        }
+      }
 
       const numGroups =
         round.type === "groups"
@@ -877,7 +936,7 @@ const createWcifEvent = (
       return {
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
-        advancementCondition,
+        participationRuleset,
         ...(numGroups && {
           scrambleSetCount: numGroups + numSimulGroups + 1,
         }),

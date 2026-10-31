@@ -43,7 +43,10 @@ export const fetchWcif = (
   competitionId: string,
   wcaAccessToken: string
 ): Promise<Wcif> => {
-  return wcaApiFetch(`/competitions/${competitionId}/wcif`, wcaAccessToken);
+  return wcaApiFetch(
+    `/competitions/${competitionId}/wcif/version/2.2`,
+    wcaAccessToken
+  );
 };
 
 const updateWcif = (
