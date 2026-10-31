@@ -112,28 +112,28 @@ export const eventsToSecondaryEvents = (events: Events) => {
 
 export const calcNumCompetitorsPerRound = (
   rounds: Array<Round>,
-  events: Events
+  events: Events,
+  dualRounds: boolean = false
 ) => {
   const numCompetitorsValue = rounds.map(getNumCompetitorsValue);
 
-  // Non-simul
-  const numCompetitorsPerRound: Array<number> = [];
-  numCompetitorsValue.forEach(({ isPercent, value }, roundNum) => {
-    const numCopetitorsInt = isPercent
-      ? Math.floor((numCompetitorsPerRound[roundNum - 1] * value) / 100)
-      : value;
-
-    numCompetitorsPerRound.push(numCopetitorsInt);
-  });
-
-  // Simul case
   const secondaryEvents = eventsToSecondaryEvents(events);
-  secondaryEvents.forEach((secondaryEvent) => {
-    if (rounds[0] && secondaryEvent.eventId === rounds[0].eventId) {
-      const { roundIndex } = secondaryEvent;
-      numCompetitorsPerRound[roundIndex] +=
-        parseInt(secondaryEvent.numCompetitors) || 0;
+  const numCompetitorsPerRound: Array<number> = [];
+  numCompetitorsValue.forEach(({ isPercent, value }, roundIndex) => {
+    // Both halves of a dual round draw from the same pool, counted only once.
+    const sourceIndex = dualRounds && roundIndex === 2 ? 0 : roundIndex - 1;
+    let numCompetitors = isPercent
+      ? Math.floor((numCompetitorsPerRound[sourceIndex] * value) / 100)
+      : value;
+    if (dualRounds && roundIndex === 1) {
+      numCompetitors = numCompetitorsPerRound[0];
+    } else {
+      numCompetitors += secondaryEvents
+        .filter(secondary => secondary.eventId === rounds[roundIndex].eventId &&
+          secondary.roundIndex === roundIndex)
+        .reduce((total, secondary) => total + (parseInt(secondary.numCompetitors) || 0), 0);
     }
+    numCompetitorsPerRound.push(numCompetitors);
   });
 
   return numCompetitorsPerRound;

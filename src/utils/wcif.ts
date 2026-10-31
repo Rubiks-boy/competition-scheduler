@@ -22,6 +22,8 @@ import {
 } from "../constants";
 import {
   CustomStage,
+  DualRoundConfig,
+  DualRounds,
   DayDivider,
   EventId,
   Events,
@@ -43,6 +45,7 @@ import {
   SecondaryEvent,
   GroupExtension,
 } from "../types";
+import { getDualRoundsFromWcif, hasDualRounds } from "./dualRounds";
 import {
   calcExpectedNumCompetitors,
   calcNumGroups,
@@ -247,6 +250,9 @@ const wcifRoundsToEventRounds = (
 ): { rounds: Array<Round>; numCompetitorsPerRound: Array<number> } => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
+  const dual = getDualRoundsFromWcif([
+    { id: eventId, rounds: wcifRounds, extensions: [] },
+  ])[eventId]?.enabled;
   wcifRounds.forEach((wcifRound, roundIndex) => {
     const { extensions } = wcifRound;
     const roundNum = roundIndex + 1;
@@ -261,14 +267,18 @@ const wcifRoundsToEventRounds = (
     const usesPreviousRound =
       source?.type === "round" &&
       source.roundId === wcifRounds[roundIndex - 1]?.id;
-    const isPercent = condition?.type === "percent" && usesPreviousRound;
+    const usesDualPool = dual && roundIndex === 2 && source?.type === "linkedRounds" &&
+      [`${eventId}-r1`, `${eventId}-r2`].every(id => source.roundIds.includes(id));
+    const isPercent = condition?.type === "percent" && (usesPreviousRound || usesDualPool);
     const isRegistrationRound =
       roundNum === 1 || source?.type === "registrations";
 
     let numCompetitors: number;
-    if (isPercent && condition?.type === "percent") {
+    if (dual && roundIndex === 1) {
+      numCompetitors = numCompetitorsPerRound[0];
+    } else if (isPercent && condition?.type === "percent") {
       numCompetitors = Math.floor(
-        (numCompetitorsPerRound[roundIndex - 1] * condition.value) / 100
+        (numCompetitorsPerRound[usesDualPool ? 0 : roundIndex - 1] * condition.value) / 100
       );
     } else if (extension?.data.expectedRegistrations != null) {
       numCompetitors = extension?.data.expectedRegistrations;
@@ -353,7 +363,8 @@ const wcifRoundsToEventRounds = (
         type: "aggregate",
         eventId,
         totalNumCompetitors:
-          isPercent ? `${condition?.value}%` : numCompetitors.toString(),
+          dual && roundIndex === 1 ? "100%" :
+            isPercent ? `${condition?.value}%` : numCompetitors.toString(),
         numGroups: numGroups.toString(),
         scheduledTime: scheduledTime.toString(),
       };
@@ -803,8 +814,8 @@ const getDefaultTimeLimit = (
     return defaultTimeLimit;
   }
 
-  if (eventId === "333bf") {
-    return defaultTimeLimit;
+  if (eventId === "333bf" && defaultTimeLimit) {
+    return { ...defaultTimeLimit, cumulativeRoundIds: [`${eventId}-r${roundNum}`] };
   }
 
   // For all events with a time limit in the first round,
@@ -845,14 +856,22 @@ const getDefaultWcifRound = (
 const createWcifEvent = (
   eventId: EventId,
   events: Events,
-  originalWcifEvent: WcifEvent | undefined
+  originalWcifEvent: WcifEvent | undefined,
+  dualRoundConfig?: DualRoundConfig
 ): WcifEvent | null => {
   const rounds = events[eventId];
   if (!rounds || !rounds.length) {
     return null;
   }
 
-  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds, events);
+  const originalDualConfig = getDualRoundsFromWcif(originalWcifEvent ? [originalWcifEvent] : [])[eventId];
+  const wasDual = !!originalDualConfig?.enabled;
+  const config = dualRoundConfig ?? originalDualConfig;
+  const dual = hasDualRounds(rounds, config?.enabled);
+  const pairIds = [`${eventId}-r1`, `${eventId}-r2`];
+  const firstRound = originalWcifEvent?.rounds.find(({ id }) => id === pairIds[0]) ??
+    getDefaultWcifRound(eventId, 1, ROUND_FORMAT[eventId]);
+  const numCompetitorsPerRound = calcNumCompetitorsPerRound(rounds, events, dual);
   const allRounds = Object.values(events).flatMap((rounds) =>
     rounds ? rounds : []
   );
@@ -870,43 +889,52 @@ const createWcifEvent = (
       let participationRuleset: ParticipationRuleset | null =
         originalRuleset ?? null;
 
-      // Preserve rules the scheduler cannot edit, including dual rounds,
-      // result thresholds, and rounds drawing entrants directly from registrations.
       const condition = originalRound && getParticipationCondition(originalRound);
-      const canUpdateCondition =
-        !originalRound || (
+      const canUpdateCondition = !originalRound ||
+        (dual && index < 3) || (wasDual && index < 3) || (
           originalSource?.type === "round" &&
           originalSource.roundId === previousRoundId &&
           (condition?.type === "ranking" || condition?.type === "percent")
         );
       if (canUpdateCondition) {
-        if (index === 0) {
+        if (index === 0 || (dual && index === 1)) {
           participationRuleset = {
             participationSource: { type: "registrations" },
             reservedPlaces: originalRuleset?.reservedPlaces ?? null,
           };
         } else {
           const { value, isPercent } = getNumCompetitorsValue(round);
-          const previousRound = originalWcifEvent?.rounds.find(
+          const previousFormat = originalWcifEvent?.rounds.find(
             ({ id }) => id === previousRoundId
-          );
-          const previousFormat = previousRound?.format ?? ROUND_FORMAT[eventId];
-          const resultCondition: ResultCondition = {
-            type: isPercent ? "percent" : "ranking",
-            scope: condition?.scope ??
-              (previousFormat === "a" || previousFormat === "m" ? "average" : "single"),
-            value: round.type === "aggregate"
-              ? value : numCompetitorsPerRound[index],
-          };
+          )?.format ?? ROUND_FORMAT[eventId];
+          // Preserve result thresholds; the scheduler edits counts and percentages.
+          const resultCondition: ResultCondition = condition?.type === "resultAchieved"
+            ? condition : {
+                type: isPercent ? "percent" : "ranking",
+                scope: condition?.scope ??
+                  (previousFormat === "a" || previousFormat === "m" ? "average" : "single"),
+                value: round.type === "aggregate" ? value : numCompetitorsPerRound[index],
+              };
           participationRuleset = {
-            participationSource: previousRound?.linkedRounds?.length
-              ? {
-                  type: "linkedRounds",
-                  roundIds: previousRound.linkedRounds,
-                  resultCondition,
-                }
+            participationSource: dual && index === 2
+              ? { type: "linkedRounds", roundIds: pairIds, resultCondition }
               : { type: "round", roundId: previousRoundId, resultCondition },
             reservedPlaces: originalRuleset?.reservedPlaces ?? null,
+          };
+        }
+      }
+
+      let timeLimit = originalRound ? originalRound.timeLimit : getDefaultTimeLimit(eventId, index + 1);
+      if (index < 2 && (dual || wasDual)) {
+        timeLimit = dual ? firstRound.timeLimit : timeLimit;
+        if (timeLimit?.cumulativeRoundIds.some(id => pairIds.includes(id))) {
+          const otherRounds = timeLimit.cumulativeRoundIds.filter(id => !pairIds.includes(id));
+          timeLimit = {
+            ...timeLimit,
+            cumulativeRoundIds: [
+              ...otherRounds,
+              ...(dual && config?.sharedCumulativeTimeLimit ? pairIds : [pairIds[index]]),
+            ],
           };
         }
       }
@@ -949,6 +977,14 @@ const createWcifEvent = (
         ...getDefaultWcifRound(eventId, index + 1, ROUND_FORMAT[eventId]),
         ...originalRound,
         participationRuleset,
+        linkedRounds: index < 2 && (dual || wasDual)
+          ? dual ? pairIds : null
+          : originalRound?.linkedRounds ?? null,
+        ...(index < 2 && dual && {
+          format: firstRound.format,
+          cutoff: firstRound.cutoff,
+        }),
+        timeLimit,
         ...(numGroups && {
           scrambleSetCount: numGroups + numSimulGroups + 1,
         }),
@@ -960,7 +996,8 @@ const createWcifEvent = (
 
 export const createWcifEvents = (
   events: Events,
-  originalWcifEvents: Array<WcifEvent>
+  originalWcifEvents: Array<WcifEvent>,
+  dualRounds: DualRounds = getDualRoundsFromWcif(originalWcifEvents)
 ): Array<WcifEvent> => {
   const wcifEvents: Array<WcifEvent> = [];
   Object.keys(events).forEach((eventId) => {
@@ -971,7 +1008,8 @@ export const createWcifEvents = (
     const newWcifEvent = createWcifEvent(
       eventId as EventId,
       events,
-      originalWcifEvent
+      originalWcifEvent,
+      dualRounds[eventId as EventId]
     );
 
     newWcifEvent && wcifEvents.push(newWcifEvent);

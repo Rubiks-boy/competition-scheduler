@@ -1,3 +1,4 @@
+import { getDualRoundsFromWcif } from "../../utils/dualRounds";
 import type { Reducer, State } from "../types";
 
 export const appReducer: Reducer = (state, action) => {
@@ -26,6 +27,10 @@ export const appReducer: Reducer = (state, action) => {
         otherActivities: appState.otherActivities,
         venueName: appState.venueName,
         stages: appState.stages,
+
+        dualRounds: appState.dualRounds ?? getDualRoundsFromWcif(
+          state.wcif?.id === appState.selectedCompId ? state.wcif.events : []
+        ),
 
         // From ShareableState
         speedSlider: appState.speedSlider ?? 0,

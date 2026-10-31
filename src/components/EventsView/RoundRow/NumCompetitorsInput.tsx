@@ -10,6 +10,7 @@ export const NumCompetitorsInput = ({
   numRegistered,
   regDiffPercent,
   estimatedCompetitors,
+  disabled = false,
 }: {
   numCompetitors: string;
   roundIndex: number;
@@ -17,6 +18,7 @@ export const NumCompetitorsInput = ({
   numRegistered?: number;
   regDiffPercent?: number;
   estimatedCompetitors?: number;
+  disabled?: boolean;
 }) => {
   let endAdornment = null;
   if (!parseInt(numCompetitors)) {
@@ -63,6 +65,7 @@ export const NumCompetitorsInput = ({
       })}
     >
       <TextField
+        disabled={disabled}
         hiddenLabel
         size="small"
         value={numCompetitors}

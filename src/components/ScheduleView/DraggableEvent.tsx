@@ -21,6 +21,8 @@ import type {
 import { useSelector } from "../../app/hooks";
 import {
   getRoundSelector,
+  dualRoundsSelector,
+  eventsSelector,
   groupIndexSelector,
   showAdvancedSelector,
   getSimulGroupsForEventSelector,
@@ -102,12 +104,16 @@ export const DraggableEvent = ({
     )
   );
 
+  const dualRounds = useSelector(dualRoundsSelector);
+  const events = useSelector(eventsSelector);
   const roundNumStr =
     type === "event"
       ? ` ${getRoundNumStr(
           scheduleEntry.eventId,
           scheduleEntry.roundNum,
-          scheduleWithTimes
+          scheduleWithTimes,
+          dualRounds,
+          events
         )}`
       : "";
 

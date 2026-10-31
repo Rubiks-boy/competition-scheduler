@@ -38,6 +38,13 @@ export type Events = {
   [E in EventId]: Array<Round> | null;
 };
 
+export type DualRoundConfig = {
+  enabled: boolean;
+  sharedCumulativeTimeLimit: boolean;
+};
+
+export type DualRounds = Partial<Record<EventId, DualRoundConfig>>;
+
 export type SecondaryEvent = {
   eventId: EventId;
   roundIndex: number;

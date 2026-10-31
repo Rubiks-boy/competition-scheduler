@@ -1,3 +1,4 @@
+import { getDualRoundsFromWcif } from "../../utils/dualRounds";
 import { range } from "../../utils/utils";
 import {
   getDefaultEventsData,
@@ -82,6 +83,7 @@ export const fetchReducer: Reducer = (state, action) => {
           ...state,
           wcifPending: false,
           wcif,
+          dualRounds: { ...getDualRoundsFromWcif(wcif.events), ...state.dualRounds },
           startTimes: startTimes,
           // Fields below this point were added after import functionality was implemented
           // For backwards compatibility they also have to be able to fill in a default value if it doesn't exist.
@@ -106,6 +108,7 @@ export const fetchReducer: Reducer = (state, action) => {
         numStations: `${defaultNumStations}`,
         numberOfDays: `${wcif.schedule.numberOfDays}`,
         events,
+        dualRounds: getDualRoundsFromWcif(wcif.events),
         schedule: reorderFromWcif({
           schedule: getDefaultSchedule(
             events,

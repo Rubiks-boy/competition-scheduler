@@ -1,6 +1,7 @@
 import { useSelector } from "../../app/hooks";
 import {
   eventsSelector,
+  dualRoundsSelector,
   wcifSelector,
   wcifEventsSelector,
   accessTokenSelector,
@@ -21,6 +22,7 @@ import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
 export const useSaveToWcif = () => {
   const competitorLimit = useSelector(competitorLimitSelector);
   const events = useSelector(eventsSelector);
+  const dualRounds = useSelector(dualRoundsSelector);
   const schedule = useSelector(scheduleSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
   const startTimes = useSelector(startTimesSelector);
@@ -47,7 +49,7 @@ export const useSaveToWcif = () => {
       };
     }
 
-    const newWcifEvents = createWcifEvents(events, originalWcifEvents);
+    const newWcifEvents = createWcifEvents(events, originalWcifEvents, dualRounds);
     const newWcifSchedule = createWcifSchedule({
       schedule,
       startTimes,

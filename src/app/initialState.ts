@@ -17,6 +17,7 @@ export const initialState: State = {
   isShowingDefaultInfo: true,
   hasReorderedEvents: false,
   events: makeDefaultEvents(),
+  dualRounds: {},
   schedule: [],
   otherActivities: {
     registration: "30",

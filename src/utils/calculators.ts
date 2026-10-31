@@ -7,6 +7,7 @@ import {
 } from "../constants";
 import {
   EventId,
+  DualRounds,
   Events,
   OtherActivity,
   Round,
@@ -15,6 +16,7 @@ import {
   SimulGroup,
   WithTime,
 } from "../types";
+import { getRoundLabel } from "./dualRounds";
 import { getScheduledTimeMs } from "./utils";
 
 export const compPerStationsRatio = ({
@@ -97,17 +99,17 @@ export const getEventName = (eventId: EventId | OtherActivity) =>
 export const getRoundNumStr = (
   eventId: EventId,
   roundNum: number,
-  schedule: Schedule
-) => {
-  const isFinalRound =
-    schedule.filter(
-      (scheduleEntry) =>
-        scheduleEntry.type === "event" && scheduleEntry.eventId === eventId
-    ).length ===
-    roundNum + 1;
-
-  return isFinalRound ? "Final" : `Round ${roundNum + 1}`;
-};
+  schedule: Schedule,
+  dualRounds: DualRounds = {},
+  events?: Events
+) => getRoundLabel(
+  eventId,
+  roundNum,
+  events?.[eventId]?.length ?? new Set(schedule.flatMap(entry =>
+    entry.type === "event" && entry.eventId === eventId ? [entry.roundNum] : []
+  )).size,
+  dualRounds
+);
 
 export const calcScheduleTimes = (
   startTimes: Array<Date>,

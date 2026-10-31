@@ -21,6 +21,7 @@ export const manageCompReducer: Reducer = (state, action) => {
         selectedCompId: newId,
         isExported: false,
         importSource: null,
+        dualRounds: {},
       };
 
     case "COMPETITOR_LIMIT_CHANGED":

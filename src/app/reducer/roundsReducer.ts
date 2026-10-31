@@ -22,10 +22,50 @@ import {
   removeGroup,
 } from "../helpers";
 import type { Reducer } from "../types";
+import { getDualRoundsFromWcif, hasDualRounds } from "../../utils/dualRounds";
 import { calcNumCompetitorsPerRound } from "../../utils/utils";
 
 export const roundsReducer: Reducer = (state, action) => {
   switch (action.type) {
+    case "DUAL_ROUNDS_UPDATED": {
+      const rounds = state.events[action.eventId];
+      if (!rounds || rounds.length < 2) {
+        return state;
+      }
+      const updatedRounds = [...rounds];
+      const wasEnabled = !!state.dualRounds[action.eventId]?.enabled;
+      const secondRound = rounds[1];
+      if (secondRound.type === "aggregate" && wasEnabled !== action.enabled) {
+        const pool = calcNumCompetitorsPerRound(rounds, state.events, wasEnabled)[0];
+        const numGroups = calcNumGroups({
+          eventId: action.eventId,
+          numCompetitors: pool,
+          numStations: numStationsSelector(state),
+        });
+        updatedRounds[1] = {
+          ...secondRound,
+          totalNumCompetitors: action.enabled ? "100%" : `${pool}`,
+          ...(action.enabled && {
+            numGroups: `${numGroups}`,
+            scheduledTime: `${calcTimeForRound(action.eventId, numGroups, true, state.speedSlider)}`,
+          }),
+        };
+      }
+      return {
+        ...state,
+        events: { ...state.events, [action.eventId]: updatedRounds },
+        dualRounds: {
+          ...state.dualRounds,
+          [action.eventId]: {
+            enabled: action.enabled,
+            sharedCumulativeTimeLimit: action.sharedCumulativeTimeLimit,
+          },
+        },
+        isShowingDefaultInfo: false,
+        isExported: false,
+      };
+    }
+
     case "ROUND_UPDATED":
       const oldRounds = state.events[action.eventId];
 
@@ -35,7 +75,10 @@ export const roundsReducer: Reducer = (state, action) => {
 
       const oldRound = oldRounds[action.roundNum];
 
-      if (oldRound.type === "groups") {
+      if (oldRound.type === "groups" || (
+        hasDualRounds(oldRounds, state.dualRounds[action.eventId]?.enabled) &&
+        action.roundNum === 1 && action.totalNumCompetitors != null
+      )) {
         return state;
       }
 
@@ -86,9 +129,26 @@ export const roundsReducer: Reducer = (state, action) => {
       return {
         ...state,
         isShowingDefaultInfo: false,
-        events: {
-          ...state.events,
-          [action.eventId]: withoutRemovedRound,
+        events: Object.fromEntries(Object.entries(state.events).map(([id, rounds]) => [
+          id,
+          (id === action.eventId ? withoutRemovedRound : rounds)?.map(round =>
+            round.type === "groups" ? {
+              ...round,
+              groups: round.groups.map(group => ({
+                ...group,
+                secondaryEvent: group.secondaryEvent?.eventId === action.eventId &&
+                  group.secondaryEvent.roundIndex === withoutRemovedRound.length
+                  ? undefined : group.secondaryEvent,
+              })),
+            } : round
+          ) ?? null,
+        ])) as Events,
+        dualRounds: {
+          ...state.dualRounds,
+          [action.eventId]: {
+            enabled: hasDualRounds(withoutRemovedRound, state.dualRounds[action.eventId]?.enabled),
+            sharedCumulativeTimeLimit: state.dualRounds[action.eventId]?.sharedCumulativeTimeLimit ?? false,
+          },
         },
         schedule: [
           ...state.schedule.filter(
@@ -154,6 +214,10 @@ export const roundsReducer: Reducer = (state, action) => {
         events: {
           ...state.events,
           [action.eventId]: null,
+        },
+        dualRounds: {
+          ...state.dualRounds,
+          [action.eventId]: { enabled: false, sharedCumulativeTimeLimit: false },
         },
         schedule: state.schedule.filter(
           (v) => v.type !== "event" || v.eventId !== action.eventId
@@ -225,6 +289,7 @@ export const roundsReducer: Reducer = (state, action) => {
       return {
         ...state,
         events: resetEvents,
+        dualRounds: getDualRoundsFromWcif(state.wcif.events),
         schedule: getDefaultSchedule(
           resetEvents,
           numberOfDaysSelector(state),
@@ -244,7 +309,8 @@ export const roundsReducer: Reducer = (state, action) => {
 
         const numCompetitorsPerRound = calcNumCompetitorsPerRound(
           rounds,
-          state.events
+          state.events,
+          state.dualRounds[eventId]?.enabled
         );
         // Reset only the first round's number of competitors with the expected
         // number of competitors.
@@ -255,7 +321,21 @@ export const roundsReducer: Reducer = (state, action) => {
           competitorLimitSelector(state)
         );
 
+        const dual = hasDualRounds(rounds, state.dualRounds[eventId]?.enabled);
+        if (dual) {
+          numCompetitorsPerRound[1] = numCompetitorsPerRound[0];
+        }
         const resetRounds = numCompetitorsPerRound.map((numCompetitors, i) => {
+          const oldRound = rounds[i];
+          const percentage = oldRound.type === "aggregate" &&
+            oldRound.totalNumCompetitors.endsWith("%") && i > 0;
+          if (percentage) {
+            const sourceIndex = dual && i === 2 ? 0 : i - 1;
+            numCompetitors = Math.floor(
+              numCompetitorsPerRound[sourceIndex] * parseInt(oldRound.totalNumCompetitors) / 100
+            );
+            numCompetitorsPerRound[i] = numCompetitors;
+          }
           const defaultNumGroups = calcNumGroups({
             eventId,
             numCompetitors,
@@ -270,7 +350,8 @@ export const roundsReducer: Reducer = (state, action) => {
           return {
             type: "aggregate" as const,
             eventId,
-            totalNumCompetitors: `${numCompetitors}`,
+            totalNumCompetitors: dual && i === 1 ? "100%" : percentage && oldRound.type === "aggregate"
+              ? oldRound.totalNumCompetitors : `${numCompetitors}`,
             numGroups: `${defaultNumGroups}`,
             scheduledTime: `${defaultScheduledTime}`,
           };

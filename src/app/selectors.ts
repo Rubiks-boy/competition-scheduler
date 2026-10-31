@@ -1,13 +1,13 @@
-import { getColorForStage, OTHER_ACTIVITES } from "../constants";
+import { getColorForStage, OTHER_ACTIVITES, SHORT_EVENT_NAMES, EVENT_NAMES } from "../constants";
 import { EventId, EVENT_IDS, OtherActivity, Round } from "../types";
 import { calcNumGroups, calcTimeForRound } from "../utils/calculators";
-import { deepEquals } from "../utils/utils";
+import { getRoundLabel } from "../utils/dualRounds";
+import { calcNumCompetitorsPerRound, deepEquals } from "../utils/utils";
 import {
   getDefaultEventsData,
   getDefaultSchedule,
   reorderFromWcif,
 } from "../utils/wcif";
-import { getRoundName } from "./helpers";
 import type { ShareableState, State } from "./types";
 
 export const accessTokenSelector = (state: State) => state.accessToken;
@@ -49,6 +49,7 @@ export const numberOfDaysSelector = (state: State) =>
 export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
+export const dualRoundsSelector = (state: State) => state.dualRounds;
 
 export const getRoundSelector =
   (state: State) =>
@@ -190,6 +191,7 @@ export const canAdvanceToNext = (state: State, activeStep: number) => {
 
 export const shareableAppStateSelector = (state: State): ShareableState => {
   const {
+    dualRounds,
     speedSlider,
     selectedCompId,
     numStations,
@@ -210,6 +212,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
   } = state;
 
   return {
+    dualRounds,
     speedSlider,
     selectedCompId,
     numStations,
@@ -500,9 +503,9 @@ export const getRoundNameSelector =
   }) => {
     const events = eventsSelector(state);
     const numRounds = events[eventId as EventId]?.length ?? 0;
-    const isFinal = roundIndex === numRounds - 1;
-
-    return getRoundName(eventId, roundIndex, isFinal, useShortName);
+    const label = getRoundLabel(eventId, roundIndex, numRounds, state.dualRounds, useShortName);
+    const event = useShortName ? SHORT_EVENT_NAMES[eventId] : EVENT_NAMES[eventId];
+    return `${event} ${label}`;
   };
 
 export const getGroupNameSelector =
@@ -587,57 +590,9 @@ export const getSimulGroupsForEventSelector =
 export const totalNumCompetitorsSelector =
   (state: State) =>
   ({ eventId, roundIndex }: { eventId: EventId; roundIndex: number }) => {
-    const getRound = getRoundSelector(state);
-    const mainRound = getRound({ eventId, roundNum: roundIndex });
-    const simulGroups = getSimulGroupsForEventSelector(state)({
-      eventId,
-      roundIndex,
-    });
-
-    if (!mainRound) {
-      return 0;
-    }
-
-    const numMainCompetitors =
-      mainRound.type === "aggregate"
-        ? parseInt(mainRound.totalNumCompetitors)
-        : mainRound.groups.reduce(
-            (s, g) => parseInt(g.numMainCompetitors) + s,
-            0
-          );
-
-    const simulRounds = simulGroups.map(({ eventId, roundIndex }) =>
-      getRound({ eventId, roundNum: roundIndex })
-    );
-
-    const getNumCompetitorsInRound = (round: Round) => {
-      if (round.type !== "groups") {
-        return 0;
-      }
-
-      const secondaryEvents = round.groups
-        .map(({ secondaryEvent }) => secondaryEvent)
-        .filter(
-          (secondaryEvent) =>
-            secondaryEvent &&
-            secondaryEvent.eventId === eventId &&
-            secondaryEvent.roundIndex === roundIndex
-        );
-
-      const numCompetitors = secondaryEvents.reduce(
-        (s, secondaryEvent) =>
-          parseInt(secondaryEvent?.numCompetitors ?? "0") + s,
-        0
-      );
-
-      return numCompetitors;
-    };
-
-    const numInSimulGroups = simulRounds
-      .map((round) => (round ? getNumCompetitorsInRound(round) : 0))
-      .reduce((s, num) => num + s, 0);
-
-    return numMainCompetitors + numInSimulGroups;
+    return calcNumCompetitorsPerRound(
+      state.events[eventId] ?? [], state.events, state.dualRounds[eventId]?.enabled
+    )[roundIndex] ?? 0;
   };
 
 export const getNumGroupsSelector =
@@ -726,23 +681,13 @@ export const numCompetitorsInRoundSelector =
     eventId: EventId | OtherActivity;
     roundNum?: number;
   }): number => {
-    const round = getRoundSelector(state)({ eventId, roundNum });
-    if (round?.type !== "aggregate") {
+    if (roundNum == null || !(eventId in state.events)) {
       return 0;
     }
-
-    const { totalNumCompetitors } = round;
-
-    if (totalNumCompetitors.endsWith("%") && roundNum && roundNum >= 1) {
-      const prevRoundCompetitors = numCompetitorsInRoundSelector(state)({
-        eventId,
-        roundNum: roundNum - 1,
-      });
-      const perc = parseInt(totalNumCompetitors);
-      return Math.floor((perc * prevRoundCompetitors) / 100);
-    } else {
-      return parseInt(totalNumCompetitors);
-    }
+    const rounds = state.events[eventId as EventId] ?? [];
+    return calcNumCompetitorsPerRound(
+      rounds, state.events, state.dualRounds[eventId as EventId]?.enabled
+    )[roundNum] ?? 0;
   };
 
 export const speedSeletor = (state: State) => state.speedSlider;

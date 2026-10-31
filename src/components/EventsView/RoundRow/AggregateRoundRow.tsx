@@ -16,6 +16,7 @@ import {
   numCompetitorsInRoundSelector,
   competitorLimitSelector,
   speedSeletor,
+  dualRoundsSelector,
 } from "../../../app/selectors";
 import { Error } from "@mui/icons-material";
 import { NumberTextField } from "../../NumberTextField";
@@ -27,6 +28,7 @@ type Props = {
 
 export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
   const dispatch = useDispatch();
+  const isDualSecond = !!useSelector(dualRoundsSelector)[round.eventId]?.enabled && roundIndex === 1;
 
   const speedOffset = useSelector(speedSeletor);
   const { eventId, totalNumCompetitors, numGroups, scheduledTime } = round;
@@ -92,7 +94,8 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
       </TableCell>
       <TableCell sx={{ borderBottom: 0, minWidth: "8em", width: "20%" }}>
         <NumCompetitorsInput
-          numCompetitors={totalNumCompetitors}
+          numCompetitors={isDualSecond ? `${numCompetitorsInt}` : totalNumCompetitors}
+          disabled={isDualSecond}
           roundIndex={roundIndex}
           onChange={(value) => onUpdateRound("totalNumCompetitors", value)}
           numRegistered={numRegistered}

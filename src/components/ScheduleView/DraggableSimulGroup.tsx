@@ -3,7 +3,7 @@ import type { EventId, OtherActivity, ScheduleWithTimes } from "../../types";
 import { IconButton, ListItem } from "@mui/material";
 import { Draggable } from "react-beautiful-dnd";
 import { useSelector } from "../../app/hooks";
-import { groupIndexSelector } from "../../app/selectors";
+import { dualRoundsSelector, eventsSelector, groupIndexSelector } from "../../app/selectors";
 import { Clear, ContentCopy } from "@mui/icons-material";
 
 export const DraggableSimulGroup = ({
@@ -35,6 +35,8 @@ export const DraggableSimulGroup = ({
   onDuplicateSimulGroup: () => void;
   onDeleteSimulGroup: () => void;
 }) => {
+  const dualRounds = useSelector(dualRoundsSelector);
+  const events = useSelector(eventsSelector);
   const groupIndex =
     useSelector((state) =>
       groupIndexSelector(state, {
@@ -65,7 +67,7 @@ export const DraggableSimulGroup = ({
             {...provided.dragHandleProps}
           >
             {getEventName(eventId)}{" "}
-            {getRoundNumStr(eventId, roundIndex, scheduleWithTimes)}{" "}
+            {getRoundNumStr(eventId, roundIndex, scheduleWithTimes, dualRounds, events)}{" "}
             {groupString}
             <div>
               {canDuplicateSimulGroups && (
