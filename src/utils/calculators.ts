@@ -4,9 +4,11 @@ import {
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
   DEFAULT_TIME_PER_GROUP,
+  RUNNING_JUDGES_TIME_PER_GROUP,
 } from "../constants";
 import {
   EventId,
+  CompetitionStyle,
   DualRounds,
   Events,
   OtherActivity,
@@ -39,15 +41,19 @@ export const calcTimeForRound = (
   eventId: EventId,
   numGroups: number | null,
   shouldRound: boolean = true,
-  speedOffset: number
+  speedOffset: number,
+  competitionStyle: CompetitionStyle = "standard"
 ) => {
-  const offset =
-    (DEFAULT_TIME_PER_GROUP[333] + speedOffset) / DEFAULT_TIME_PER_GROUP[333];
-  const timePerGroup = DEFAULT_TIME_PER_GROUP[eventId] * offset;
+  const groupTimes = competitionStyle === "runningJudges"
+    ? RUNNING_JUDGES_TIME_PER_GROUP : DEFAULT_TIME_PER_GROUP;
+  const offset = (groupTimes[333] + speedOffset) / groupTimes[333];
+  const timePerGroup = groupTimes[eventId] * offset;
   const calculatedTime = timePerGroup * (numGroups || 0);
 
-  // round up to the nearest 5 mins
-  return shouldRound ? Math.ceil(calculatedTime / 5) * 5 : calculatedTime;
+  const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
+  return shouldRound
+    ? Math.ceil(calculatedTime / roundingMinutes) * roundingMinutes
+    : calculatedTime;
 };
 
 export const calcExpectedNumCompetitors = (
@@ -59,11 +65,16 @@ export const calcNumGroups = ({
   eventId,
   numCompetitors,
   numStations,
+  competitionStyle = "standard",
 }: {
   eventId: EventId;
   numCompetitors: number;
   numStations: number;
+  competitionStyle?: CompetitionStyle;
 }) => {
+  if (competitionStyle === "runningJudges") {
+    return numStations > 0 ? Math.ceil(numCompetitors / numStations) : 0;
+  }
   const ratio = IDEAL_COMPETITORS_PER_STATION[eventId];
 
   const idealCompetitorsPerGroup = ratio * numStations;
@@ -176,7 +187,7 @@ export const calcSimulGroupsWithTimes = (
 
     let currStartTimeMs = scheduleEntry.startTime.getTime();
     round.groups.forEach((g) => {
-      const scheduledTimeMs = parseInt(g.scheduledTime) * 1000 * 60;
+      const scheduledTimeMs = parseFloat(g.scheduledTime) * 1000 * 60;
       if (
         g.secondaryEvent &&
         g.secondaryEvent.eventId === eventId &&

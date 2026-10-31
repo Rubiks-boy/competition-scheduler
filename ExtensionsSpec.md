@@ -1,5 +1,24 @@
 # WCIF Extensions Spec
 
+## Competition
+
+Stored in the competition's top-level `extensions` array:
+
+```
+{
+    id: "competitionScheduler.CompetitionConfig",
+    specUrl: "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md",
+    data: {
+        style: "standard" | "runningJudges",
+    }
+}
+```
+
+Missing or unrecognized styles default to `standard`. Running judges defaults to
+20% of the competitor limit in stations, rounded up, and enough groups to keep the
+competitors-per-station ratio at or below 1.0. Its group durations use a separate
+timing table, with half-minute precision.
+
 ## Rounds
 
 ```

@@ -1,6 +1,7 @@
 import { useSelector } from "../../app/hooks";
 import {
   eventsSelector,
+  competitionStyleSelector,
   dualRoundsSelector,
   wcifSelector,
   wcifEventsSelector,
@@ -16,12 +17,14 @@ import {
   stagesInUseSelector,
   numberOfDaysSelector,
 } from "../../app/selectors";
+import { createCompetitionExtensions } from "../../utils/competitionStyle";
 import { saveWcifChanges } from "../../utils/wcaApi";
 import { createWcifEvents, createWcifSchedule } from "../../utils/wcif";
 
 export const useSaveToWcif = () => {
   const competitorLimit = useSelector(competitorLimitSelector);
   const events = useSelector(eventsSelector);
+  const competitionStyle = useSelector(competitionStyleSelector);
   const dualRounds = useSelector(dualRoundsSelector);
   const schedule = useSelector(scheduleSelector);
   const otherActivities = useSelector(otherActivitiesSelector);
@@ -61,11 +64,13 @@ export const useSaveToWcif = () => {
       stagesInUse,
       numStations,
       numberOfDays,
+      competitionStyle,
     });
 
     const newWcif = {
       ...originalWcif,
       competitorLimit: competitorLimit,
+      extensions: createCompetitionExtensions(originalWcif.extensions, competitionStyle),
       events: newWcifEvents,
       schedule: newWcifSchedule,
     };

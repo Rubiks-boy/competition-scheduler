@@ -84,10 +84,10 @@ export const getNumCompetitorsValue = (round: Round) => {
 
 export const getScheduledTimeMs = (round: Round) => {
   if (round.type === "aggregate") {
-    return parseInt(round.scheduledTime) * 60 * 1000;
+    return parseFloat(round.scheduledTime) * 60 * 1000;
   } else {
     return (
-      round.groups.reduce((s, g) => s + parseInt(g.scheduledTime), 0) *
+      round.groups.reduce((s, g) => s + parseFloat(g.scheduledTime), 0) *
       60 *
       1000
     );

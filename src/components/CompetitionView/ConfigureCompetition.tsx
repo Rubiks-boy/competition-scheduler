@@ -1,13 +1,15 @@
 import { Info, CheckCircle, Error } from "@mui/icons-material";
-import { Grid, InputAdornment, Tooltip } from "@mui/material";
+import { Grid, InputAdornment, MenuItem, TextField, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
 import {
   competitorLimitRawSelector,
+  competitionStyleSelector,
   numberOfDaysRawSelector,
   numStationsRawSelector,
   startTimesSelector,
   numCompetitorsRegisteredSelector,
 } from "../../app/selectors";
+import type { CompetitionStyle } from "../../types";
 import { NumberTextField } from "../NumberTextField";
 import { TimePicker } from "../TimePicker";
 import { NumStationsTooltip } from "./NumStationsTooltip";
@@ -15,6 +17,7 @@ import { TimingsSlider } from "./TimingsSlider";
 
 export const ConfigureCompetition = () => {
   const dispatch = useDispatch();
+  const competitionStyle = useSelector(competitionStyleSelector);
   const competitorLimit = useSelector(competitorLimitRawSelector);
   const numStations = useSelector(numStationsRawSelector);
   const numberOfDays = useSelector(numberOfDaysRawSelector);
@@ -91,20 +94,20 @@ export const ConfigureCompetition = () => {
           }}
         />
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
-        <NumberTextField
+      <Grid item xs={6} sm={4} md={3}>
+        <TextField
+          select
           fullWidth
-          label="Stations"
-          value={numStations}
-          onChange={onNumStationsChange}
-          InputProps={{
-            endAdornment: (
-              <NumStationsTooltip
-                competitorsPerStation={competitorsPerStation}
-              />
-            ),
-          }}
-        />
+          label="Style"
+          value={competitionStyle}
+          onChange={(event) => dispatch({
+            type: "COMPETITION_STYLE_CHANGED",
+            competitionStyle: event.target.value as CompetitionStyle,
+          })}
+        >
+          <MenuItem value="standard">Standard</MenuItem>
+          <MenuItem value="runningJudges">Running judges</MenuItem>
+        </TextField>
       </Grid>
       <Grid item xs={12} sm={4} md={3}>
         <TimePicker
@@ -130,6 +133,24 @@ export const ConfigureCompetition = () => {
           onChange={onNumberOfDaysChange}
           disabled
         />
+      </Grid>
+      <Grid container item xs={12}>
+        <Grid item xs={6} sm={4} md={2}>
+          <NumberTextField
+            fullWidth
+            label="Stations"
+            value={numStations}
+            onChange={onNumStationsChange}
+            InputProps={{
+              endAdornment: (
+                <NumStationsTooltip
+                  competitorsPerStation={competitorsPerStation}
+                  competitionStyle={competitionStyle}
+                />
+              ),
+            }}
+          />
+        </Grid>
       </Grid>
       <Grid item xs={12}>
         <TimingsSlider />

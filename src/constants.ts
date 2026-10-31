@@ -80,6 +80,28 @@ export const DEFAULT_TIME_PER_GROUP = {
   "333ft": 0,
 };
 
+export const RUNNING_JUDGES_TIME_PER_GROUP = {
+  ...DEFAULT_TIME_PER_GROUP,
+  "333": 14,
+  "222": 11,
+  "444": 20,
+  "555": 27.5,
+  "666": 30,
+  "777": 30,
+  "333bf": 25,
+  "333fm": 0,
+  "333oh": 15,
+  clock: 25,
+  pyram: 13,
+  minx: 30,
+  skewb: 13,
+  sq1: 18,
+  "444bf": 0,
+  "555bf": 0,
+  "333mbf": 0,
+  fto: 25,
+};
+
 export const HISTORICAL_PNW_REGISTRATION = {
   // Pulled from PNW registration data 9/22-9/23
   "333": 0.978,

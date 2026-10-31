@@ -6,6 +6,7 @@ import {
   compPerStationsRatio,
 } from "../../../utils/calculators";
 import { NumCompetitorsInput } from "./NumCompetitorsInput";
+import { GroupCapacityWarning } from "./tooltips";
 import { ScheduledTimeInput } from "./ScheduledTimeInput";
 import { Round } from "../../../types";
 import { useDispatch, useSelector } from "../../../app/hooks";
@@ -16,6 +17,7 @@ import {
   numCompetitorsInRoundSelector,
   competitorLimitSelector,
   speedSeletor,
+  competitionStyleSelector,
   dualRoundsSelector,
 } from "../../../app/selectors";
 import { Error } from "@mui/icons-material";
@@ -31,6 +33,7 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
   const isDualSecond = !!useSelector(dualRoundsSelector)[round.eventId]?.enabled && roundIndex === 1;
 
   const speedOffset = useSelector(speedSeletor);
+  const competitionStyle = useSelector(competitionStyleSelector);
   const { eventId, totalNumCompetitors, numGroups, scheduledTime } = round;
   const numCompetitorsInt = useSelector(numCompetitorsInRoundSelector)({
     eventId,
@@ -48,14 +51,15 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
     eventId,
     parseInt(numGroups),
     undefined,
-    speedOffset
+    speedOffset,
+    competitionStyle
   );
   const regDiffPercent = Math.abs(
     (numRegistered - numCompetitorsInt) / numRegistered
   );
 
   const [isEditingTime, setIsEditingTime] = useState(
-    calculatedTime !== parseInt(scheduledTime)
+    calculatedTime !== parseFloat(scheduledTime)
   );
 
   const ratio = compPerStationsRatio({
@@ -110,10 +114,16 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
           value={numGroups}
           onChange={(e) => onUpdateRound("numGroups", e.target.value)}
           InputProps={{
-            endAdornment: !parseInt(numGroups) && (
+            endAdornment: !parseInt(numGroups) ? (
               <InputAdornment position="end">
                 <Error color="error" fontSize="small" />
               </InputAdornment>
+            ) : (
+              <GroupCapacityWarning
+                numCompetitors={numCompetitorsInt}
+                numGroups={parseInt(numGroups)}
+                numStations={numStations}
+              />
             ),
           }}
         />

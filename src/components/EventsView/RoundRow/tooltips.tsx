@@ -1,19 +1,23 @@
+import { useSelector } from "../../../app/hooks";
+import { competitionStyleSelector } from "../../../app/selectors";
 import { InputAdornment, Tooltip } from "@mui/material";
 import { Info, CheckCircle, Warning, Error } from "@mui/icons-material";
 
 export const TimeDiffTooltip = ({
   scheduledTime,
   calculatedTime,
+  roundingMinutes = 5,
 }: {
   scheduledTime: number;
   calculatedTime: number;
+  roundingMinutes?: number;
 }) => {
   const timeDiff = Math.abs(calculatedTime - scheduledTime);
 
-  if (scheduledTime % 5) {
+  if (scheduledTime % roundingMinutes) {
     return (
       <InputAdornment position="end">
-        <Tooltip title="Must be in increments of 5 minutes">
+        <Tooltip title={`Must be in increments of ${roundingMinutes} minutes`}>
           <Error color="error" fontSize="small" />
         </Tooltip>
       </InputAdornment>
@@ -103,5 +107,35 @@ export const SimulRatioTooltip = ({
     >
       <Info fontSize="small" />
     </Tooltip>
+  );
+};
+
+export const GroupCapacityWarning = ({
+  numCompetitors,
+  numGroups,
+  numStations,
+  hasOverfullGroup = false,
+}: {
+  numCompetitors: number;
+  numGroups: number;
+  numStations: number;
+  hasOverfullGroup?: boolean;
+}) => {
+  const competitionStyle = useSelector(competitionStyleSelector);
+  if (competitionStyle !== "runningJudges" || numStations <= 0 || (
+    !hasOverfullGroup && !(numCompetitors > numGroups * numStations)
+  )) {
+    return null;
+  }
+  const minimumGroups = Math.ceil(numCompetitors / numStations);
+  const message = hasOverfullGroup && numGroups >= minimumGroups
+    ? "Redistribute competitors between groups to ensure every competitor has a place to sit."
+    : `At least ${minimumGroups} groups are needed to ensure every competitor has a place to sit.`;
+  return (
+    <InputAdornment position="end">
+      <Tooltip title={message}>
+        <Warning color="warning" fontSize="small" aria-label="Group capacity exceeded" />
+      </Tooltip>
+    </InputAdornment>
   );
 };

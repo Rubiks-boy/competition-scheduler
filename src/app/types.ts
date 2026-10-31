@@ -9,6 +9,7 @@ import type {
   CustomStage,
   SecondaryEvent,
   DualRounds,
+  CompetitionStyle,
 } from "../types";
 
 // These properties existed prior to export functionality being initially implemented and can always be exported
@@ -27,6 +28,7 @@ export type AlwaysImportableAppState = {
 
 // These properties are included on new schedule exports
 export type ShareableState = AlwaysImportableAppState & {
+  competitionStyle: CompetitionStyle;
   dualRounds: DualRounds;
   speedSlider: number;
   startTimes: Array<Date>;
@@ -58,6 +60,10 @@ export type State = ShareableState & {
 };
 
 export type Action =
+  | {
+      type: "COMPETITION_STYLE_CHANGED";
+      competitionStyle: CompetitionStyle;
+    }
   | {
       type: "DUAL_ROUNDS_UPDATED";
       eventId: EventId;

@@ -1,11 +1,13 @@
 import React from "react";
 import { Box, Slider, Typography, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "../../app/hooks";
-import { speedSeletor } from "../../app/selectors";
+import { calcTimeForRound } from "../../utils/calculators";
+import { competitionStyleSelector, speedSeletor } from "../../app/selectors";
 import { Info } from "@mui/icons-material";
 
 export const TimingsSlider = () => {
   const dispatch = useDispatch();
+  const competitionStyle = useSelector(competitionStyleSelector);
   const speed = useSelector(speedSeletor);
 
   return (
@@ -34,7 +36,7 @@ export const TimingsSlider = () => {
         />
       </Box>
       <Typography variant="body2">
-        One group of 3x3 lasts {20 + speed} minutes.
+        One group of 3x3 lasts {calcTimeForRound("333", 1, false, speed, competitionStyle)} minutes.
       </Typography>
     </div>
   );

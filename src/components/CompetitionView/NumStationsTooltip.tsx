@@ -1,3 +1,4 @@
+import type { CompetitionStyle } from "../../types";
 import { Info, Warning } from "@mui/icons-material";
 import { InputAdornment, Tooltip } from "@mui/material";
 import {
@@ -7,9 +8,14 @@ import {
 
 export const NumStationsTooltip = ({
   competitorsPerStation,
+  competitionStyle = "standard",
 }: {
   competitorsPerStation: number;
+  competitionStyle?: CompetitionStyle;
 }) => {
+  if (competitionStyle === "runningJudges") {
+    return null;
+  }
   if (competitorsPerStation > MAX_LIMIT_STATIONS_RATIO) {
     return (
       <InputAdornment position="end">

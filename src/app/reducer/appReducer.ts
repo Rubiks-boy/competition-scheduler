@@ -33,6 +33,7 @@ export const appReducer: Reducer = (state, action) => {
         ),
 
         // From ShareableState
+        competitionStyle: appState.competitionStyle ?? "standard",
         speedSlider: appState.speedSlider ?? 0,
         competitorLimit: appState.competitorLimit ?? state.competitorLimit,
         customStages: appState.customStages ?? state.customStages,

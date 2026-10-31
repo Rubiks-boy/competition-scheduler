@@ -34,6 +34,8 @@ export type ManageableCompetition = {
   country_iso2: string;
 };
 
+export type CompetitionStyle = "standard" | "runningJudges";
+
 export type Events = {
   [E in EventId]: Array<Round> | null;
 };

@@ -1,4 +1,6 @@
 import { IconButton, Tooltip, Typography } from "@mui/material";
+import { useSelector } from "../../../app/hooks";
+import { competitionStyleSelector } from "../../../app/selectors";
 import { Edit } from "@mui/icons-material";
 import { TimeDiffTooltip } from "./tooltips";
 import { NumberTextField } from "../../NumberTextField";
@@ -16,18 +18,21 @@ export const ScheduledTimeInput = ({
   onChange: (value: string) => void;
   setEditingTime: () => void;
 }) => {
+  const competitionStyle = useSelector(competitionStyleSelector);
+  const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
   return isEditingTime ? (
     <NumberTextField
       hiddenLabel
       size="small"
       value={scheduledTime}
       onChange={(e) => onChange(e.target.value)}
-      inputProps={{ step: "5" }}
+      inputProps={{ step: roundingMinutes }}
       InputProps={{
         endAdornment: scheduledTime && (
           <TimeDiffTooltip
             calculatedTime={calculatedTime}
-            scheduledTime={parseInt(scheduledTime)}
+            roundingMinutes={roundingMinutes}
+            scheduledTime={parseFloat(scheduledTime)}
           />
         ),
       }}

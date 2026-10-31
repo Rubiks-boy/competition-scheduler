@@ -41,13 +41,14 @@ export const roundsReducer: Reducer = (state, action) => {
           eventId: action.eventId,
           numCompetitors: pool,
           numStations: numStationsSelector(state),
+          competitionStyle: state.competitionStyle,
         });
         updatedRounds[1] = {
           ...secondRound,
           totalNumCompetitors: action.enabled ? "100%" : `${pool}`,
           ...(action.enabled && {
             numGroups: `${numGroups}`,
-            scheduledTime: `${calcTimeForRound(action.eventId, numGroups, true, state.speedSlider)}`,
+            scheduledTime: `${calcTimeForRound(action.eventId, numGroups, true, state.speedSlider, state.competitionStyle)}`,
           }),
         };
       }
@@ -99,7 +100,8 @@ export const roundsReducer: Reducer = (state, action) => {
           action.eventId,
           parseInt(updatedRound.numGroups || "0"),
           true,
-          state.speedSlider
+          state.speedSlider,
+          state.competitionStyle
         ).toString();
       }
 
@@ -171,6 +173,7 @@ export const roundsReducer: Reducer = (state, action) => {
           eventId,
           numCompetitors,
           numStations: parseInt(state.numStations || "0"),
+          competitionStyle: state.competitionStyle,
         });
 
         const newRound: Round = {
@@ -182,7 +185,8 @@ export const roundsReducer: Reducer = (state, action) => {
             eventId,
             numGroups,
             true,
-            state.speedSlider
+            state.speedSlider,
+            state.competitionStyle
           ).toString(),
         };
 
@@ -239,6 +243,7 @@ export const roundsReducer: Reducer = (state, action) => {
         eventId: action.eventId,
         numCompetitors,
         numStations: parseInt(state.numStations || "0"),
+        competitionStyle: state.competitionStyle,
       });
 
       const roundToAdd: Round = {
@@ -250,7 +255,8 @@ export const roundsReducer: Reducer = (state, action) => {
           action.eventId,
           numGroups,
           true,
-          state.speedSlider
+          state.speedSlider,
+          state.competitionStyle
         ).toString(),
       };
 
@@ -284,6 +290,7 @@ export const roundsReducer: Reducer = (state, action) => {
         numStations: numStationsSelector(state),
         competitorLimit: competitorLimitSelector(state),
         speedOffset: state.speedSlider,
+        competitionStyle: state.competitionStyle,
       });
 
       return {
@@ -340,12 +347,14 @@ export const roundsReducer: Reducer = (state, action) => {
             eventId,
             numCompetitors,
             numStations: numStationsSelector(state),
+            competitionStyle: state.competitionStyle,
           });
           const defaultScheduledTime = calcTimeForRound(
             eventId,
             defaultNumGroups,
             true,
-            state.speedSlider
+            state.speedSlider,
+            state.competitionStyle
           );
           return {
             type: "aggregate" as const,

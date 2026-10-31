@@ -1,3 +1,4 @@
+import { getCompetitionStyle } from "../../utils/competitionStyle";
 import { getDualRoundsFromWcif } from "../../utils/dualRounds";
 import { range } from "../../utils/utils";
 import {
@@ -43,16 +44,18 @@ export const fetchReducer: Reducer = (state, action) => {
       return { ...state, wcifPending: true };
     case "FETCH_WCIF_SUCCESS":
       const { wcif } = action;
+      const competitionStyle = getCompetitionStyle(wcif);
       const defaultCompetitorLimit = wcif.competitorLimit || 120;
       const defaultNumStations =
         getNumStationsFromWcif(wcif) ||
-        getDefaultNumStations(defaultCompetitorLimit);
+        getDefaultNumStations(defaultCompetitorLimit, competitionStyle);
       const defaultNumOtherActivities = getNumberOfActivities(wcif.schedule);
       const events = getDefaultEventsData({
         wcif,
         numStations: defaultNumStations,
         competitorLimit: defaultCompetitorLimit,
         speedOffset: state.speedSlider,
+        competitionStyle,
       });
 
       const startTimes = getWcifStartTimes(wcif);
@@ -103,6 +106,7 @@ export const fetchReducer: Reducer = (state, action) => {
         hasReorderedEvents: wcif.schedule.venues.length > 0,
         wcifPending: false,
         wcif,
+        competitionStyle,
         competitorLimit: `${defaultCompetitorLimit}`,
         isNumStationsTouched: false,
         numStations: `${defaultNumStations}`,

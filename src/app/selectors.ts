@@ -49,6 +49,7 @@ export const numberOfDaysSelector = (state: State) =>
 export const startTimesSelector = (state: State) => state.startTimes;
 
 export const eventsSelector = (state: State) => state.events;
+export const competitionStyleSelector = (state: State) => state.competitionStyle;
 export const dualRoundsSelector = (state: State) => state.dualRounds;
 
 export const getRoundSelector =
@@ -191,6 +192,7 @@ export const canAdvanceToNext = (state: State, activeStep: number) => {
 
 export const shareableAppStateSelector = (state: State): ShareableState => {
   const {
+    competitionStyle,
     dualRounds,
     speedSlider,
     selectedCompId,
@@ -212,6 +214,7 @@ export const shareableAppStateSelector = (state: State): ShareableState => {
   } = state;
 
   return {
+    competitionStyle,
     dualRounds,
     speedSlider,
     selectedCompId,
@@ -266,17 +269,18 @@ export const isUsingDefaultRoundsSelector = (state: State) => {
         eventId: eventId as EventId,
         numCompetitors: parseInt(numCompetitors),
         numStations,
+          competitionStyle: state.competitionStyle,
       });
       const defaultScheduledTime = calcTimeForRound(
         eventId as EventId,
         null,
         true,
-        defaultNumGroups
+        defaultNumGroups, state.competitionStyle
       );
 
       if (
         parseInt(numGroups) !== defaultNumGroups ||
-        parseInt(scheduledTime) !== defaultScheduledTime
+        parseFloat(scheduledTime) !== defaultScheduledTime
       ) {
         isDefault = false;
       }
@@ -303,6 +307,7 @@ export const isEventsSameAsWcifSelector = (state: State) => {
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
     speedOffset: state.speedSlider,
+    competitionStyle: state.competitionStyle,
   });
 
   const events = eventsSelector(state);
@@ -323,6 +328,7 @@ export const isNumRoundsPerEventSameAsWcifSelector = (state: State) => {
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
     speedOffset: state.speedSlider,
+    competitionStyle: state.competitionStyle,
   });
 
   const events = eventsSelector(state);
@@ -346,6 +352,7 @@ export const isScheduleSameAsWcifSelector = (state: State) => {
     numStations: numStationsSelector(state),
     competitorLimit: competitorLimitSelector(state),
     speedOffset: state.speedSlider,
+    competitionStyle: state.competitionStyle,
   });
 
   const startTimes = startTimesSelector(state);
@@ -634,8 +641,8 @@ export const getScheduledTimeSelector =
 
     const mainScheduledTime =
       mainRound.type === "aggregate"
-        ? parseInt(mainRound.scheduledTime)
-        : mainRound.groups.reduce((s, g) => parseInt(g.scheduledTime) + s, 0);
+        ? parseFloat(mainRound.scheduledTime)
+        : mainRound.groups.reduce((s, g) => parseFloat(g.scheduledTime) + s, 0);
 
     const simulRounds = simulGroups.map(({ eventId, roundIndex }) =>
       getRound({ eventId, roundNum: roundIndex })
@@ -654,7 +661,7 @@ export const getScheduledTimeSelector =
       );
 
       const scheduledTime = matchingSimulGroups.reduce(
-        (s, { scheduledTime }) => parseInt(scheduledTime) + s,
+        (s, { scheduledTime }) => parseFloat(scheduledTime) + s,
         0
       );
 

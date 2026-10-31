@@ -22,6 +22,7 @@ import {
 } from "../constants";
 import {
   CustomStage,
+  CompetitionStyle,
   DualRoundConfig,
   DualRounds,
   DayDivider,
@@ -45,6 +46,7 @@ import {
   SecondaryEvent,
   GroupExtension,
 } from "../types";
+import { getCompetitionStyle } from "./competitionStyle";
 import { getDualRoundsFromWcif, hasDualRounds } from "./dualRounds";
 import {
   calcExpectedNumCompetitors,
@@ -92,8 +94,10 @@ const wcifActivityToGroups = (
   numCompetitors: number,
   numGroups: number,
   secondaryActivities: Activity[],
-  overlappingChildActivities: Activity[]
+  overlappingChildActivities: Activity[],
+  competitionStyle: CompetitionStyle
 ): SimulGroup[] => {
+  const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
   const childActivities = wcifActivities
     .flatMap((act) => act.childActivities ?? [])
     .filter(
@@ -195,8 +199,7 @@ const wcifActivityToGroups = (
         return {
           activityCode: ca.activityCode,
           numMainCompetitors: numCompetitorsInGroup,
-          // Round to the nearest 5 minutes
-          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60 / 5) * 5}`,
+          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60 / roundingMinutes) * roundingMinutes}`,
           secondaryEvent,
           startTime,
         };
@@ -246,7 +249,8 @@ const wcifRoundsToEventRounds = (
   wcifSchedule: WcifSchedule,
   mainEventStartAndEndTimes: Record<string, { startTime: Date; endTime: Date }>,
   overlappingChildActivities: Array<Activity>,
-  speedOffset: number
+  speedOffset: number,
+  competitionStyle: CompetitionStyle
 ): { rounds: Array<Round>; numCompetitorsPerRound: Array<number> } => {
   const rounds: Array<Round> = [];
   const numCompetitorsPerRound: Array<number> = [];
@@ -311,13 +315,15 @@ const wcifRoundsToEventRounds = (
         eventId,
         numCompetitors,
         numStations,
+        competitionStyle,
       });
 
     const scheduledTime = calcTimeForRound(
       eventId,
       Math.max(numGroups - numSimulGroups, 0),
       true,
-      speedOffset
+      speedOffset,
+      competitionStyle
     );
 
     const wcifActivities = findMatchingWcifActivities({
@@ -355,7 +361,8 @@ const wcifRoundsToEventRounds = (
           numCompetitors,
           numGroups,
           secondaryActivities,
-          overlappingChildActivities
+          overlappingChildActivities,
+          competitionStyle
         ),
       };
     } else {
@@ -374,9 +381,9 @@ const wcifRoundsToEventRounds = (
           wcifStartEndTime.endTime.getTime() -
           wcifStartEndTime.startTime.getTime();
 
+        const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
         round.scheduledTime = `${
-          // Round to the nearest 5 minutes
-          Math.floor(wcifScheduledTime / 1000 / 60 / 5) * 5
+          Math.floor(wcifScheduledTime / 1000 / 60 / roundingMinutes) * roundingMinutes
         }`;
       }
     }
@@ -406,8 +413,12 @@ export const getNumStationsFromWcif = (wcif: Wcif): number | null => {
 };
 
 export const getDefaultNumStations = (
-  competitorLimit: number | null
+  competitorLimit: number | null,
+  competitionStyle: CompetitionStyle = "standard"
 ): number => {
+  if (competitionStyle === "runningJudges") {
+    return Math.max(1, Math.ceil((competitorLimit || 0) * 0.2));
+  }
   if (!competitorLimit) {
     return 8;
   }
@@ -492,11 +503,13 @@ export const getDefaultEventsData = ({
   numStations,
   competitorLimit,
   speedOffset,
+  competitionStyle = getCompetitionStyle(wcif),
 }: {
   wcif: Wcif;
   numStations: number;
   competitorLimit: number;
   speedOffset: number;
+  competitionStyle?: CompetitionStyle;
 }): Events => {
   const { events: wcifEvents } = wcif;
 
@@ -521,7 +534,8 @@ export const getDefaultEventsData = ({
       wcif.schedule,
       startAndEndTimes,
       overlappingChildActivities,
-      speedOffset
+      speedOffset,
+      competitionStyle
     );
 
     events[id] = result.rounds;
@@ -1024,6 +1038,7 @@ const createChildActivities = ({
   getNextId,
   numStages,
   stageIndex,
+  competitionStyle,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
   events: Events;
@@ -1031,6 +1046,7 @@ const createChildActivities = ({
   getNextId: () => number;
   numStages: number;
   stageIndex: number;
+  competitionStyle: CompetitionStyle;
 }) => {
   if (scheduleEntry.type !== "event") {
     return [];
@@ -1047,15 +1063,14 @@ const createChildActivities = ({
   if (round?.type === "groups") {
     numGroups = round.groups.length;
     timeMsByGroup = round.groups.map(
-      (r) => parseInt(r.scheduledTime) * 60 * 1000
+      (r) => parseFloat(r.scheduledTime) * 60 * 1000
     );
   } else {
     numGroups = parseInt(round?.numGroups ?? "1");
     timeMsByGroup = splitEvenlyWithRounding(
       scheduleEntry.scheduledTimeMs,
       numGroups,
-      // Round to nearest 5 min
-      1000 * 60 * 5
+      1000 * 60 * (competitionStyle === "runningJudges" ? 0.5 : 5)
     );
   }
 
@@ -1144,6 +1159,7 @@ const createWcifRoom = ({
   events,
   numStages,
   stageIndex,
+  competitionStyle,
 }: {
   scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
@@ -1152,6 +1168,7 @@ const createWcifRoom = ({
   events: Events;
   numStages: number;
   stageIndex: number;
+  competitionStyle: CompetitionStyle;
 }) => {
   const groupifierRoomConfig = {
     id: "groupifier.RoomConfig",
@@ -1205,6 +1222,7 @@ const createWcifRoom = ({
         getNextId,
         numStages,
         stageIndex,
+        competitionStyle,
       });
 
       const minStartTime = Math.min(
@@ -1261,6 +1279,7 @@ export const createWcifSchedule = ({
   stagesInUse,
   numStations,
   numberOfDays,
+  competitionStyle = "standard",
 }: {
   schedule: Schedule;
   startTimes: Array<Date>;
@@ -1272,6 +1291,7 @@ export const createWcifSchedule = ({
   stagesInUse: Array<CustomStage>;
   numStations: number;
   numberOfDays: number;
+  competitionStyle?: CompetitionStyle;
 }) => {
   if (originalWcifSchedule.venues.length > 1) {
     // TODO: better erroring
@@ -1336,6 +1356,7 @@ export const createWcifSchedule = ({
             events,
             numStages: venueRooms.length,
             stageIndex: idx,
+            competitionStyle,
           })
         ),
       },

@@ -18,6 +18,7 @@ export const initialState: State = {
   hasReorderedEvents: false,
   events: makeDefaultEvents(),
   dualRounds: {},
+  competitionStyle: "standard",
   schedule: [],
   otherActivities: {
     registration: "30",
