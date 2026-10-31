@@ -94,10 +94,8 @@ const wcifActivityToGroups = (
   numCompetitors: number,
   numGroups: number,
   secondaryActivities: Activity[],
-  overlappingChildActivities: Activity[],
-  competitionStyle: CompetitionStyle
+  overlappingChildActivities: Activity[]
 ): SimulGroup[] => {
-  const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
   const childActivities = wcifActivities
     .flatMap((act) => act.childActivities ?? [])
     .filter(
@@ -199,7 +197,7 @@ const wcifActivityToGroups = (
         return {
           activityCode: ca.activityCode,
           numMainCompetitors: numCompetitorsInGroup,
-          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60 / roundingMinutes) * roundingMinutes}`,
+          scheduledTime: `${Math.floor(wcifScheduledTime / 1000 / 60 / 5) * 5}`,
           secondaryEvent,
           startTime,
         };
@@ -361,8 +359,7 @@ const wcifRoundsToEventRounds = (
           numCompetitors,
           numGroups,
           secondaryActivities,
-          overlappingChildActivities,
-          competitionStyle
+          overlappingChildActivities
         ),
       };
     } else {
@@ -381,9 +378,8 @@ const wcifRoundsToEventRounds = (
           wcifStartEndTime.endTime.getTime() -
           wcifStartEndTime.startTime.getTime();
 
-        const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
         round.scheduledTime = `${
-          Math.floor(wcifScheduledTime / 1000 / 60 / roundingMinutes) * roundingMinutes
+          Math.floor(wcifScheduledTime / 1000 / 60 / 5) * 5
         }`;
       }
     }
@@ -1038,7 +1034,6 @@ const createChildActivities = ({
   getNextId,
   numStages,
   stageIndex,
-  competitionStyle,
 }: {
   scheduleEntry: WithTime<ScheduleEntry>;
   events: Events;
@@ -1046,7 +1041,6 @@ const createChildActivities = ({
   getNextId: () => number;
   numStages: number;
   stageIndex: number;
-  competitionStyle: CompetitionStyle;
 }) => {
   if (scheduleEntry.type !== "event") {
     return [];
@@ -1070,7 +1064,7 @@ const createChildActivities = ({
     timeMsByGroup = splitEvenlyWithRounding(
       scheduleEntry.scheduledTimeMs,
       numGroups,
-      1000 * 60 * (competitionStyle === "stationary" ? 0.5 : 5)
+      1000 * 60 * 5
     );
   }
 
@@ -1159,7 +1153,6 @@ const createWcifRoom = ({
   events,
   numStages,
   stageIndex,
-  competitionStyle,
 }: {
   scheduleWithTimes: ScheduleWithTimes;
   originalWcifRoom: WcifRoom;
@@ -1168,7 +1161,6 @@ const createWcifRoom = ({
   events: Events;
   numStages: number;
   stageIndex: number;
-  competitionStyle: CompetitionStyle;
 }) => {
   const groupifierRoomConfig = {
     id: "groupifier.RoomConfig",
@@ -1222,7 +1214,6 @@ const createWcifRoom = ({
         getNextId,
         numStages,
         stageIndex,
-        competitionStyle,
       });
 
       const minStartTime = Math.min(
@@ -1279,7 +1270,6 @@ export const createWcifSchedule = ({
   stagesInUse,
   numStations,
   numberOfDays,
-  competitionStyle = "standard",
 }: {
   schedule: Schedule;
   startTimes: Array<Date>;
@@ -1291,7 +1281,6 @@ export const createWcifSchedule = ({
   stagesInUse: Array<CustomStage>;
   numStations: number;
   numberOfDays: number;
-  competitionStyle?: CompetitionStyle;
 }) => {
   if (originalWcifSchedule.venues.length > 1) {
     // TODO: better erroring
@@ -1356,7 +1345,6 @@ export const createWcifSchedule = ({
             events,
             numStages: venueRooms.length,
             stageIndex: idx,
-            competitionStyle,
           })
         ),
       },

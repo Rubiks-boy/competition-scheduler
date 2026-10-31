@@ -50,10 +50,8 @@ export const calcTimeForRound = (
   const timePerGroup = groupTimes[eventId] * offset;
   const calculatedTime = timePerGroup * (numGroups || 0);
 
-  const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
-  return shouldRound
-    ? Math.ceil(calculatedTime / roundingMinutes) * roundingMinutes
-    : calculatedTime;
+  // Per-group estimates may be fractional; scheduled round totals use 5 minutes.
+  return shouldRound ? Math.ceil(calculatedTime / 5) * 5 : calculatedTime;
 };
 
 export const calcExpectedNumCompetitors = (

@@ -137,7 +137,7 @@ const allEventFieldsFilledInSelector = (state: State) => {
 };
 
 const areScheduledTimesValidSelector = (state: State) => {
-  // Check that all the durations of each round are increments of 5 min
+  // Scheduled durations use 5-minute increments for both competition styles.
   const scheduledRoundTimes = Object.values(state.events).flatMap((rounds) => {
     if (!rounds) {
       return [];
@@ -152,8 +152,14 @@ const areScheduledTimesValidSelector = (state: State) => {
     });
   });
   const scheduledOtherTimes = Object.values(state.otherActivities);
-  const scheduledTimes = scheduledRoundTimes.concat(scheduledOtherTimes);
-  return scheduledTimes.every((time) => parseInt(time) % 5 === 0);
+  const isValidDuration = (time: string) => {
+    const minutes = parseFloat(time);
+    return Number.isFinite(minutes) && minutes >= 0 && minutes % 5 === 0;
+  };
+  return (
+    scheduledRoundTimes.every(isValidDuration) &&
+    scheduledOtherTimes.every(isValidDuration)
+  );
 };
 
 export const isAddEventsPageValidSelector = (state: State) => {

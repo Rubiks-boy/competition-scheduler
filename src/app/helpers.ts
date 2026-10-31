@@ -1,15 +1,12 @@
 import { EVENT_NAMES, SHORT_EVENT_NAMES } from "../constants";
-import type { CompetitionStyle, EventId, Round, SecondaryEvent, SimulGroup } from "../types";
+import type { EventId, Round, SecondaryEvent, SimulGroup } from "../types";
 import { range, splitEvenlyWithRounding } from "../utils/utils";
 import { getRoundSelector } from "./selectors";
 import type { Action, State } from "./types";
 
 type StateModifier<T> = (state: State, action: Action & { type: T }) => State;
 
-const convertToGroupBased = (
-  prevRound: Round,
-  competitionStyle: CompetitionStyle
-): Round & { type: "groups" } => {
+const convertToGroupBased = (prevRound: Round): Round & { type: "groups" } => {
   if (prevRound.type === "groups") {
     return prevRound;
   }
@@ -23,7 +20,7 @@ const convertToGroupBased = (
   const timePerGroup = splitEvenlyWithRounding(
     parseFloat(prevRound.scheduledTime),
     numGroups,
-    competitionStyle === "stationary" ? 0.5 : 5
+    5
   );
   const groups: Array<SimulGroup> = range(numGroups).map((i) => ({
     numMainCompetitors: `${competitorsPerGroup[i]}`,
@@ -50,7 +47,7 @@ const addSimulGroup = (
   if (!prevRounds) {
     return state;
   }
-  const prevRound = convertToGroupBased(prevRounds[roundNum], state.competitionStyle);
+  const prevRound = convertToGroupBased(prevRounds[roundNum]);
 
   const groups = [...prevRound.groups];
   groups[groupNum] = {
@@ -71,8 +68,7 @@ const addSimulGroup = (
   const new2ndRounds = [...(prev2ndRounds ?? [])];
   if (prev2ndRounds) {
     const new2ndRound = convertToGroupBased(
-      prev2ndRounds[secondaryEvent.roundIndex],
-      state.competitionStyle
+      prev2ndRounds[secondaryEvent.roundIndex]
     );
     new2ndRounds[secondaryEvent.roundIndex] = new2ndRound;
   }
@@ -103,7 +99,7 @@ const modifyRoundInState = (
     return state;
   }
 
-  const newRound = modifyRound(convertToGroupBased(prevRound, state.competitionStyle));
+  const newRound = modifyRound(convertToGroupBased(prevRound));
 
   const newRounds = [...prevRounds];
   newRounds[action.roundIndex] = newRound;

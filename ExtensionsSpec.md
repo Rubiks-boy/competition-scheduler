@@ -18,7 +18,9 @@ Missing or unrecognized styles default to `standard`. Stationary defaults to
 20% of the competitor limit in stations, rounded up. Its default group count is
 `ceil(competitors / (stations + 1))`, allowing up to one extra competitor per group.
 An info icon marks this allowance; a warning marks groups exceeding it. Its group
-durations use a separate timing table, with half-minute precision.
+durations use a separate timing table. Per-group estimates may be fractional;
+calculated round durations round up to 5-minute increments for both styles.
+Changing style preserves existing scheduled round and group durations.
 
 ## Rounds
 

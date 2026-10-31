@@ -6,18 +6,16 @@ import { Info, CheckCircle, Warning, Error } from "@mui/icons-material";
 export const TimeDiffTooltip = ({
   scheduledTime,
   calculatedTime,
-  roundingMinutes = 5,
 }: {
   scheduledTime: number;
   calculatedTime: number;
-  roundingMinutes?: number;
 }) => {
   const timeDiff = Math.abs(calculatedTime - scheduledTime);
 
-  if (scheduledTime % roundingMinutes) {
+  if (scheduledTime % 5) {
     return (
       <InputAdornment position="end">
-        <Tooltip title={`Must be in increments of ${roundingMinutes} minutes`}>
+        <Tooltip title="Must be in increments of 5 minutes">
           <Error color="error" fontSize="small" />
         </Tooltip>
       </InputAdornment>

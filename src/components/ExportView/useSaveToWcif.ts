@@ -64,7 +64,6 @@ export const useSaveToWcif = () => {
       stagesInUse,
       numStations,
       numberOfDays,
-      competitionStyle,
     });
 
     const newWcif = {

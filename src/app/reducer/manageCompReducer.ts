@@ -1,5 +1,5 @@
 import { ONE_DAY_MS } from "../../constants";
-import { calcNumGroups, calcTimeForRound } from "../../utils/calculators";
+import { calcNumGroups } from "../../utils/calculators";
 import { calcNumCompetitorsPerRound, range } from "../../utils/utils";
 import {
   getDefaultEventsData,
@@ -40,7 +40,6 @@ export const manageCompReducer: Reducer = (state, action) => {
           return {
             ...round,
             numGroups: `${numGroups}`,
-            scheduledTime: `${calcTimeForRound(round.eventId, numGroups, true, 0, action.competitionStyle)}`,
           };
         }) ?? null];
       })) as Events;
