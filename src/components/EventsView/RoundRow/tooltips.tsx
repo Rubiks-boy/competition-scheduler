@@ -110,31 +110,47 @@ export const SimulRatioTooltip = ({
   );
 };
 
-export const GroupCapacityWarning = ({
+export const GroupCapacityIndicator = ({
   numCompetitors,
   numGroups,
   numStations,
-  hasOverfullGroup = false,
+  maxGroupCompetitors = 0,
 }: {
   numCompetitors: number;
   numGroups: number;
   numStations: number;
-  hasOverfullGroup?: boolean;
+  maxGroupCompetitors?: number;
 }) => {
   const competitionStyle = useSelector(competitionStyleSelector);
-  if (competitionStyle !== "runningJudges" || numStations <= 0 || (
-    !hasOverfullGroup && !(numCompetitors > numGroups * numStations)
-  )) {
+  if (
+    competitionStyle !== "stationary" ||
+    !Number.isFinite(numCompetitors) ||
+    numStations <= 0 || numGroups <= 0
+  ) {
     return null;
   }
+  const largestGroup = Math.max(
+    Math.ceil(numCompetitors / numGroups),
+    maxGroupCompetitors
+  );
+  if (largestGroup <= numStations) {
+    return null;
+  }
+  const withinAllowance = largestGroup <= numStations + 1;
   const minimumGroups = Math.ceil(numCompetitors / numStations);
-  const message = hasOverfullGroup && numGroups >= minimumGroups
-    ? "Redistribute competitors between groups to ensure every competitor has a place to sit."
-    : `At least ${minimumGroups} groups are needed to ensure every competitor has a place to sit.`;
+  const message = withinAllowance
+    ? "Up to one competitor per group will need to wait for a station."
+    : numGroups >= minimumGroups
+      ? "Redistribute competitors between groups to ensure every competitor has a place to sit."
+      : `At least ${minimumGroups} groups are needed to ensure every competitor has a place to sit.`;
   return (
     <InputAdornment position="end">
       <Tooltip title={message}>
-        <Warning color="warning" fontSize="small" aria-label="Group capacity exceeded" />
+        {withinAllowance ? (
+          <Info color="info" fontSize="small" aria-label="One extra competitor per group" />
+        ) : (
+          <Warning color="warning" fontSize="small" aria-label="Group capacity exceeded" />
+        )}
       </Tooltip>
     </InputAdornment>
   );

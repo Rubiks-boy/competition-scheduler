@@ -19,7 +19,7 @@ export const ScheduledTimeInput = ({
   setEditingTime: () => void;
 }) => {
   const competitionStyle = useSelector(competitionStyleSelector);
-  const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
+  const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
   return isEditingTime ? (
     <NumberTextField
       hiddenLabel

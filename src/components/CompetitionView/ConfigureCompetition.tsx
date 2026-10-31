@@ -105,8 +105,8 @@ export const ConfigureCompetition = () => {
             competitionStyle: event.target.value as CompetitionStyle,
           })}
         >
-          <MenuItem value="standard">Standard</MenuItem>
-          <MenuItem value="runningJudges">Running judges</MenuItem>
+          <MenuItem value="standard">Non-stationary</MenuItem>
+          <MenuItem value="stationary">Stationary</MenuItem>
         </TextField>
       </Grid>
       <Grid item xs={12} sm={4} md={3}>

@@ -8,7 +8,7 @@ export const getCompetitionStyle = (
 ): CompetitionStyle => {
   const extension = wcif.extensions.find(({ id }) => id === CONFIG_ID);
   const style = (extension?.data as { style?: unknown } | undefined)?.style;
-  return style === "runningJudges" ? "runningJudges" : "standard";
+  return style === "stationary" ? "stationary" : "standard";
 };
 
 export const createCompetitionExtensions = (

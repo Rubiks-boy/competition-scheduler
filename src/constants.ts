@@ -80,7 +80,7 @@ export const DEFAULT_TIME_PER_GROUP = {
   "333ft": 0,
 };
 
-export const RUNNING_JUDGES_TIME_PER_GROUP = {
+export const STATIONARY_TIME_PER_GROUP = {
   ...DEFAULT_TIME_PER_GROUP,
   "333": 14,
   "222": 11,

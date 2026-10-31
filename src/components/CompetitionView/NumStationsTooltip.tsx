@@ -13,7 +13,7 @@ export const NumStationsTooltip = ({
   competitorsPerStation: number;
   competitionStyle?: CompetitionStyle;
 }) => {
-  if (competitionStyle === "runningJudges") {
+  if (competitionStyle === "stationary") {
     return null;
   }
   if (competitorsPerStation > MAX_LIMIT_STATIONS_RATIO) {

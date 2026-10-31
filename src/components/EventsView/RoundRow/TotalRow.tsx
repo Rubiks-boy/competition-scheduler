@@ -11,7 +11,7 @@ import {
   numStationsSelector,
 } from "../../../app/selectors";
 import { calcExpectedNumCompetitors } from "../../../utils/calculators";
-import { GroupCapacityWarning, PredictedRegDiffTooltip, RegDiffTooltip } from "./tooltips";
+import { GroupCapacityIndicator, PredictedRegDiffTooltip, RegDiffTooltip } from "./tooltips";
 import { AddCircle, Clear } from "@mui/icons-material";
 
 export const TotalRow = ({
@@ -31,9 +31,9 @@ export const TotalRow = ({
   });
   const numGroups = useSelector(getNumGroupsSelector)({ eventId, roundIndex });
   const numStations = useSelector(numStationsSelector);
-  const hasOverfullGroup = round.groups.some(group =>
-    parseInt(group.numMainCompetitors) + parseInt(group.secondaryEvent?.numCompetitors ?? "0") > numStations
-  );
+  const maxGroupCompetitors = Math.max(0, ...round.groups.map(group =>
+    (parseInt(group.numMainCompetitors) || 0) + (parseInt(group.secondaryEvent?.numCompetitors ?? "0") || 0)
+  ));
   const scheduledTime = useSelector(getScheduledTimeSelector)({
     eventId,
     roundIndex,
@@ -114,11 +114,11 @@ export const TotalRow = ({
       >
         <Box sx={{ pr: "1em", display: "flex", alignItems: "center" }}>
           {numGroups}
-          <GroupCapacityWarning
+          <GroupCapacityIndicator
             numCompetitors={numCompetitors}
             numGroups={numGroups}
             numStations={numStations}
-            hasOverfullGroup={hasOverfullGroup}
+            maxGroupCompetitors={maxGroupCompetitors}
           />
         </Box>
         <IconButton size="small" onClick={onAddGroup}>

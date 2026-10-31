@@ -97,7 +97,7 @@ const wcifActivityToGroups = (
   overlappingChildActivities: Activity[],
   competitionStyle: CompetitionStyle
 ): SimulGroup[] => {
-  const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
+  const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
   const childActivities = wcifActivities
     .flatMap((act) => act.childActivities ?? [])
     .filter(
@@ -381,7 +381,7 @@ const wcifRoundsToEventRounds = (
           wcifStartEndTime.endTime.getTime() -
           wcifStartEndTime.startTime.getTime();
 
-        const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
+        const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
         round.scheduledTime = `${
           Math.floor(wcifScheduledTime / 1000 / 60 / roundingMinutes) * roundingMinutes
         }`;
@@ -416,7 +416,7 @@ export const getDefaultNumStations = (
   competitorLimit: number | null,
   competitionStyle: CompetitionStyle = "standard"
 ): number => {
-  if (competitionStyle === "runningJudges") {
+  if (competitionStyle === "stationary") {
     return Math.max(1, Math.ceil((competitorLimit || 0) * 0.2));
   }
   if (!competitorLimit) {
@@ -1070,7 +1070,7 @@ const createChildActivities = ({
     timeMsByGroup = splitEvenlyWithRounding(
       scheduleEntry.scheduledTimeMs,
       numGroups,
-      1000 * 60 * (competitionStyle === "runningJudges" ? 0.5 : 5)
+      1000 * 60 * (competitionStyle === "stationary" ? 0.5 : 5)
     );
   }
 

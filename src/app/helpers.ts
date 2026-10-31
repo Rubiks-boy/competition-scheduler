@@ -23,7 +23,7 @@ const convertToGroupBased = (
   const timePerGroup = splitEvenlyWithRounding(
     parseFloat(prevRound.scheduledTime),
     numGroups,
-    competitionStyle === "runningJudges" ? 0.5 : 5
+    competitionStyle === "stationary" ? 0.5 : 5
   );
   const groups: Array<SimulGroup> = range(numGroups).map((i) => ({
     numMainCompetitors: `${competitorsPerGroup[i]}`,

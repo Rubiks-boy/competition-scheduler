@@ -9,15 +9,16 @@ Stored in the competition's top-level `extensions` array:
     id: "competitionScheduler.CompetitionConfig",
     specUrl: "https://github.com/Rubiks-boy/competition-scheduler/blob/main/ExtensionsSpec.md",
     data: {
-        style: "standard" | "runningJudges",
+        style: "standard" | "stationary",
     }
 }
 ```
 
-Missing or unrecognized styles default to `standard`. Running judges defaults to
-20% of the competitor limit in stations, rounded up, and enough groups to keep the
-competitors-per-station ratio at or below 1.0. Its group durations use a separate
-timing table, with half-minute precision.
+Missing or unrecognized styles default to `standard`. Stationary defaults to
+20% of the competitor limit in stations, rounded up. Its default group count is
+`ceil(competitors / (stations + 1))`, allowing up to one extra competitor per group.
+An info icon marks this allowance; a warning marks groups exceeding it. Its group
+durations use a separate timing table, with half-minute precision.
 
 ## Rounds
 

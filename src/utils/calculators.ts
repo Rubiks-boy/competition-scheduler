@@ -4,7 +4,7 @@ import {
   HISTORICAL_PNW_REGISTRATION,
   IDEAL_COMPETITORS_PER_STATION,
   DEFAULT_TIME_PER_GROUP,
-  RUNNING_JUDGES_TIME_PER_GROUP,
+  STATIONARY_TIME_PER_GROUP,
 } from "../constants";
 import {
   EventId,
@@ -44,13 +44,13 @@ export const calcTimeForRound = (
   speedOffset: number,
   competitionStyle: CompetitionStyle = "standard"
 ) => {
-  const groupTimes = competitionStyle === "runningJudges"
-    ? RUNNING_JUDGES_TIME_PER_GROUP : DEFAULT_TIME_PER_GROUP;
+  const groupTimes = competitionStyle === "stationary"
+    ? STATIONARY_TIME_PER_GROUP : DEFAULT_TIME_PER_GROUP;
   const offset = (groupTimes[333] + speedOffset) / groupTimes[333];
   const timePerGroup = groupTimes[eventId] * offset;
   const calculatedTime = timePerGroup * (numGroups || 0);
 
-  const roundingMinutes = competitionStyle === "runningJudges" ? 0.5 : 5;
+  const roundingMinutes = competitionStyle === "stationary" ? 0.5 : 5;
   return shouldRound
     ? Math.ceil(calculatedTime / roundingMinutes) * roundingMinutes
     : calculatedTime;
@@ -72,8 +72,8 @@ export const calcNumGroups = ({
   numStations: number;
   competitionStyle?: CompetitionStyle;
 }) => {
-  if (competitionStyle === "runningJudges") {
-    return numStations > 0 ? Math.ceil(numCompetitors / numStations) : 0;
+  if (competitionStyle === "stationary") {
+    return numStations > 0 ? Math.ceil(numCompetitors / (numStations + 1)) : 0;
   }
   const ratio = IDEAL_COMPETITORS_PER_STATION[eventId];
 

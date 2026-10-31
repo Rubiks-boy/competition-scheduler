@@ -6,7 +6,7 @@ import {
   compPerStationsRatio,
 } from "../../../utils/calculators";
 import { NumCompetitorsInput } from "./NumCompetitorsInput";
-import { GroupCapacityWarning } from "./tooltips";
+import { GroupCapacityIndicator } from "./tooltips";
 import { ScheduledTimeInput } from "./ScheduledTimeInput";
 import { Round } from "../../../types";
 import { useDispatch, useSelector } from "../../../app/hooks";
@@ -119,7 +119,7 @@ export const AggregateRoundRow = ({ round, roundIndex }: Props) => {
                 <Error color="error" fontSize="small" />
               </InputAdornment>
             ) : (
-              <GroupCapacityWarning
+              <GroupCapacityIndicator
                 numCompetitors={numCompetitorsInt}
                 numGroups={parseInt(numGroups)}
                 numStations={numStations}
